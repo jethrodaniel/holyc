@@ -4,6 +4,11 @@
 //
 // - Terry Davis's mini compiler demo:
 //   https://github.com/cia-foundation/TempleOS/blob/archive/Demo/Lectures/MiniCompiler.HC
+//
+// - Michael Lazear's assembler:
+//   https://github.com/lazear/lass/blob/master/assembler.c#L53
+//
+// - Elf quine: https://medium.com/@MrJamesFisher/understanding-the-elf-4bd60daac571
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -72,8 +77,7 @@ int write_elf(int program_length) {
   memcpy(elf_output, e, sizeof(Elf64_Ehdr));
   memcpy(elf_output + sizeof(Elf64_Ehdr), p, sizeof(Elf64_Phdr));
 
-  // write(STDOUT_FILENO, &elf_output, elf_output +);
-  fwrite(elf_output, sizeof(char), elf_offset, stdout);
+  write(STDOUT_FILENO, elf_output, elf_offset);
 
   // int code_size
   // uint8_t *code = malloc(elf_offset);
