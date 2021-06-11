@@ -29,8 +29,9 @@ void die(char *msg) {
 
 int main(int, char **);
 
-int write_elf(int program_length)
-{
+// https://medium.com/@MrJamesFisher/understanding-the-elf-4bd60daac571
+//
+int write_elf(int program_length) {
   uint64_t elf_offset = 0;
   uint8_t *elf_output;
 
@@ -43,8 +44,8 @@ int write_elf(int program_length)
   e->e_ident[2]  = 'L';
   e->e_ident[3]  = 'F';
   e->e_type      = ET_EXEC;    // 2
-  e->e_machine   = EM_X86_64;  // 62
   e->e_version   = EV_CURRENT; // 1
+  e->e_machine   = EM_X86_64;  // 62
   e->e_entry     = (Elf64_Addr)main;
   e->e_phoff     = sizeof(Elf64_Ehdr);
   e->e_shoff     = 0;
@@ -80,10 +81,7 @@ int write_elf(int program_length)
   // fwrite(code, sizeof(char), current_position, fd);
 }
 
-
-
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
   uint8_t input[INPUT_SIZE];
   int num_read;
 
