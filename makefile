@@ -1,5 +1,4 @@
 default: clean holyc
-	echo hi | ./holyc
 test: force
 	./test
 force:
