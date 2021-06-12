@@ -44,23 +44,29 @@ int write_elf(int program_length) {
 
   elf_offset = sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr);
   Elf64_Ehdr *e = malloc(sizeof(Elf64_Ehdr));
-  e->e_ident[0]  = 0x7f; // magic
-  e->e_ident[1]  = 'E';
-  e->e_ident[2]  = 'L';
-  e->e_ident[3]  = 'F';
-  e->e_type      = ET_EXEC;    // 2
-  e->e_version   = EV_CURRENT; // 1
-  e->e_machine   = EM_X86_64;  // 62
-  e->e_entry     = (Elf64_Addr)main;
-  e->e_phoff     = sizeof(Elf64_Ehdr);
-  e->e_shoff     = 0;
-  e->e_flags     = 0;
-  e->e_ehsize    = sizeof(Elf64_Ehdr);
-  e->e_phentsize = sizeof(Elf64_Phdr);
-  e->e_phnum     = 1;
-  e->e_shentsize = 0;
-  e->e_shnum     = 0;
-  e->e_shstrndx  = 0;
+  e->e_ident[EI_MAG0]       = 0x7f; // magic
+  e->e_ident[EI_MAG1]       = 'E';
+  e->e_ident[EI_MAG2]       = 'L';
+  e->e_ident[EI_MAG3]       = 'F';
+  e->e_ident[EI_CLASS]      = ELFCLASS64;
+  e->e_ident[EI_DATA]       = ELFDATA2LSB;
+  e->e_ident[EI_VERSION]    = EV_CURRENT;
+  e->e_ident[EI_OSABI]      = ELFOSABI_SYSV;
+  e->e_ident[EI_ABIVERSION] = 0;
+  e->e_ident[EI_PAD]        = 0;
+  e->e_type                 = ET_EXEC;
+  e->e_machine              = EM_X86_64;
+  e->e_version              = EV_CURRENT;
+  e->e_entry                = (Elf64_Addr)main;
+  e->e_phoff                = sizeof(Elf64_Ehdr);
+  e->e_shoff                = 0;
+  e->e_flags                = 0;
+  e->e_ehsize               = sizeof(Elf64_Ehdr);
+  e->e_phentsize            = sizeof(Elf64_Phdr);
+  e->e_phnum                = 1;
+  e->e_shentsize            = 0;
+  e->e_shnum                = 0;
+  e->e_shstrndx             = 0;
 
   Elf64_Phdr *p = malloc(sizeof(Elf64_Phdr));
   p->p_type   = 1;
@@ -69,9 +75,9 @@ int write_elf(int program_length) {
   p->p_vaddr  = 0;
   p->p_paddr  = 0;
   p->p_filesz = program_length + elf_offset;
-  info("p_filesz: %ld bytes\n", p->p_filesz);
   p->p_memsz = p->p_filesz;
   p->p_align = 0x1000;
+  info("p_filesz: %ld bytes\n", p->p_filesz);
 
   elf_output = malloc(elf_offset);
   memcpy(elf_output, e, sizeof(Elf64_Ehdr));
@@ -99,6 +105,10 @@ int main(int argc, char **argv) {
   }
 
   write_elf(num_read);
+
+
+  // uint8_t *code = malloc(5);
+  // write(STDOUT_FILENO, &code, 1);
 
   return EXIT_SUCCESS;
 }
