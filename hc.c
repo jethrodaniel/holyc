@@ -57,7 +57,7 @@ int write_elf(int program_length) {
   e->e_type                 = ET_EXEC;
   e->e_machine              = EM_X86_64;
   e->e_version              = EV_CURRENT;
-  e->e_entry                = (Elf64_Addr)main;
+  e->e_entry                = 0x8048078; // (Elf64_Addr)main;
   e->e_phoff                = sizeof(Elf64_Ehdr);
   e->e_shoff                = 0;
   e->e_flags                = 0;
@@ -72,8 +72,8 @@ int write_elf(int program_length) {
   p->p_type   = 1;
   p->p_flags  = 5;
   p->p_offset = 0;
-  p->p_vaddr  = 0;
-  p->p_paddr  = 0;
+  p->p_vaddr  = 0x8048000;
+  p->p_paddr  = 0x8048000;
   p->p_filesz = program_length + elf_offset;
   p->p_memsz = p->p_filesz;
   p->p_align = 0x1000;
@@ -85,10 +85,11 @@ int write_elf(int program_length) {
 
   write(STDOUT_FILENO, elf_output, elf_offset);
 
-  // int code_size
-  // uint8_t *code = malloc(elf_offset);
-  // fwrite(code, sizeof(char), code_size, stdout);
-  // fwrite(code, sizeof(char), current_position, fd);
+  // _start() { _exit(42); }
+  //
+  uint8_t code[] = {0xb8, 0x3c, 0x00, 0x00, 0x00, 0xbf, 0x2a, 0x00, 0x00, 0x00, 0x0f, 0x05};
+
+  write(STDOUT_FILENO, &code, 12);
 }
 
 int main(int argc, char **argv) {
