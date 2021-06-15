@@ -34,6 +34,9 @@ void die(char *msg) {
 
 int main(int, char **);
 
+#define ELF_START 0x8048000 // linux
+#define ELF_SIZE  120       // bytes
+
 // https://medium.com/@MrJamesFisher/understanding-the-elf-4bd60daac571
 //
 int write_elf(int program_length) {
@@ -57,7 +60,7 @@ int write_elf(int program_length) {
   e->e_type                 = ET_EXEC;
   e->e_machine              = EM_X86_64;
   e->e_version              = EV_CURRENT;
-  e->e_entry                = 0x8048078; // (Elf64_Addr)main;
+  e->e_entry                = ELF_START + ELF_SIZE;
   e->e_phoff                = sizeof(Elf64_Ehdr);
   e->e_shoff                = 0;
   e->e_flags                = 0;
@@ -72,7 +75,7 @@ int write_elf(int program_length) {
   p->p_type   = 1;
   p->p_flags  = 5;
   p->p_offset = 0;
-  p->p_vaddr  = 0x8048000;
+  p->p_vaddr  = ELF_START;
   p->p_paddr  = 0x8048000;
   p->p_filesz = program_length + elf_offset;
   p->p_memsz = p->p_filesz;
@@ -84,32 +87,27 @@ int write_elf(int program_length) {
   memcpy(elf_output + sizeof(Elf64_Ehdr), p, sizeof(Elf64_Phdr));
 
   write(STDOUT_FILENO, elf_output, elf_offset);
-
-  // _start() { _exit(42); }
-  //
-  uint8_t code[] = {0xb8, 0x3c, 0x00, 0x00, 0x00, 0xbf, 0x2a, 0x00, 0x00, 0x00, 0x0f, 0x05};
-
-  write(STDOUT_FILENO, &code, 12);
 }
 
 int main(int argc, char **argv) {
   uint8_t input[INPUT_SIZE];
   int num_read;
 
-  while ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) > 0) {
-    info("read %d bytes\n", num_read);
-  }
-
-  if (num_read < 0) {
+  if ((num_read = read(STDIN_FILENO, &input, INPUT_SIZE)) < 0) {
     die("read");
     return errno;
   }
 
+  info("read %d bytes\n", num_read);
+
   write_elf(num_read);
 
+  // _start() { _exit(42); }
+  //
+  // uint8_t code[] = {0xb8, 0x3c, 0x00, 0x00, 0x00, 0xbf, 0x2a, 0x00, 0x00, 0x00, 0x0f, 0x05};
+  // write(STDOUT_FILENO, &code, 12);
 
-  // uint8_t *code = malloc(5);
-  // write(STDOUT_FILENO, &code, 1);
+  write(STDOUT_FILENO, &input, num_read);
 
   return EXIT_SUCCESS;
 }
