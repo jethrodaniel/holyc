@@ -30,6 +30,7 @@ void info(char *fmt, ...) {
 
 void die(char *msg) {
   perror(msg);
+  exit(errno);
 }
 
 int main(int, char **);
@@ -93,10 +94,8 @@ int main(int argc, char **argv) {
   uint8_t input[INPUT_SIZE];
   int num_read;
 
-  if ((num_read = read(STDIN_FILENO, &input, INPUT_SIZE)) < 0) {
+  if ((num_read = read(STDIN_FILENO, &input, INPUT_SIZE)) < 0)
     die("read");
-    return errno;
-  }
 
   info("read %d bytes\n", num_read);
 
