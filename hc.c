@@ -33,8 +33,6 @@ void die(char *msg) {
   exit(errno);
 }
 
-int main(int, char **);
-
 #define ELF_START 0x8048000 // linux
 #define ELF_SIZE  120       // bytes
 
