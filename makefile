@@ -1,6 +1,8 @@
 PROG = holyc
 
 default: clean $(PROG) run
+disasm: a.out
+	dd skip=120 bs=1 if=./$< 2> /dev/null | ndisasm -b64 -
 run: a.out
 	./$< ; echo $$?
 a.out: $(PROG)
