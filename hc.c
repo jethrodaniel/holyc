@@ -101,12 +101,7 @@ int main(int argc, char **argv) {
 
   write_elf(num_read);
 
-  // _start() { _exit(42); }
-  //
-  // uint8_t code[] = {0xb8, 0x3c, 0x00, 0x00, 0x00, 0xbf, 0x2a, 0x00, 0x00, 0x00, 0x0f, 0x05};
-  // write(STDOUT_FILENO, &code, 12);
-
-  write(STDOUT_FILENO, &input, num_read);
+  write(STDOUT_FILENO, &input, num_read - 1); // rm \n
 
   return EXIT_SUCCESS;
 }
