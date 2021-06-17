@@ -92,11 +92,6 @@ int main(int argc, char **argv) {
   return EXIT_SUCCESS;
 }
 
-//void die(char *msg) {
-//  perror(msg);
-//  exit(errno);
-//}
-
 // int write_elf(int program_length) {
 //   uint64_t elf_offset = 0;
 //   uint8_t *elf_output;
