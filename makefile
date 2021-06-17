@@ -13,4 +13,4 @@ force:
 clean:
 	rm -vf a.out $(PROG) *.o main
 $(PROG): hc.c
-	gcc $< -o $@
+	gcc -g -static -nostdlib -ffreestanding $< -o $(PROG)
