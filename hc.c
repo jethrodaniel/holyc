@@ -20,6 +20,9 @@
 // - r8
 // - r9
 
+#define STDIN_FILENO  0
+#define STDOUT_FILENO 1
+#define EXIT_SUCCESS 0
 
 void _start() {
   asm("call main");
@@ -41,24 +44,37 @@ int read(int fd, char *buf, int length) {
   asm("syscall");
 }
 
+void puts(char *str) {
+  int n = 0;
+  char *_str = str;
+  while(*_str++)
+    n++;
+
+  write(STDOUT_FILENO, str, n);
+}
+
+void die(char *str) {
+  char *err = "[error]: ",
+       *newline = "\n";
+
+  puts(err);
+  puts(str);
+  puts(newline);
+}
+
 #define INPUT_SIZE 4096
 
 #define ELF_START 0x8048000
 #define ELF_SIZE  120
 
-#define STDIN_FILENO  0
-#define STDOUT_FILENO 1
-#define EXIT_SUCCESS 0
-
 int main(int argc, char **argv) {
   char input[INPUT_SIZE];
   int num_read;
 
-  num_read = read(STDIN_FILENO, input, INPUT_SIZE);
-  write(1, input, 1);
+  if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
+    die("read");
 
-  // if ((num_read = read(STDIN_FILENO, &input, INPUT_SIZE)) < 0)
-  //   die("read");
+  write(STDOUT_FILENO, input, num_read);
 
   // info("read %d bytes\n", num_read);
   // info("main: %p\n", &_start);
