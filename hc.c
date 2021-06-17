@@ -36,6 +36,11 @@ int write(int fd, char *buf, int length) {
   asm("syscall");
 }
 
+int read(int fd, char *buf, int length) {
+  asm("movq $0, %rax");
+  asm("syscall");
+}
+
 #define INPUT_SIZE 4096
 
 #define ELF_START 0x8048000
@@ -49,8 +54,8 @@ int main(int argc, char **argv) {
   char input[INPUT_SIZE];
   int num_read;
 
-  // char c = 'z';
-  // write(1, &c, 1);
+  num_read = read(STDIN_FILENO, input, INPUT_SIZE);
+  write(1, input, 1);
 
   // if ((num_read = read(STDIN_FILENO, &input, INPUT_SIZE)) < 0)
   //   die("read");
