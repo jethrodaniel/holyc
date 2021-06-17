@@ -22,6 +22,7 @@
 
 #define STDIN_FILENO  0
 #define STDOUT_FILENO 1
+#define STDERR_FILENO 2
 #define EXIT_SUCCESS 0
 
 void _start() {
@@ -44,22 +45,28 @@ int read(int fd, char *buf, int length) {
   asm("syscall");
 }
 
-void puts(char *str) {
+int len(char *str) {
   int n = 0;
   char *_str = str;
   while(*_str++)
     n++;
+  return n;
+}
 
-  write(STDOUT_FILENO, str, n);
+void puts(char *str) {
+  write(STDOUT_FILENO, str, len(str));
+}
+
+void warn(char *str) {
+  write(STDERR_FILENO, str, len(str));
 }
 
 void die(char *str) {
   char *err = "[error]: ",
        *newline = "\n";
-
-  puts(err);
-  puts(str);
-  puts(newline);
+  warn(err);
+  warn(str);
+  warn(newline);
 }
 
 #define INPUT_SIZE 4096
@@ -80,7 +87,6 @@ int main(int argc, char **argv) {
   // info("main: %p\n", &_start);
 
   // write_elf(num_read);
-
   // write(STDOUT_FILENO, &input, num_read - 1); // rm \n
 
   return EXIT_SUCCESS;
