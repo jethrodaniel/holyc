@@ -45,7 +45,7 @@ int read(int fd, char *buf, int length) {
   asm("syscall");
 }
 
-int len(char *str) {
+int str_len(char *str) {
   int n = 0;
   char *_str = str;
   while(*_str++)
@@ -54,19 +54,17 @@ int len(char *str) {
 }
 
 void puts(char *str) {
-  write(STDOUT_FILENO, str, len(str));
+  write(STDOUT_FILENO, str, str_len(str));
 }
 
 void warn(char *str) {
-  write(STDERR_FILENO, str, len(str));
+  write(STDERR_FILENO, str, str_len(str));
 }
 
 void die(char *str) {
-  char *err = "[error]: ",
-       *newline = "\n";
-  warn(err);
+  warn("[error]: ");
   warn(str);
-  warn(newline);
+  warn("\n");
 }
 
 #define INPUT_SIZE 4096
