@@ -57,6 +57,10 @@ void puts(char *str) {
   write(STDOUT_FILENO, str, str_len(str));
 }
 
+void putc(char c) {
+  write(STDOUT_FILENO, &c, 1);
+}
+
 void warn(char *str) {
   write(STDERR_FILENO, str, str_len(str));
 }
@@ -80,6 +84,7 @@ int main(int argc, char **argv) {
     die("read");
 
   write(STDOUT_FILENO, input, num_read);
+  putc('z');putc('\n');
 
   // info("read %d bytes\n", num_read);
   // info("main: %p\n", &_start);
