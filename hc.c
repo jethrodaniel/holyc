@@ -45,16 +45,16 @@ int read(int fd, char *buf, int length) {
   asm("syscall");
 }
 
-int str_len(char *str) {
-  int n = 0;
-  char *_str = str;
-  while(*_str++)
-    n++;
-  return n;
+int strlen(char *str) {
+  int i = 0;
+  while(str[i])
+    i++;
+  return i;
 }
 
 void puts(char *str) {
-  write(STDOUT_FILENO, str, str_len(str));
+  write(STDOUT_FILENO, str, strlen(str));
+  write(STDOUT_FILENO, "\n", 1);
 }
 
 void putc(char c) {
@@ -62,13 +62,93 @@ void putc(char c) {
 }
 
 void warn(char *str) {
-  write(STDERR_FILENO, str, str_len(str));
+  write(STDERR_FILENO, str, strlen(str));
 }
 
 void die(char *str) {
   warn("[error]: ");
   warn(str);
   warn("\n");
+}
+
+int atoi(char *str) {
+  int n = 0,
+      i = 0,
+      sign = 1;
+
+  if (str[i] == '-') {
+    i++;
+    sign = -1;
+  }
+
+  for (; str[i] >= '0' && str[i] <= '9'; i++)
+    n = n * 10 + str[i] - '0';
+
+  return n * sign;
+}
+
+void reverse(char *str) {
+  char tmp;
+  int len = strlen(str);
+
+  for (int i = 0, j = len - 1; i < j; i++, j--) {
+    tmp = str[j];
+    str[j] = str[i];
+    str[i] = tmp;
+  }
+}
+
+void itoa(int n, char *str) {
+  int i = 0,
+      orig = n;
+
+  if (n < 0)
+    n *= -1;
+
+  do {
+    str[i++] = n % 10 + '0';
+  } while ((n /= 10) > 0);
+
+  if (orig < 0)
+    str[i++] = '-';
+
+  str[i] = '\0';
+  reverse(str);
+}
+
+char lower(char c) {
+  if (c >= 'A' && c <= 'Z')
+    return c + 'a' - 'A';
+  return c;
+}
+
+// https://blog.nelhage.com/2010/10/amd64-and-va_arg/
+void printf(char *fmt, ...) {
+  char *c = fmt;
+  puts("printf called with ");
+  // asm("mov %al, %rdi");
+  // puts(atoi("1234");
+
+  // while (*c) {
+  //   if (*c != '%') {
+  //     putc(*c++);
+  //     continue;
+  //   }
+
+  //   switch (*++c) { // eat '%'
+  //   case 's':
+  //     asm("push %rsi");
+  //     asm("push %rdi");
+  //     asm("mov %rsi, %rdi"); // pass arg2 as arg1
+  //     asm("call puts");
+  //     asm("pop %rdi")
+  //     asm("pop %rsi")
+  //     break;
+  //   default:
+  //     warn("unknown printf format ''");
+  //     putc(*c);
+  //   }
+  // }
 }
 
 #define INPUT_SIZE 4096
@@ -80,11 +160,29 @@ int main(int argc, char **argv) {
   char input[INPUT_SIZE];
   int num_read;
 
-  if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
-    die("read");
+  // if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
+  //   die("read");
 
-  write(STDOUT_FILENO, input, num_read);
+  // temp: cat for now
+  // write(STDOUT_FILENO, input, num_read);
+
+  // testing
   putc('z');putc('\n');
+
+  char buf[] = "                ";
+  itoa(-90, buf);
+  puts(buf);
+  // printf("s: %s\n", s);
+
+  char s[] = "42";
+  reverse(s);
+  puts(s);
+  // int n = atoi(s);
+  // int n = strlen(s);
+  // putc(n + '0');
+
+  // printf("s: %s\n", s);
+
 
   // info("read %d bytes\n", num_read);
   // info("main: %p\n", &_start);
