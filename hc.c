@@ -128,16 +128,16 @@ char lower(char c) {
 }
 
 // https://blog.nelhage.com/2010/10/amd64-and-va_arg/
+
+void _printf_print_itoa(int n) {
+  char buf[] = "     "; // 5
+  itoa(n, buf);
+  print(buf);
+}
+
 void printf(char *fmt, ...) {
    asm("push %rsi"); // varg1
-
-   // asm("mov %rsi, %rdi"); // pass arg2 as arg1
-   // asm("call print");
-   // asm("pop %rdi"); // arg1
-   // puts("");
-
-   // asm("pop %rsi"); // arg1
-   // asm("call print");
+   asm("push %rdx"); // varg1
 
   char *c = fmt;
 
@@ -149,21 +149,20 @@ void printf(char *fmt, ...) {
 
     switch (*++c) { // eat '%'
     case 's':
-      // c++;
-      // warn("s");
-      // asm("mov %rsi, %rdi"); // pass arg2 as arg1
       asm("pop %rdi");
       asm("call print");
       break;
     case 'd':
-      asm("mov %rsi, %rdi"); // pass arg2 as arg1
-      // asm("call ");
-      die("unsupported printf format '%d'");
+      asm("pop %rdi");
+      asm("call _printf_print_itoa");
       break;
+    case 'f':
+      die("unsupported printf format '%f'");
     default:
-      warn("unknown printf format ''");
+      warn("unknown printf format '");
       putc(*c);
     }
+    c++;
   }
 }
 
@@ -182,9 +181,7 @@ int main(int argc, char **argv) {
   // temp: cat for now
   // write(STDOUT_FILENO, input, num_read);
 
-  char s[] = "arg1: %s";
-  printf(s, "one");
-  // printf("read %d bytes", num_read);
+  printf("read %d bytes\n", num_read);
 
   // write_elf(num_read);
   // write(STDOUT_FILENO, &input, num_read - 1); // rm \n
