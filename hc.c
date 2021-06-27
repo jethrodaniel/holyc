@@ -52,8 +52,13 @@ int strlen(char *str) {
   return i;
 }
 
-void puts(char *str) {
+void print(char *str) {
   write(STDOUT_FILENO, str, strlen(str));
+}
+
+
+void puts(char *str) {
+  print(str);
   write(STDOUT_FILENO, "\n", 1);
 }
 
@@ -124,31 +129,42 @@ char lower(char c) {
 
 // https://blog.nelhage.com/2010/10/amd64-and-va_arg/
 void printf(char *fmt, ...) {
+   asm("push %rsi"); // varg1
+
+   // asm("mov %rsi, %rdi"); // pass arg2 as arg1
+   // asm("call print");
+   // asm("pop %rdi"); // arg1
+   // puts("");
+
+   // asm("pop %rsi"); // arg1
+   // asm("call print");
+
   char *c = fmt;
-  puts("printf called with ");
-  // asm("mov %al, %rdi");
-  // puts(atoi("1234");
 
-  // while (*c) {
-  //   if (*c != '%') {
-  //     putc(*c++);
-  //     continue;
-  //   }
+  while (*c) {
+    if (*c != '%') {
+      putc(*c++);
+      continue;
+    }
 
-  //   switch (*++c) { // eat '%'
-  //   case 's':
-  //     asm("push %rsi");
-  //     asm("push %rdi");
-  //     asm("mov %rsi, %rdi"); // pass arg2 as arg1
-  //     asm("call puts");
-  //     asm("pop %rdi")
-  //     asm("pop %rsi")
-  //     break;
-  //   default:
-  //     warn("unknown printf format ''");
-  //     putc(*c);
-  //   }
-  // }
+    switch (*++c) { // eat '%'
+    case 's':
+      // c++;
+      // warn("s");
+      // asm("mov %rsi, %rdi"); // pass arg2 as arg1
+      asm("pop %rdi");
+      asm("call print");
+      break;
+    case 'd':
+      asm("mov %rsi, %rdi"); // pass arg2 as arg1
+      // asm("call ");
+      die("unsupported printf format '%d'");
+      break;
+    default:
+      warn("unknown printf format ''");
+      putc(*c);
+    }
+  }
 }
 
 #define INPUT_SIZE 4096
@@ -160,32 +176,15 @@ int main(int argc, char **argv) {
   char input[INPUT_SIZE];
   int num_read;
 
-  // if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
-  //   die("read");
+  if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
+    die("read");
 
   // temp: cat for now
   // write(STDOUT_FILENO, input, num_read);
 
-  // testing
-  putc('z');putc('\n');
-
-  char buf[] = "                ";
-  itoa(-90, buf);
-  puts(buf);
-  // printf("s: %s\n", s);
-
-  char s[] = "42";
-  reverse(s);
-  puts(s);
-  // int n = atoi(s);
-  // int n = strlen(s);
-  // putc(n + '0');
-
-  // printf("s: %s\n", s);
-
-
-  // info("read %d bytes\n", num_read);
-  // info("main: %p\n", &_start);
+  char s[] = "arg1: %s";
+  printf(s, "one");
+  // printf("read %d bytes", num_read);
 
   // write_elf(num_read);
   // write(STDOUT_FILENO, &input, num_read - 1); // rm \n
