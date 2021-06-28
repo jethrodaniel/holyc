@@ -20,21 +20,12 @@
 // - r8
 // - r9
 
+#include "src/boot.c"
+
 #define STDIN_FILENO  0
 #define STDOUT_FILENO 1
 #define STDERR_FILENO 2
 #define EXIT_SUCCESS  0
-
-asm(".globl _start");
-asm("_start:");
-  // main()
-  asm("mov    rdi, QWORD PTR [rsp]"); // argc
-  asm("lea    rsi,[rsp+0x8]");        // argv
-  asm("lea    rdx,[rsp+rdi*8+0x10]"); // envp
-  asm("call   main");
-  // exit()
-  asm("mov    rdi,rax");
-  asm("call   exit");
 
 int exit(int code) {
   asm("mov  rax, 60");
