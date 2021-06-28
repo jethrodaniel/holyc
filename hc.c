@@ -136,10 +136,14 @@ void _printf_print_itoa(int n) {
 }
 
 void printf(char *fmt, ...) {
-   asm("push %rsi"); // varg1
-   asm("push %rdx"); // varg1
+  asm("push %r9");  // arg5
+  asm("push %r8");  // arg4
+  asm("push %rcx"); // arg3
+  asm("push %rdx"); // arg2
+  asm("push %rsi"); // arg1
 
   char *c = fmt;
+  int popped = 0;
 
   while (*c) {
     if (*c != '%') {
@@ -147,13 +151,18 @@ void printf(char *fmt, ...) {
       continue;
     }
 
+    if (popped >= 5)
+      die("printf with more than 5 args unsupported");
+
     switch (*++c) { // eat '%'
     case 's':
       asm("pop %rdi");
+      popped++;
       asm("call print");
       break;
     case 'd':
       asm("pop %rdi");
+      popped++;
       asm("call _printf_print_itoa");
       break;
     case 'f':
@@ -164,6 +173,9 @@ void printf(char *fmt, ...) {
     }
     c++;
   }
+
+  for (int i = 0; i < popped; i++)
+    asm("pop %r8;"); // can we trash this reg?
 }
 
 #define INPUT_SIZE 4096
@@ -182,6 +194,8 @@ int main(int argc, char **argv) {
   // write(STDOUT_FILENO, input, num_read);
 
   printf("read %d bytes\n", num_read);
+
+  printf("1: %s, 2: %s, 3: %s", "one", "two", "three\n");
 
   // write_elf(num_read);
   // write(STDOUT_FILENO, &input, num_read - 1); // rm \n
