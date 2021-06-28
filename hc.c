@@ -25,10 +25,16 @@
 #define STDERR_FILENO 2
 #define EXIT_SUCCESS 0
 
-void _start() {
+asm(".globl _start");
+asm("_start:");
+  // main()
+  asm("mov (%rsp), %rdi");          // argc
+  asm("leaq 8(%rsp),%rsi");         // argv
+  asm("leaq 8(%rsp,%rdi,8), %rdx"); // envp
   asm("call main");
+  // exit()
+  asm("movl %eax, %edi");
   asm("call exit");
-}
 
 int exit(int code) {
   asm("movq $60, %rax");
@@ -136,11 +142,11 @@ void _printf_print_itoa(int n) {
 }
 
 void printf(char *fmt, ...) {
-  asm("push %r9");  // arg5
-  asm("push %r8");  // arg4
-  asm("push %rcx"); // arg3
-  asm("push %rdx"); // arg2
-  asm("push %rsi"); // arg1
+  asm("pushq %r9");  // arg5
+  asm("pushq %r8");  // arg4
+  asm("pushq %rcx"); // arg3
+  asm("pushq %rdx"); // arg2
+  asm("pushq %rsi"); // arg1
 
   char *c = fmt;
   int popped = 0;
@@ -156,12 +162,12 @@ void printf(char *fmt, ...) {
 
     switch (*++c) { // eat '%'
     case 's':
-      asm("pop %rdi");
+      asm("popq %rdi");
       popped++;
       asm("call print");
       break;
     case 'd':
-      asm("pop %rdi");
+      asm("popq %rdi");
       popped++;
       asm("call _printf_print_itoa");
       break;
@@ -175,15 +181,23 @@ void printf(char *fmt, ...) {
   }
 
   for (int i = 0; i < popped; i++)
-    asm("pop %r8;"); // can we trash this reg?
+    asm("popq %r8;"); // can we trash this reg?
 }
 
 #define INPUT_SIZE 4096
 
-#define ELF_START 0x8048000
+// #define ELF_START 0x8048000
+#define ELF_START 0x401000
 #define ELF_SIZE  120
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv, char **envp) {
+  printf("argc: %d\n", argc);
+
+  for (int i = 0; i < argc; i++)
+    printf("argv[%d] = %s\n", i, argv[i]);
+
+  return exit(argc);
+
   char input[INPUT_SIZE];
   int num_read;
 
@@ -194,8 +208,6 @@ int main(int argc, char **argv) {
   // write(STDOUT_FILENO, input, num_read);
 
   printf("read %d bytes\n", num_read);
-
-  printf("1: %s, 2: %s, 3: %s", "one", "two", "three\n");
 
   // write_elf(num_read);
   // write(STDOUT_FILENO, &input, num_read - 1); // rm \n
