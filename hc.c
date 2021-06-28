@@ -29,36 +29,26 @@
 
 #define INPUT_SIZE 4096
 
+#include "src/elf.h"
+
 // #define ELF_START 0x8048000
 #define ELF_START 0x401000
 #define ELF_SIZE  120
 
-int main(int argc, char **argv, char **envp) {
-  char input[INPUT_SIZE];
-  int num_read;
-
-  if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
-    die("read");
-
-  // temp: cat for now
-  // write(STDOUT_FILENO, input, num_read);
-
-  printf("read %d bytes\n", num_read);
-
-  // write(STDOUT_FILENO, &input, num_read - 1); // rm \n
-
-  return EXIT_SUCCESS;
-}
-
 int write_elf(int program_length) {
   uint64_t elf_offset = 0;
   uint8_t *elf_output;
+
+  warn("Writing elf header...\n");
+
+  elf_offset = sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr);
+
+  printf("elf_offset: %d\n", elf_offset);
+
+  // Elf64_Ehdr *e = malloc(sizeof(Elf64_Ehdr));
 }
 
-//   info("Making elf header...\n");
 
-//   elf_offset = sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr);
-//   Elf64_Ehdr *e = malloc(sizeof(Elf64_Ehdr));
 //   e->e_ident[EI_MAG0]       = 0x7f; // magic
 //   e->e_ident[EI_MAG1]       = 'E';
 //   e->e_ident[EI_MAG2]       = 'L';
@@ -102,3 +92,20 @@ int write_elf(int program_length) {
 // }
 
 
+int main(int argc, char **argv, char **envp) {
+  char input[INPUT_SIZE];
+  int num_read;
+
+  if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
+    die("read");
+
+  // temp: cat for now
+  // write(STDOUT_FILENO, input, num_read);
+
+  printf("read %d bytes\n", num_read);
+
+  write_elf(num_read);
+  // write(STDOUT_FILENO, &input, num_read - 1); // rm \n
+
+  return EXIT_SUCCESS;
+}
