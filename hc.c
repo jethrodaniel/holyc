@@ -21,16 +21,11 @@
 // - r9
 
 #include "src/boot.c"
+#include "src/stdint.h"
 #include "src/stdlib.c"
 #include "src/unistd.c"
 #include "src/string.c"
 #include "src/stdio.c"
-
-void die(char *str) {
-  warn("[error]: ");
-  warn(str);
-  warn("\n");
-}
 
 #define INPUT_SIZE 4096
 
@@ -39,16 +34,6 @@ void die(char *str) {
 #define ELF_SIZE  120
 
 int main(int argc, char **argv, char **envp) {
-  printf("argc: %d\n", argc);
-
-  for (int i = 0; i < argc; i++)
-    printf("argv[%d] = %s\n", i, argv[i]);
-
-  for (int i = 0; *envp; i++)
-    printf("envp[%d] = %s\n", i, *envp++);
-
-  return exit(argc);
-
   char input[INPUT_SIZE];
   int num_read;
 
@@ -60,15 +45,15 @@ int main(int argc, char **argv, char **envp) {
 
   printf("read %d bytes\n", num_read);
 
-  // write_elf(num_read);
   // write(STDOUT_FILENO, &input, num_read - 1); // rm \n
 
   return EXIT_SUCCESS;
 }
 
-// int write_elf(int program_length) {
-//   uint64_t elf_offset = 0;
-//   uint8_t *elf_output;
+int write_elf(int program_length) {
+  uint64_t elf_offset = 0;
+  uint8_t *elf_output;
+}
 
 //   info("Making elf header...\n");
 
