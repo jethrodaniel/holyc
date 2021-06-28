@@ -9,7 +9,7 @@
 //   https://github.com/lazear/lass/blob/master/assembler.c#L53
 //
 // - Elf quine: https://medium.com/@MrJamesFisher/understanding-the-elf-4bd60daac571
-//// https://medium.com/@MrJamesFisher/understanding-the-elf-4bd60daac571
+//   https://medium.com/@MrJamesFisher/understanding-the-elf-4bd60daac571
 
 // SysV x86_64 fn call registers (in order), rest on the stack
 //
@@ -23,31 +23,31 @@
 #define STDIN_FILENO  0
 #define STDOUT_FILENO 1
 #define STDERR_FILENO 2
-#define EXIT_SUCCESS 0
+#define EXIT_SUCCESS  0
 
 asm(".globl _start");
 asm("_start:");
   // main()
-  asm("mov (%rsp), %rdi");           // argc
-  asm("leaq 8(%rsp),%rsi");          // argv
-  asm("leaq 16(%rsp,%rdi,8), %rdx"); // envp
-  asm("call main");
+  asm("mov    rdi, QWORD PTR [rsp]"); // argc
+  asm("lea    rsi,[rsp+0x8]");        // argv
+  asm("lea    rdx,[rsp+rdi*8+0x10]"); // envp
+  asm("call   main");
   // exit()
-  asm("movl %eax, %edi");
-  asm("call exit");
+  asm("mov    rdi,rax");
+  asm("call   exit");
 
 int exit(int code) {
-  asm("movq $60, %rax");
+  asm("mov  rax, 60");
   asm("syscall");
 }
 
 int write(int fd, char *buf, int length) {
-  asm("movq $1, %rax");
+  asm("mov  rax, 1");
   asm("syscall");
 }
 
 int read(int fd, char *buf, int length) {
-  asm("movq $0, %rax");
+  asm("mov  rax, 0");
   asm("syscall");
 }
 
@@ -61,7 +61,6 @@ int strlen(char *str) {
 void print(char *str) {
   write(STDOUT_FILENO, str, strlen(str));
 }
-
 
 void puts(char *str) {
   print(str);
@@ -142,11 +141,11 @@ void _printf_print_itoa(int n) {
 }
 
 void printf(char *fmt, ...) {
-  asm("pushq %r9");  // arg5
-  asm("pushq %r8");  // arg4
-  asm("pushq %rcx"); // arg3
-  asm("pushq %rdx"); // arg2
-  asm("pushq %rsi"); // arg1
+  asm("pushq r9");  // arg5
+  asm("pushq r8");  // arg4
+  asm("pushq rcx"); // arg3
+  asm("pushq rdx"); // arg2
+  asm("pushq rsi"); // arg1
 
   char *c = fmt;
   int popped = 0;
@@ -162,12 +161,12 @@ void printf(char *fmt, ...) {
 
     switch (*++c) { // eat '%'
     case 's':
-      asm("popq %rdi");
+      asm("popq rdi");
       popped++;
       asm("call print");
       break;
     case 'd':
-      asm("popq %rdi");
+      asm("popq rdi");
       popped++;
       asm("call _printf_print_itoa");
       break;
@@ -181,7 +180,7 @@ void printf(char *fmt, ...) {
   }
 
   for (int i = 0; i < popped; i++)
-    asm("popq %r8;"); // can we trash this reg?
+    asm("popq r8;"); // can we trash this reg?
 }
 
 #define INPUT_SIZE 4096

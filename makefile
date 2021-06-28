@@ -12,14 +12,12 @@ CFLAGS += -mno-red-zone
 # https://stackoverflow.com/questions/2548486/compiling-without-libc?noredirect=1&lq=1#comment109923208_2548601
 CFLAGS += -mincoming-stack-boundary=4
 
-# CFLAGS += -masm=intel
+CFLAGS += -masm=intel
 
 default: clean $(PROG) run
-disasm: a.out
+disasm: $(PROG)
 	dd skip=120 bs=1 if=./$< 2> /dev/null | ndisasm -b64 -
 run: $(PROG)
-a.out: $(PROG)
-	perl -e 'print "\xB8<\x00\x00\x00\xBF*\x00\x00\x00\x0F\x05\n"' | ./$(PROG) > $@ && chmod u+x $@
 test: force
 	./test
 force:
