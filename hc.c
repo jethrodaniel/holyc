@@ -28,9 +28,9 @@
 asm(".globl _start");
 asm("_start:");
   // main()
-  asm("mov (%rsp), %rdi");          // argc
-  asm("leaq 8(%rsp),%rsi");         // argv
-  asm("leaq 8(%rsp,%rdi,8), %rdx"); // envp
+  asm("mov (%rsp), %rdi");           // argc
+  asm("leaq 8(%rsp),%rsi");          // argv
+  asm("leaq 16(%rsp,%rdi,8), %rdx"); // envp
   asm("call main");
   // exit()
   asm("movl %eax, %edi");
@@ -195,6 +195,9 @@ int main(int argc, char **argv, char **envp) {
 
   for (int i = 0; i < argc; i++)
     printf("argv[%d] = %s\n", i, argv[i]);
+
+  for (int i = 0; *envp; i++)
+    printf("envp[%d] = %s\n", i, *envp++);
 
   return exit(argc);
 
