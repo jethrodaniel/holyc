@@ -33,3 +33,36 @@ typedef struct {
   Elf64_Xword p_memsz;
   Elf64_Xword p_align;
 } Elf64_Phdr;
+
+#define EI_MAG0  0
+#define ELFMAG0  0x7f
+
+#define EI_MAG1  1
+#define ELFMAG1  'E'
+
+#define EI_MAG2  2
+#define ELFMAG2  'L'
+
+#define EI_MAG3  3
+#define ELFMAG3  'F'
+
+#define EI_CLASS 4
+#define ELFCLASS64 2
+
+#define EI_DATA  5
+#define ELFDATA2LSB 1
+
+#define EI_VERSION 6
+
+#define EI_OSABI 7
+#define ELFOSABI_SYSV  0
+
+#define EI_ABIVERSION 8
+
+#define EI_PAD  9
+
+#define ET_EXEC  2
+
+#define EM_X86_64	6
+
+#define EV_CURRENT	1
