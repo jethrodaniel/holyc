@@ -27,6 +27,18 @@
 #include "src/string.c"
 #include "src/stdio.c"
 
+// https://my.eng.utah.edu/~cs4400/malloc.pdf
+//
+// malloc
+
+
+int sys_brk(int n) {
+  asm("mov rax, 12"); // brk
+  asm("syscall");
+  // asm("mov [current_break], rax");
+  // asm("mov [initial_break], rax");
+}
+
 #define INPUT_SIZE 4096
 
 #include "src/elf.h"
@@ -106,6 +118,18 @@ int main(int argc, char **argv, char **envp) {
 
   write_elf(num_read);
   // write(STDOUT_FILENO, &input, num_read - 1); // rm \n
+
+  int init_brk = sys_brk(0);
+  printf("brk(0)=%d\n", init_brk);
+
+  char *memstart = (char *)init_brk;
+  printf("&memstart=%d\n", memstart);
+
+  for (int i = 0; i < 10; i++)
+    printf("brk(%d)=%d\n", i, sys_brk(init_brk + i*8));
+
+  memstart[0] = 'A';
+  printf("memstart[0]=%c\n", memstart[0]);
 
   return EXIT_SUCCESS;
 }

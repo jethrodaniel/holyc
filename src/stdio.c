@@ -43,21 +43,23 @@ void printf(char *fmt, ...) {
       die("printf with more than 5 args unsupported");
 
     switch (*++c) { // eat '%'
-    case 's':
-      asm("popq rdi");
-      popped++;
-      asm("call print");
-      break;
-    case 'd':
-      asm("popq rdi");
-      popped++;
-      asm("call _printf_print_itoa");
-      break;
-    case 'f':
-      die("unsupported printf format '%f'");
-    default:
-      warn("unknown printf format '");
-      putc(*c);
+      case 'c':
+      case 'd':
+      case 'f':
+      case 's':
+        asm("popq rdi");
+        popped++;
+
+        if (*c == 's') asm("call print");
+        if (*c == 'd') asm("call _printf_print_itoa");
+        if (*c == 'c') asm("call putc");
+        if (*c == 'f') die("unsupported printf format '%f'");
+
+        break;
+      default:
+        warn("unknown printf format '%");
+        putc(*c);
+        warn("'");
     }
     c++;
   }
@@ -65,8 +67,9 @@ void printf(char *fmt, ...) {
   for (int i = 0; i < popped; i++)
     asm("popq r8;"); // can we trash this reg?
 }
+
 static void _printf_print_itoa(int n) {
-  char buf[] = "     "; // 5
+  char buf[] = "                "; // 5
   itoa(n, buf);
   print(buf);
 }
