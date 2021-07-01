@@ -28,17 +28,13 @@
 
 
 #include "src/boot.c"
+#include "src/stddef.h"
 #include "src/stdint.h"
 #include "src/stdlib.c"
 #include "src/unistd.c"
 #include "src/string.c"
 #include "src/stdio.c"
 
-#define NULL 0 // stddef.h
-
-#define off_t int
-#define int64_t long long int
-#define size_t unsigned long long int
 
 void *mmap(void *addr, int64_t length, int prot, int flags, int fd, off_t offset) {
   asm("mov rax, 9");   // mmap
