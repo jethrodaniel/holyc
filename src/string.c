@@ -39,3 +39,18 @@ char lower(char c) {
     return c + 'a' - 'A';
   return c;
 }
+
+void *memcpy(void *dest, const void *src, size_t n) {
+  char *_dest = (char *)dest;
+  char *_src = (char *)src;
+
+  if (_dest == NULL || _src == NULL)
+    return dest;
+
+  while (n) {
+    *(_dest++) = *(_src++);
+    --n;
+  }
+
+  return dest;
+}

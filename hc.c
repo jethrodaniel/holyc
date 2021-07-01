@@ -32,35 +32,9 @@
 #include "src/stdint.h"
 #include "src/stdlib.c"
 #include "src/unistd.c"
+#include "src/mman.c"
 #include "src/string.c"
 #include "src/stdio.c"
-
-
-void *mmap(void *addr, int64_t length, int prot, int flags, int fd, off_t offset) {
-  asm("mov rax, 9");   // mmap
-  asm("mov r10, rcx"); // arg4 for syscalls
-  asm("syscall");
-}
-
-int munmap(void *addr, size_t length) {
-  asm("mov rax, 11");   // munmap
-  asm("syscall");
-}
-
-void *memcpy(void *dest, const void *src, size_t n) {
-  char *_dest = (char *)dest;
-  char *_src = (char *)src;
-
-  if (_dest == NULL || _src == NULL)
-    return dest;
-
-  while (n) {
-    *(_dest++) = *(_src++);
-    --n;
-  }
-
-  return dest;
-}
 
 int f() { return 1; }
 
