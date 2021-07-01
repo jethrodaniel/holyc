@@ -20,6 +20,13 @@
 // - r8
 // - r9
 
+// Linux syscalls use:
+//
+//  %rdi, %rsi, %rdx, %r10, %r8 and %r9
+//
+//  clobbers %rcx, %r11, and %rax
+
+
 #include "src/boot.c"
 #include "src/stdint.h"
 #include "src/stdlib.c"
@@ -27,17 +34,43 @@
 #include "src/string.c"
 #include "src/stdio.c"
 
-int sys_brk(int n) {
-  asm("mov rax, 12");
+#define NULL 0 // stddef.h
+#define off_t int
+#define int64_t long long int
+
+void *mmap(void *addr, int64_t length, int prot, int flags, int fd, off_t offset) {
+  asm("mov rax, 9");   // mmap
+  asm("mov r10, rcx"); // arg4 for syscalls
   asm("syscall");
 }
+
+#define size_t unsigned long long int
+
+void *memcpy(void *dest, const void *src, size_t n) {
+  char *_dest = (char *)dest;
+  char *_src = (char *)src;
+
+  if (_dest == NULL || _src == NULL)
+    return dest;
+
+  while (n) {
+    *(_dest++) = *(_src++);
+    --n;
+  }
+
+  return dest;
+}
+
+int f() { return 1; }
+
+// int munmap(void *addr, size_t length);
 
 // stupid malloc, just calls brk
 //
 // https://my.eng.utah.edu/~cs4400/malloc.pdf
 //
 char *malloc(int n) {
-  (char *)sys_brk(n);
+  // (char *)sys_brk(n); // + brkinit ? // just use mmap - posix?
 }
 
 #define INPUT_SIZE 4096
@@ -103,33 +136,53 @@ int write_elf(int program_length) {
 //   write(STDOUT_FILENO, elf_output, elf_offset);
 // }
 
+#define PROT_READ     0x1
+#define PROT_WRITE    0x2
+#define PROT_EXEC     0x4
+#define MAP_ANONYMOUS 0x20
+#define MAP_PRIVATE   0x02
 
 int main(int argc, char **argv, char **envp) {
   char input[INPUT_SIZE];
   int num_read;
 
-  if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
-    die("read");
+  // if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
+  //   die("read");
 
-  // temp: cat for now
-  // write(STDOUT_FILENO, input, num_read);
+  // printf("read %d bytes\n", num_read);
 
-  printf("read %d bytes\n", num_read);
-
-  write_elf(num_read);
+  // write_elf(num_read);
   // write(STDOUT_FILENO, &input, num_read - 1); // rm \n
 
-  int init_brk = sys_brk(0);
-  printf("brk(0)=%d\n", init_brk);
+  unsigned char code [] = {
+    0x55,                   // push rbp
+    0x48, 0x89, 0xe5,       // mov  rbp, rsp
+    0x89, 0x7d, 0xfc,       // mov  DWORD PTR [rbp-0x4],edi
+    0x89, 0x75, 0xf8,       // mov  DWORD PTR [rbp-0x8],esi
+    0x8b, 0x75, 0xfc,       // mov  esi,DWORD PTR [rbp-04x]
+    0x0f, 0xaf, 0x75, 0xf8, // imul esi,DWORD PTR [rbp-0x8]
+    0x89, 0xf0,             // mov  eax,esi
+    0x5d,                   // pop  rbp
+    0xc3                    // ret
+  };
 
-  char *memstart = (char *)init_brk;
-  printf("&memstart=%d\n", memstart);
+  void* vmem = mmap(
+    NULL, // let kernel decide where the mem is
+    sizeof(code),
+    PROT_READ | PROT_WRITE | PROT_EXEC,
+    MAP_ANONYMOUS | MAP_PRIVATE,
+    -1, // map anon
+    0   // no offset
+  );
 
-  for (int i = 0; i < 10; i++)
-    printf("brk(%d)=%d\n", i, sys_brk(init_brk + i*8));
+  memcpy(vmem, code, sizeof(code));
+  int (*func)() = vmem;
+  printf("%d * %d = %d\n", 5, 11, func(5, 11));
 
-  memstart[0] = 'A';
-  printf("memstart[0]=%c\n", memstart[0]);
+  char *mem = vmem;
+  mem[0] = 'A';
+  mem[1] = 'B';
+  printf("mem[0]=%c\n", mem[0]);
 
   return EXIT_SUCCESS;
 }
