@@ -35,8 +35,10 @@
 #include "src/stdio.c"
 
 #define NULL 0 // stddef.h
+
 #define off_t int
 #define int64_t long long int
+#define size_t unsigned long long int
 
 void *mmap(void *addr, int64_t length, int prot, int flags, int fd, off_t offset) {
   asm("mov rax, 9");   // mmap
@@ -44,7 +46,10 @@ void *mmap(void *addr, int64_t length, int prot, int flags, int fd, off_t offset
   asm("syscall");
 }
 
-#define size_t unsigned long long int
+int munmap(void *addr, size_t length) {
+  asm("mov rax, 11");   // munmap
+  asm("syscall");
+}
 
 void *memcpy(void *dest, const void *src, size_t n) {
   char *_dest = (char *)dest;
@@ -183,6 +188,8 @@ int main(int argc, char **argv, char **envp) {
   mem[0] = 'A';
   mem[1] = 'B';
   printf("mem[0]=%c\n", mem[0]);
+
+  munmap(vmem, sizeof(code));
 
   return EXIT_SUCCESS;
 }
