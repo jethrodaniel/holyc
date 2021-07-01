@@ -36,16 +36,19 @@
 #include "src/string.c"
 #include "src/stdio.c"
 
-int f() { return 1; }
-
-// int munmap(void *addr, size_t length);
-
-// stupid malloc, just calls brk
+// stupid malloc
 //
 // https://my.eng.utah.edu/~cs4400/malloc.pdf
 //
-char *malloc(int n) {
-  // (char *)sys_brk(n); // + brkinit ? // just use mmap - posix?
+void *malloc(int n) {
+  return mmap(
+    NULL, // let kernel decide where the mem is
+    n,
+    PROT_READ | PROT_WRITE | PROT_EXEC,
+    MAP_ANONYMOUS | MAP_PRIVATE,
+    -1, // map anon
+    0   // no offset
+  );
 }
 
 #define INPUT_SIZE 4096
@@ -110,12 +113,6 @@ int write_elf(int program_length) {
 
 //   write(STDOUT_FILENO, elf_output, elf_offset);
 // }
-
-#define PROT_READ     0x1
-#define PROT_WRITE    0x2
-#define PROT_EXEC     0x4
-#define MAP_ANONYMOUS 0x20
-#define MAP_PRIVATE   0x02
 
 int main(int argc, char **argv, char **envp) {
   char input[INPUT_SIZE];
