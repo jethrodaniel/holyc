@@ -72,7 +72,7 @@ typedef struct {
 #define ELF_START 0x401000
 #define ELF_SIZE  120
 
-int write_elf(int program_length) {
+int write_elf_header(int program_length) {
   uint64_t elf_offset = 0;
   uint8_t *elf_output;
 

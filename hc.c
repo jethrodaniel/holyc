@@ -52,13 +52,9 @@ int main(int argc, char **argv, char **envp) {
     die("read");
 
   warnf("read %d bytes\n", num_read);
-  // print("read %d bytes\n");
 
-  write_elf(num_read);
+  write_elf_header(num_read);
   write(STDOUT_FILENO, input, num_read - 1); // rm \n
-
-  // perl -e 'print "\xB8<\x00\x00\x00\xBF*\x00\x00\x00\x0F\x05\n"' | ./holyc > a.out
-  // dd skip=120 bs=1 if=./a.out 2> /dev/null | ndisasm -b64 -
 
   return EXIT_SUCCESS;
 }
