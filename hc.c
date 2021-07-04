@@ -124,7 +124,8 @@ int main(int argc, char **argv, char **envp) {
   if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
     die("read");
 
-  // printf("read %d bytes\n", num_read);
+  warnf("read %d bytes\n", num_read);
+  // print("read %d bytes\n");
 
   write_elf(num_read);
   write(STDOUT_FILENO, input, num_read - 1); // rm \n
