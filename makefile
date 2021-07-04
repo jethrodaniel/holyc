@@ -16,8 +16,8 @@ CFLAGS += -masm=intel
 
 default: clean $(PROG) run
 
-a.out: force
-	perl -e 'print "\xB8<\x00\x00\x00\xBF*\x00\x00\x00\x0F\x05\n"' | ./$(PROG) > $@ && chmod u+x $@
+a.out: $(PROG) force
+	echo 42 | ./$(PROG) > $@ && chmod u+x $@
 run: a.out
 	./a.out ; echo $$?
 disasm: a.out
