@@ -2,6 +2,8 @@
 
 HolyC for Linux, x86_64.
 
+**note**: def a WIP, see [the roadmap](#roadmap).
+
 ## build
 
 ```
@@ -9,6 +11,8 @@ make
 ```
 
 ## roadmap
+
+One day we'll get past step I.
 
 I: Ahead of time compiler for HolyC, written in C, outputs ELF binary.
 
