@@ -1,11 +1,15 @@
 
+void fprint(int fd, char *str) {
+  write(fd, str, strlen(str));
+}
+
 void print(char *str) {
-  write(STDOUT_FILENO, str, strlen(str));
+  fprint(STDOUT_FILENO, str);
 }
 
 void puts(char *str) {
-  print(str);
-  write(STDOUT_FILENO, "\n", 1);
+  fprint(STDOUT_FILENO, str);
+  fprint(STDOUT_FILENO, "\n");
 }
 
 void putc(char c) {
