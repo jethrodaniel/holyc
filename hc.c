@@ -34,26 +34,11 @@
 #include "src/boot.c"
 #include "src/stddef.h"
 #include "src/stdint.h"
+#include "src/mman.c"
 #include "src/stdlib.c"
 #include "src/unistd.c"
-#include "src/mman.c"
 #include "src/string.c"
 #include "src/stdio.c"
-
-// stupid malloc
-//
-// https://my.eng.utah.edu/~cs4400/malloc.pdf
-//
-void *malloc(int n) {
-  return mmap(
-    NULL, // let kernel decide where the mem is
-    n,
-    PROT_READ | PROT_WRITE | PROT_EXEC,
-    MAP_ANONYMOUS | MAP_PRIVATE,
-    -1, // map anon
-    0   // no offset
-  );
-}
 
 #define INPUT_SIZE 4096
 
