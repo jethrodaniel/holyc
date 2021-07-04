@@ -4,6 +4,7 @@ HolyC for Linux, x86_64.
 
 **note**: def a WIP, see [the roadmap](#roadmap).
 
+
 ## build
 
 ```
@@ -36,3 +37,14 @@ After:
 IV: Write basic shell
 
     holyc --jit <shell.hc
+
+## references
+
+- [TempleOS](https://github.com/cia-foundation/TempleOS)
+- [Writing a Scheme compiler](http://scheme2006.cs.uchicago.edu/11-ghuloum.pdf)
+- [Writing a C compiler](https://www.sigbus.info/compilerbook)
+  - [english translation](https://translate.google.com/translate?hl=en&sl=ja&tl=en&u=https%3A%2F%2Fwww.sigbus.info%2Fcompilerbook)
+  - [that project's successor](https://github.com/rui314/chibicc)
+- [Writing elf output](https://github.com/lazear/lass/blob/66771edd7fa883e0620b3e00777320e6577f7f33/assembler.c#L53)
+- [Linux program startup](https://web.archive.org/web/20191210114310/http://dbp-consulting.com/tutorials/debugging/linuxProgramStartup.html)
+- [Nascent C compilers from Bell Labs](https://github.com/dspinellis/unix-history-repo/blob/Research-V2-Snapshot-Development/c/nc0/c00.c)
