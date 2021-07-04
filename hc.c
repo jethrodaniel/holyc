@@ -22,7 +22,11 @@
 
 // Linux syscalls use:
 //
-//  %rdi, %rsi, %rdx, %r10, %r8 and %r9
+//  rdi
+//  rsi
+//  rdx
+//  r10
+//  r9
 //
 //  clobbers %rcx, %r11, and %rax
 
