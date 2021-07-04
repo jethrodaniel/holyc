@@ -108,5 +108,5 @@ int main(int argc, char **argv, char **envp) {
   write_elf_header(num_read);
   write(STDOUT_FILENO, input, num_read - 1); // rm \n
 
-  exit(atoi(input));
+  return atoi(input);
 }
