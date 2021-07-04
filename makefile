@@ -15,9 +15,15 @@ CFLAGS += -mincoming-stack-boundary=4
 CFLAGS += -masm=intel
 
 default: clean $(PROG) run
-disasm: $(PROG)
+
+a.out: force
+	perl -e 'print "\xB8<\x00\x00\x00\xBF*\x00\x00\x00\x0F\x05\n"' | ./$(PROG) > $@ && chmod u+x $@
+run: a.out
+	./a.out ; echo $$?
+disasm: a.out
 	dd skip=120 bs=1 if=./$< 2> /dev/null | ndisasm -b64 -
-run: $(PROG)
+force:
+
 test: force
 	./test
 force:
