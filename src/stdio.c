@@ -1,3 +1,18 @@
+// putc()
+
+void fputc(int fd, char c) {
+  write(fd, &c, 1);
+}
+
+void putc(char c) {
+  fputc(STDOUT_FILENO, c);
+}
+
+void warnc(char c) {
+  fputc(STDERR_FILENO, c);
+}
+
+// print()
 
 void fprint(int fd, char *str) {
   write(fd, str, strlen(str));
@@ -7,22 +22,11 @@ void print(char *str) {
   fprint(STDOUT_FILENO, str);
 }
 
-void puts(char *str) {
-  fprint(STDOUT_FILENO, str);
-  fprint(STDOUT_FILENO, "\n");
-}
-
-void putc(char c) {
-  write(STDOUT_FILENO, &c, 1);
-}
-
 void warn(char *str) {
-  write(STDERR_FILENO, str, strlen(str));
+  fprint(STDERR_FILENO, str);
 }
 
-void warnc(char c) {
-  write(STDERR_FILENO, &c, 1);
-}
+// misc
 
 void die(char *str) {
   warn("[error]: ");
@@ -30,7 +34,8 @@ void die(char *str) {
   warn("\n");
 }
 
-// https://blog.nelhage.com/2010/10/amd64-and-va_arg/
+// printf()
+
 int dprintf(int fd, char *fmt, ...) {
   asm("pushq r9");  // varg4
   asm("pushq r8");  // varg3
@@ -124,4 +129,3 @@ static void _warnf_print_itoa(int n) {
   itoa(n, buf);
   warn(buf);
 }
-
