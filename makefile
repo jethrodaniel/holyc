@@ -14,7 +14,19 @@ CFLAGS += -mincoming-stack-boundary=4
 
 CFLAGS += -masm=intel
 
-default: clean $(PROG) run
+default: clean $(PROG) test
+
+$(PROG): hc.c
+	$(CC) $(CFLAGS) $< -o $(PROG)
+
+test: $(PROG) force
+	./test.sh
+force:
+
+clean:
+	rm -vf a.out $(PROG) *.o main *.s
+
+#--
 
 a.out: $(PROG) force
 	echo 42 | ./$(PROG) > $@ && chmod u+x $@
@@ -22,14 +34,5 @@ run: a.out
 	./a.out ; echo $$?
 disasm: a.out
 	dd skip=120 bs=1 if=./$< 2> /dev/null | ndisasm -b64 -
-force:
-
-test: force
-	./test
-force:
-clean:
-	rm -vf a.out $(PROG) *.o main *.s
-$(PROG): hc.c
-	$(CC) $(CFLAGS) $< -o $(PROG)
 asm: hc.c
 	$(CC) $(CFLAGS) -S $< -o $(PROG).s
