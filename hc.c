@@ -97,7 +97,7 @@ int write_elf_header(int program_length) {
 #define INPUT_SIZE 4096
 
 int main(int argc, char **argv, char **envp) {
-  char input[INPUT_SIZE];
+  uint8_t input[INPUT_SIZE];
   int num_read;
 
   if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
@@ -106,7 +106,24 @@ int main(int argc, char **argv, char **envp) {
   warnf("read %d bytes\n", num_read);
 
   write_elf_header(num_read);
-  write(STDOUT_FILENO, input, num_read - 1); // rm \n
 
-  return atoi(input);
+  uint8_t code[10];
+  uint8_t *c = code;
+
+  *c++ = 0x48;       // REX
+  *c++ = 0xB8;       // MOV RAX,immediate num
+  *c++ = 0x3c;       //   60 (exit)
+  c += 7;
+
+  *c++ = 0x48;       // REX
+  *c++ = 0xBF;       // MOV RDI,immediate num
+  *c++ = 0x2A;       //   42
+  c += 7;
+
+  *c++ = 0x0F;      // SYSCALL
+  *c++ = 0x05;
+
+  write(STDOUT_FILENO, code, 22);
+
+  return EXIT_SUCCESS;
 }
