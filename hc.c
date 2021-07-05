@@ -104,10 +104,11 @@ int main(int argc, char **argv, char **envp) {
     die("read");
 
   warnf("read %d bytes\n", num_read);
+  warnf("input: %s", input);
 
   write_elf_header(num_read);
 
-  uint8_t code[10];
+  uint8_t code[INPUT_SIZE];
   uint8_t *c = code;
 
   *c++ = 0x48;       // REX
@@ -117,7 +118,7 @@ int main(int argc, char **argv, char **envp) {
 
   *c++ = 0x48;       // REX
   *c++ = 0xBF;       // MOV RDI,immediate num
-  *c++ = 0x2A;       //   42
+  *c++ = atoi(input);
   c += 7;
 
   *c++ = 0x0F;      // SYSCALL
