@@ -4,7 +4,8 @@ assert() {
  expected="$1"
  input="$2"
 
- echo "$input"| ./holyc 2>/dev/null > a.out && chmod u+x a.out
+ echo "$input" | ./holyc 2>/dev/null > a.out
+ chmod u+x a.out
  ./a.out
  actual="$?"
 

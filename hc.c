@@ -111,20 +111,21 @@ int main(int argc, char **argv, char **envp) {
   uint8_t code[INPUT_SIZE];
   uint8_t *c = code;
 
-  *c++ = 0x48;       // REX
-  *c++ = 0xB8;       // MOV RAX,immediate num
-  *c++ = 0x3c;       //   60 (exit)
-  c += 7;
+  *c++ = 0x48;             // REX
+  *c++ = 0xB8;             // MOV RAX,immediate num
+  *((uint64_t *)c) = 0x3c; //   60 (exit)
+  c += sizeof(uint64_t);
 
   *c++ = 0x48;       // REX
   *c++ = 0xBF;       // MOV RDI,immediate num
-  *c++ = atoi(input);
-  c += 7;
+  *((uint64_t *)c) = atoi(input);
+  c += sizeof(uint64_t);
 
   *c++ = 0x0F;      // SYSCALL
   *c++ = 0x05;
 
-  write(STDOUT_FILENO, code, 22);
+  warnf("writing %d bytes of machine code\n", c - code);
+  write(STDOUT_FILENO, code, c - code);
 
   return EXIT_SUCCESS;
 }
