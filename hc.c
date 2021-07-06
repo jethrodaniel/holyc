@@ -96,6 +96,11 @@ int write_elf_header(int program_length) {
 
 #define INPUT_SIZE 4096
 
+typedef struct Token {
+  int type;
+  char *val;
+} Token;
+
 int main(int argc, char **argv, char **envp) {
   uint8_t input[INPUT_SIZE];
   int num_read;
@@ -111,14 +116,42 @@ int main(int argc, char **argv, char **envp) {
   uint8_t code[INPUT_SIZE];
   uint8_t *c = code;
 
+  // char *p = input;
+
+  // while (*p) {
+  //   switch (*p) {
+  //     case '+':
+  //       break;
+  //     case '-':
+  //       break;
+  //     case '0':
+  //     case '1':
+  //     case '2':
+  //     case '3':
+  //     case '4':
+  //     case '5':
+  //     case '6':
+  //     case '7':
+  //     case '8':
+  //     case '9':
+  //       break;
+  //   }
+  // }
+
+  *c++ = 0x48;       // REX
+  *c++ = 0xB8;       // MOV RAX,immediate num
+  *((uint64_t *)c) = atoi(input);
+  c += sizeof(uint64_t);
+
+  // ...
+
+  *c++ = 0x48;       // REX
+  *c++ = 0x89;       // MOV RDI,reg
+  *c++ = 0xC7;       //   RAX
+
   *c++ = 0x48;             // REX
   *c++ = 0xB8;             // MOV RAX,immediate num
   *((uint64_t *)c) = 0x3c; //   60 (exit)
-  c += sizeof(uint64_t);
-
-  *c++ = 0x48;       // REX
-  *c++ = 0xBF;       // MOV RDI,immediate num
-  *((uint64_t *)c) = atoi(input);
   c += sizeof(uint64_t);
 
   *c++ = 0x0F;      // SYSCALL
