@@ -116,32 +116,41 @@ int main(int argc, char **argv, char **envp) {
   uint8_t code[INPUT_SIZE];
   uint8_t *c = code;
 
-  // char *p = input;
+  char *p = input;
+  int n = 0;
 
-  // while (*p) {
-  //   switch (*p) {
-  //     case '+':
-  //       break;
-  //     case '-':
-  //       break;
-  //     case '0':
-  //     case '1':
-  //     case '2':
-  //     case '3':
-  //     case '4':
-  //     case '5':
-  //     case '6':
-  //     case '7':
-  //     case '8':
-  //     case '9':
-  //       break;
-  //   }
-  // }
+  while (*p) {
+    switch (*p) {
+      case '+':
+        warnf("*p: %c", *p);
+        break;
+      case '-':
+        warnf("*p: %c", *p);
+        break;
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        do {
+          n = n * 10 + *p++ - '0';
+        } while (*p >= '0' && *p <= '9');
 
-  *c++ = 0x48;       // REX
-  *c++ = 0xB8;       // MOV RAX,immediate num
-  *((uint64_t *)c) = atoi(input);
-  c += sizeof(uint64_t);
+        *c++ = 0x48;           // REX
+        *c++ = 0xB8;           // MOV RAX,imm
+        // *c = n;
+        *((uint64_t *)c) = n;
+        c += sizeof(uint64_t);
+
+        break;
+    }
+    *p++;
+  }
 
   // ...
 
@@ -150,14 +159,14 @@ int main(int argc, char **argv, char **envp) {
   *c++ = 0xC7;       //   RAX
 
   *c++ = 0x48;             // REX
-  *c++ = 0xB8;             // MOV RAX,immediate num
+  *c++ = 0xB8;             // MOV RAX,imm num
   *((uint64_t *)c) = 0x3c; //   60 (exit)
   c += sizeof(uint64_t);
 
   *c++ = 0x0F;      // SYSCALL
   *c++ = 0x05;
 
-  warnf("writing %d bytes of machine code\n", c - code);
+  warnf("Writing %d bytes of machine code\n", c - code);
   write(STDOUT_FILENO, code, c - code);
 
   return EXIT_SUCCESS;

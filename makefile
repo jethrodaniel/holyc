@@ -24,7 +24,7 @@ test: $(PROG) force
 force:
 
 clean:
-	rm -vf a.out $(PROG) *.o main
+	rm -vf *.out $(PROG) *.o main
 
 #--
 
@@ -34,5 +34,5 @@ run: a.out
 	./a.out ; echo $$?
 disasm: a.out
 	dd skip=120 bs=1 if=./$< 2> /dev/null | ndisasm -b64 -
-asm: test.s
+asm.out: test.s
 	nasm -f bin $< -o $@ && ndisasm -b64 $@
