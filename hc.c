@@ -164,16 +164,22 @@ int main(int argc, char **argv, char **envp) {
 
   // ...
 
-  *c++ = 0x48;       // REX
-  *c++ = 0x89;       // MOV RDI,reg
-  *c++ = 0xC7;       //   RAX
+  // _start:
+  //   call main
+  //   mov rdi,rax
+  //   mov rax,60 ; exit
+  //   syscall
+  //
+  *c++ = 0x48; // REX
+  *c++ = 0x89; // MOV RDI,reg
+  *c++ = 0xC7; //   RAX
 
-  *c++ = 0x48;             // REX
-  *c++ = 0xB8;             // MOV RAX,imm num
-  *((uint64_t *)c) = 0x3c; //   60 (exit)
-  c += sizeof(uint64_t);
+  *c++ = 0x48; // REX
+  *c++ = 0xB8; // MOV RAX,imm num
+  *c = 0x3c;   //   60 (exit)
+  c += 8;
 
-  *c++ = 0x0F;      // SYSCALL
+  *c++ = 0x0F; // SYSCALL
   *c++ = 0x05;
 
   warnf("Writing %d bytes of machine code\n", c - code);

@@ -1,3 +1,4 @@
 bits 64
 
-xor rax,rax
+add rax,strict 4
+sub rax,strict 4
