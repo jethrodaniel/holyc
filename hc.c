@@ -116,11 +116,20 @@ int main(int argc, char **argv, char **envp) {
   uint8_t code[INPUT_SIZE];
   uint8_t *c = code;
 
+  *c++ = 0x48; // REX
+  *c++ = 0x31; // XOR RAX,RAX
+  *c++ = 0xC0;
+
   char *p = input;
   int n = 0;
 
   while (*p) {
     switch (*p) {
+      case ' ':
+      case '\t':
+        warnf("skipping space\n");
+        *p++;
+        break;
       case '+':
         warnf("*p: %c", *p);
         break;
@@ -137,15 +146,16 @@ int main(int argc, char **argv, char **envp) {
       case '7':
       case '8':
       case '9':
+        n = 0;
+
         do {
           n = n * 10 + *p++ - '0';
         } while (*p >= '0' && *p <= '9');
 
         *c++ = 0x48;           // REX
-        *c++ = 0xB8;           // MOV RAX,imm
-        // *c = n;
-        *((uint64_t *)c) = n;
-        c += sizeof(uint64_t);
+        *c++ = 0x05;           // ADD RAX,imm
+        *((uint32_t *)c) = n;
+        c += sizeof(uint32_t);
 
         break;
     }

@@ -32,7 +32,7 @@ a.out: $(PROG) force
 	echo 42 | ./$(PROG) > $@ && chmod u+x $@
 run: a.out
 	./a.out ; echo $$?
-disasm: a.out
+disasm: asm.out
 	dd skip=120 bs=1 if=./$< 2> /dev/null | ndisasm -b64 -
 asm.out: test.s
 	nasm -f bin $< -o $@ && ndisasm -b64 $@
