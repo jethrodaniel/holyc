@@ -20,6 +20,5 @@ assert() {
 assert 0 0
 assert 42 42
 assert 255 255
-assert 5 '3 2' # tmp
 
 echo OK

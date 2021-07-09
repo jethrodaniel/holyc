@@ -96,13 +96,35 @@ int write_elf_header(int program_length) {
 
 #define INPUT_SIZE 4096
 
-typedef struct Token {
-  int type;
-  char *val;
-} Token;
+typedef enum {
+  TK_RESERVED,
+  TK_NUM,
+  TK_EOF,
+} TokenType;
+
+typedef struct Token Token;
+struct Token {
+  TokenType type;
+  Token *next;
+  int val;
+  char *str;
+};
+
+// expr -> term '*' term
+//       | term '/' term
+// term -> num '+' num
+//       | num '-' num
+// num -> '-' _num
+//      | _num
+// _num -> digits
+//       | digits '.' digits
+//       | 'E' digits
+// digit  -> 0..9
+// digits -> digit+
+// digit  -> 0..9
 
 int main(int argc, char **argv, char **envp) {
-  uint8_t input[INPUT_SIZE];
+  char input[INPUT_SIZE];
   int num_read;
 
   if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
@@ -113,8 +135,9 @@ int main(int argc, char **argv, char **envp) {
 
   write_elf_header(num_read);
 
-  uint8_t code[INPUT_SIZE];
-  uint8_t *c = code;
+  char code[INPUT_SIZE];
+  char *c = code;
+  char *p = input;
 
   *c++ = 0x48; // REX
   *c++ = 0x31; // XOR RAX,RAX
@@ -122,62 +145,53 @@ int main(int argc, char **argv, char **envp) {
 
   *c++ = 0x48; // REX
   *c++ = 0xB8; // MOV RAX,imm
-  *c = atoi(input);
+  *c = strtol(p, &p, 10);
   c += 8;
 
-  warnf("input: %s", input);
-  char *end;
-  int t = strtol(input, &input, 10);
-  warnf("t: %d\n", t);
-  warnf("input: %s\n", input);
-  t = strtol(input, &input, 10);
-  warnf("input: %s\n", input);
-  warnf("t: %d\n", t);
-
-  char *p = input;
   int n = 0;
 
-  while (*p) {
-    switch (*p) {
-      case ' ':
-      case '\t':
-        warnf("skipping space\n");
-        *p++;
-        break;
-      case '+':
-        *c++ = 0x48; // REX
-        *c++ = 0x05; // ADD RAX,imm
-       break;
-      case '-':
-        *c++ = 0x48; // REX
-        *c++ = 0x2D; // SUB RAX,imm
-        break;
-      case '0':
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
-        warnf("unexpected character: %c\n", *p);
-        exit(2);
+  // while (*p) {
+  //   switch (*p) {
+  //     case ' ':
+  //     case '\t':
+  //     case '\n':
+  //       warnf("skipping space: %c (%d)\n", *p, *p);
+  //       break;
+  //     case '+':
+  //       *c++ = 0x48; // REX
+  //       *c++ = 0x05; // ADD RAX,imm
+  //       break;
+  //     case '-':
+  //       *c++ = 0x48; // REX
+  //       *c++ = 0x2D; // SUB RAX,imm
+  //       break;
+  //     case '0':
+  //     case '1':
+  //     case '2':
+  //     case '3':
+  //     case '4':
+  //     case '5':
+  //     case '6':
+  //     case '7':
+  //     case '8':
+  //     case '9':
+  //       n = 0;
 
-        n = 0;
+  //       do {
+  //         n = n * 10 + *p++ - '0';
+  //       } while (*p >= '0' && *p <= '9');
 
-        do {
-          n = n * 10 + *p++ - '0';
-        } while (*p >= '0' && *p <= '9');
+  //       *((uint32_t *)c) = n;
+  //       c += sizeof(uint32_t);
+  //       warnf("n: %d\n", n);
 
-        *((uint32_t *)c) = n;
-        c += sizeof(uint32_t);
-
-        break;
-    }
-    *p++;
-  }
+  //       break;
+  //     default:
+  //       warnf("unexpected character: %c (%d)\n", *p, *p);
+  //       exit(2);
+  //   }
+  //   *p++;
+  // }
 
   // ...
 
