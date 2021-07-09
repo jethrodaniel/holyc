@@ -122,9 +122,63 @@ struct Token {
 // digits -> digit+
 // digit  -> 0..9
 
+
+// types:
+//
+// struct Token
+
+struct Lex {
+  char *src;
+  int curr;
+  int pos;
+};
+
+
+// int process(char *input, char *code
+
+#define INPUT_SIZE 4096
+
+// get cli flags/opts
+// get input
+// process input:
+//   lex
+//   parse
+//   generate
+//   (jit) execute
+
+typedef enum {
+  OPT_OUTPUT_ASM,
+  OPT_OUTPUT_BIN,
+} OptionOutputFormat;
+
+typedef struct Options {
+  OptionOutputFormat output_format;
+} Options;
+
 int main(int argc, char **argv, char **envp) {
   char input[INPUT_SIZE];
   int num_read;
+
+  // get opts
+
+  Options *opts = malloc(sizeof(Options));
+  opts->output_format = OPT_OUTPUT_BIN;
+
+  for (int i = 0; i < argc; i++) {
+    char *arg = argv[i];
+
+    if (*arg == '-')
+      arg++;
+    else
+      continue;
+
+    if (*arg == 'S') {
+      warnf("-S passed, outputting assembly\n");
+      opts->output_format = OPT_OUTPUT_ASM;
+    }
+  }
+
+  // get input
 
   if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
     die("read");
@@ -132,20 +186,57 @@ int main(int argc, char **argv, char **envp) {
   warnf("read %d bytes\n", num_read);
   warnf("input: %s", input);
 
-  write_elf_header(num_read);
 
   char code[INPUT_SIZE];
   char *c = code;
   char *p = input;
 
-  *c++ = 0x48; // REX
-  *c++ = 0x31; // XOR RAX,RAX
-  *c++ = 0xC0;
+  if (opts->output_format == OPT_OUTPUT_BIN) {
+    write_elf_header(num_read);
 
-  *c++ = 0x48; // REX
-  *c++ = 0xB8; // MOV RAX,imm
-  *c = strtol(p, &p, 10);
-  c += 8;
+    *c++ = 0x48; // rex
+    *c++ = 0x31; // xor rax,rax
+    *c++ = 0xC0;
+
+    *c++ = 0x48; // REX
+    *c++ = 0xB8; // MOV RAX,imm
+    *c = strtol(p, &p, 10);
+    c += 8;
+
+    // _start:
+    //     call  main
+    //     mov   rdi,rax
+    //     mov   rax,60   ; exit
+    //     syscall
+    //
+    *c++ = 0x48; // REX
+    *c++ = 0x89; // MOV RDI,reg
+    *c++ = 0xC7; //   RAX
+
+    *c++ = 0x48; // REX
+    *c++ = 0xB8; // MOV RAX,imm
+    *c = 0x3c;   //   60 (exit)
+    c += 8;
+
+    *c++ = 0x0F; // SYSCALL
+    *c++ = 0x05;
+
+    warnf("Writing %d bytes of machine code\n", c - code);
+    write(STDOUT_FILENO, code, c - code);
+  } else if (opts->output_format == OPT_OUTPUT_ASM) {
+    printf("\n//----------------------------------------\n");
+    printf("\n");
+    printf("// _main::\n");
+    printf("    XOR      RAX,RAX\n");
+    printf("    MOV      RAX,%d\n", strtol(p, &p, 10));
+    printf("\n");
+    printf("// _start:\n");
+    printf("    // CALL  _main\n");
+    printf("    MOV       RDI,RAX  // arg1, _main()\n");
+    printf("    MOV       RAX,60   // exit()\n");
+    printf("    SYSCALL   \n");
+    printf("\n//----------------------------------------\n");
+  }
 
   int n = 0;
 
@@ -193,27 +284,6 @@ int main(int argc, char **argv, char **envp) {
   // }
 
   // ...
-
-  // _start:
-  //   call main
-  //   mov rdi,rax
-  //   mov rax,60 ; exit
-  //   syscall
-  //
-  *c++ = 0x48; // REX
-  *c++ = 0x89; // MOV RDI,reg
-  *c++ = 0xC7; //   RAX
-
-  *c++ = 0x48; // REX
-  *c++ = 0xB8; // MOV RAX,imm num
-  *c = 0x3c;   //   60 (exit)
-  c += 8;
-
-  *c++ = 0x0F; // SYSCALL
-  *c++ = 0x05;
-
-  warnf("Writing %d bytes of machine code\n", c - code);
-  write(STDOUT_FILENO, code, c - code);
 
   return EXIT_SUCCESS;
 }

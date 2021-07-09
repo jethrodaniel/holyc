@@ -1,1 +1,1 @@
-make; echo "$@" | ./holyc -S >a.out && chmod u+x a.out && ./a.out; echo $?; ndisasm -b64 -e120 a.out:w
+make; echo "$@" | ./holyc >a.out && chmod u+x a.out && ./a.out; echo $?; ndisasm -b64 -e120 a.out
