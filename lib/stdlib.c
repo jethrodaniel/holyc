@@ -19,6 +19,26 @@ int atoi(char *str) {
   return n * sign;
 }
 
+long strtol(char *str, char **end, int base) {
+  int n = 0,
+      i = 0,
+      sign = 1;
+  char *c = str;
+
+  if (*c == '-') {
+    c++;
+    sign = -1;
+  }
+
+  for (; *c >= '0' && *c <= '9'; c++)
+    n = n * 10 + *c - '0';
+
+  *end = *c;
+
+  return n * sign;
+}
+
+
 // stupid malloc
 //
 // https://my.eng.utah.edu/~cs4400/malloc.pdf

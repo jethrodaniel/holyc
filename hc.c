@@ -120,6 +120,20 @@ int main(int argc, char **argv, char **envp) {
   *c++ = 0x31; // XOR RAX,RAX
   *c++ = 0xC0;
 
+  *c++ = 0x48; // REX
+  *c++ = 0xB8; // MOV RAX,imm
+  *c = atoi(input);
+  c += 8;
+
+  warnf("input: %s", input);
+  char *end;
+  int t = strtol(input, &input, 10);
+  warnf("t: %d\n", t);
+  warnf("input: %s\n", input);
+  t = strtol(input, &input, 10);
+  warnf("input: %s\n", input);
+  warnf("t: %d\n", t);
+
   char *p = input;
   int n = 0;
 
@@ -131,10 +145,12 @@ int main(int argc, char **argv, char **envp) {
         *p++;
         break;
       case '+':
-        warnf("*p: %c", *p);
-        break;
+        *c++ = 0x48; // REX
+        *c++ = 0x05; // ADD RAX,imm
+       break;
       case '-':
-        warnf("*p: %c", *p);
+        *c++ = 0x48; // REX
+        *c++ = 0x2D; // SUB RAX,imm
         break;
       case '0':
       case '1':
@@ -146,14 +162,15 @@ int main(int argc, char **argv, char **envp) {
       case '7':
       case '8':
       case '9':
+        warnf("unexpected character: %c\n", *p);
+        exit(2);
+
         n = 0;
 
         do {
           n = n * 10 + *p++ - '0';
         } while (*p >= '0' && *p <= '9');
 
-        *c++ = 0x48;           // REX
-        *c++ = 0x05;           // ADD RAX,imm
         *((uint32_t *)c) = n;
         c += sizeof(uint32_t);
 
