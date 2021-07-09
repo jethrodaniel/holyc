@@ -155,13 +155,8 @@ typedef struct Options {
   OptionOutputFormat output_format;
 } Options;
 
-int main(int argc, char **argv, char **envp) {
-  char input[INPUT_SIZE];
-  int num_read;
-
-  // get opts
-
-  Options *opts = malloc(sizeof(Options));
+void parse_options(Options *opts, int argc, char **argv) {
+  // defaults
   opts->output_format = OPT_OUTPUT_BIN;
 
   for (int i = 0; i < argc; i++) {
@@ -177,15 +172,20 @@ int main(int argc, char **argv, char **envp) {
       opts->output_format = OPT_OUTPUT_ASM;
     }
   }
+}
 
-  // get input
+int main(int argc, char **argv, char **envp) {
+  char input[INPUT_SIZE];
+  int num_read;
+
+  Options *opts = malloc(sizeof(Options));
+  parse_options(opts, argc, argv);
 
   if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
     die("read");
 
   warnf("read %d bytes\n", num_read);
   warnf("input: %s", input);
-
 
   char code[INPUT_SIZE];
   char *c = code;
