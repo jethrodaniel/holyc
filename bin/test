@@ -1,0 +1,5 @@
+make test.out
+cmd="./test.out $@"
+echo $cmd
+eval $cmd
+rm test.out

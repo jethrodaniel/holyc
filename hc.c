@@ -40,6 +40,7 @@
 #include "lib/string.c"
 #include "lib/stdio.c"
 #include "lib/elf.h"
+#include "lib/stdbool.h"
 
 #define ELF_START 0x401000
 #define ELF_SIZE  120
@@ -93,8 +94,6 @@ int write_elf_header(int program_length) {
 
   write(STDOUT_FILENO, elf_output, elf_offset);
 }
-
-#define INPUT_SIZE 4096
 
 typedef enum {
   TK_RESERVED,

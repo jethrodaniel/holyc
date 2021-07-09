@@ -19,8 +19,10 @@ default: clean $(PROG) test
 $(PROG): hc.c
 	$(CC) $(CFLAGS) $< -o $(PROG)
 
-test: $(PROG) force
-	./test.sh
+test.out: $(PROG) force test.c
+	$(CC) $(CFLAGS) test.c -o $@
+test: test.out
+	./$<
 force:
 
 clean:
