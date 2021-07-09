@@ -33,7 +33,7 @@ long strtol(char *str, char **end, int base) {
   for (; *c >= '0' && *c <= '9'; c++)
     n = n * 10 + *c - '0';
 
-  *end = *c;
+  *end = c;
 
   return n * sign;
 }
