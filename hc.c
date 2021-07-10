@@ -133,27 +133,23 @@ struct Lex {
   int pos;
 };
 
-
-// int process(char *input, char *code
-
-#define INPUT_SIZE 4096
-
-// get cli flags/opts
-// get input
-// process input:
-//   lex
-//   parse
-//   generate
-//   (jit) execute
-
 typedef enum {
   OPT_OUTPUT_ASM,
   OPT_OUTPUT_BIN,
 } OptionOutputFormat;
 
-typedef struct Options {
+typedef struct Options Options;
+
+struct Options {
   OptionOutputFormat output_format;
-} Options;
+};
+
+bool output_bin(Options *opts) {
+  return opts->output_format == OPT_OUTPUT_BIN;
+}
+bool output_asm(Options *opts) {
+  return opts->output_format == OPT_OUTPUT_ASM;
+}
 
 void parse_options(Options *opts, int argc, char **argv) {
   // defaults
@@ -167,42 +163,43 @@ void parse_options(Options *opts, int argc, char **argv) {
     else
       continue;
 
-    if (*arg == 'S') {
-      warnf("-S passed, outputting assembly\n");
+    if (*arg == 'S')
       opts->output_format = OPT_OUTPUT_ASM;
-    }
   }
 }
 
-int main(int argc, char **argv, char **envp) {
-  char input[INPUT_SIZE];
-  int num_read;
+#define INPUT_SIZE 4096
 
-  Options *opts = malloc(sizeof(Options));
-  parse_options(opts, argc, argv);
+void output_start() {
+}
 
-  if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
-    die("read");
+// process input:
+//   lex
+//   parse
+//   generate
+//   (jit) execute
 
-  warnf("read %d bytes\n", num_read);
-  warnf("input: %s", input);
 
+int process(char *input, int size, Options *opts) {
   char code[INPUT_SIZE];
   char *c = code;
   char *p = input;
 
-  if (opts->output_format == OPT_OUTPUT_BIN) {
-    write_elf_header(num_read);
+  if (output_bin(opts))
+    write_elf_header(size);
 
-    *c++ = 0x48; // rex
-    *c++ = 0x31; // xor rax,rax
-    *c++ = 0xC0;
-
+  if (output_bin(opts)) {
+    write_elf_header(size);
     *c++ = 0x48; // REX
     *c++ = 0xB8; // MOV RAX,imm
     *c = strtol(p, &p, 10);
     c += 8;
+  } else {
+    printf("\n// _main::\n");
+    printf("    MOV      RAX,%d\n", strtol(p, &p, 10));
+  }
 
+  if (output_bin(opts)) {
     // _start:
     //     call  main
     //     mov   rdi,rax
@@ -223,19 +220,12 @@ int main(int argc, char **argv, char **envp) {
 
     warnf("Writing %d bytes of machine code\n", c - code);
     write(STDOUT_FILENO, code, c - code);
-  } else if (opts->output_format == OPT_OUTPUT_ASM) {
-    printf("\n//----------------------------------------\n");
-    printf("\n");
-    printf("// _main::\n");
-    printf("    XOR      RAX,RAX\n");
-    printf("    MOV      RAX,%d\n", strtol(p, &p, 10));
-    printf("\n");
-    printf("// _start:\n");
+  } else if (output_asm(opts)) {
+    printf("\n// _start:\n");
     printf("    // CALL  _main\n");
     printf("    MOV       RDI,RAX  // arg1, _main()\n");
     printf("    MOV       RAX,60   // exit()\n");
     printf("    SYSCALL   \n");
-    printf("\n//----------------------------------------\n");
   }
 
   int n = 0;
@@ -287,3 +277,23 @@ int main(int argc, char **argv, char **envp) {
 
   return EXIT_SUCCESS;
 }
+
+int main(int argc, char **argv, char **envp) {
+  char input[INPUT_SIZE];
+  int num_read;
+
+  Options *opts = malloc(sizeof(Options));
+  parse_options(opts, argc, argv);
+
+  if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
+    die("read");
+
+  // lex
+  // preprocess
+  // parse
+  // type-check
+  // resolve
+  return process(input, num_read, opts);
+}
+
+
