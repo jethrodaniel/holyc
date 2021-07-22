@@ -96,18 +96,67 @@ int write_elf_header(int program_length) {
 }
 
 typedef enum {
-  TK_RESERVED,
+  TK_ERR,
   TK_NUM,
+  TK_NEWLINE,
   TK_EOF,
 } TokenType;
 
-typedef struct Token Token;
-struct Token {
-  TokenType type;
-  Token *next;
+typedef struct Token {
+  char *str;      // source text, e.g, "42"
+
+  TokenType type; // token type, NUM, etc.
   int val;
-  char *str;
-};
+  // int pos;
+  // int len;
+} Token;
+
+int TokenString(Token *t, char *buf) {
+  char *map[] = {
+    "ERR",
+    "NUM",
+    "EOF",
+  };
+  char *b = buf;
+  *b++ = '[';
+  char *s = map[t->type];
+  int len = strlen(s);
+  memcpy(b, s, len);
+  b += len;
+  *b++ = ',';
+  *b++ = ' ';
+  *b++ = '"';
+  s = t->str;
+  len = strlen(t->str);
+  memcpy(b, s, len);
+  b += len;
+  *b++ = '"';
+  *b++ = ']';
+  return 0;
+}
+
+// typedef struct Lexer {
+//   char *input; // string being scanned
+//   int start;   // start position of this token
+//   int pos;     // current position in the input
+// } Lexer;
+
+// typedef int (*LexStateFn)(Lexer *lex);
+
+// void lexNum(Lexer *lex) {
+//   return NULL;
+// }
+
+// void LexRun(Lexer *lex) {
+//   lexNum(lex);
+// }
+
+// void emit(Lexer *l, TokenType type) {
+//   l->items <- item{t, l.input[l.start:l.pos]}
+//     l.start = l.pos
+// }
+
+// for state = startState; state != NULL; state = state(lex)
 
 // expr -> term '*' term
 //       | term '/' term
@@ -180,7 +229,66 @@ void output_start() {
 //   (jit) execute
 
 
+// factor -> number
+// number -> digits
+// digits -> digit+
+// digit  -> 0..9
+
+TokenType Lex(char **src, int *val) {
+  char *curr = *src;
+  int n;
+
+  while (true) {
+    printf("*curr: %c (%d)\n", *curr, *curr);
+
+    switch (*curr) {
+      // case '\n':
+      //   *src = curr++;
+      //   break;
+      case '\0':
+        return TK_EOF;
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        n = 0;
+
+        do {
+          n = n * 10 + *curr - '0';
+          curr++;
+        } while (*curr >= '0' && *curr <= '9');
+
+        *val = n;
+        *src = curr;
+        return TK_NUM;
+      default:
+        warnf("unexpected character: %c (%d)\n", *curr, *curr);
+        exit(2);
+    }
+  }
+}
+
+
+void Parse(char *src, Options *opts) {
+  int n;
+
+  while (*src) {
+    Lex(&src, &n);
+    printf("n = %d\n", n);
+    printf("*src = %s\n", src);
+  }
+}
+
 int process(char *input, int size, Options *opts) {
+  Parse(input, opts);
+  return 0;
+
   char code[INPUT_SIZE];
   char *c = code;
   char *p = input;
@@ -189,7 +297,6 @@ int process(char *input, int size, Options *opts) {
     write_elf_header(size);
 
   if (output_bin(opts)) {
-    write_elf_header(size);
     *c++ = 0x48; // REX
     *c++ = 0xB8; // MOV RAX,imm
     *c = strtol(p, &p, 10);
@@ -288,11 +395,27 @@ int main(int argc, char **argv, char **envp) {
   if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
     die("read");
 
+  // input[num_read] = '\0';
+
+  // Token *t = malloc(sizeof(Token));
+  // t->str = "42";
+  // t->type = TK_NUM;
+  // char val[] = "    ";
+  // TokenString(t, val);
+  // warnf("t: %s\n", val);
+
+  // Lexer *lex = malloc(sizeof(Lexer));
+  // LexRun(lex);
+
+  // parse flags/opts
+  // get input
   // lex
   // preprocess
   // parse
   // type-check
-  // resolve
+  // resolve/link
+  // output
+  //
   return process(input, num_read, opts);
 }
 
