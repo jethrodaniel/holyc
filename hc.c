@@ -242,9 +242,9 @@ TokenType Lex(char **src, int *val) {
     printf("*curr: %c (%d)\n", *curr, *curr);
 
     switch (*curr) {
-      // case '\n':
-      //   *src = curr++;
-      //   break;
+      case '\n':
+        *src = ++curr;
+        break;
       case '\0':
         return TK_EOF;
       case '0':
@@ -285,10 +285,46 @@ void Parse(char *src, Options *opts) {
   }
 }
 
-int process(char *input, int size, Options *opts) {
-  Parse(input, opts);
-  return 0;
+void emit_mov_rax_imm(char **_code, char **input, Options *opts) {
+  char *code = *_code;
+  if (output_bin(opts)) {
+    *code++ = 0x48; // REX
+    *code++ = 0xB8; // MOV RAX,imm
+    *code = strtol(*input, input, 10);
+    code += 8;
+    *_code = code;
+    return;
+  }
+  printf("MOV RAX,%d\n", strtol(*input, input, 10));
+}
 
+void emit_start(char **_code, char **input, Options *opts) {
+  char *code = *_code;
+  if (output_bin(opts)) {
+    *code++ = 0x48; // REX
+    *code++ = 0x89; // MOV RDI,reg
+    *code++ = 0xC7; //   RAX
+
+    *code++ = 0x48; // REX
+    *code++ = 0xB8; // MOV RAX,imm
+    *code = 0x3c;   //   60 (exit)
+    code += 8;
+
+    *code++ = 0x0F; // SYSCALL
+    *code++ = 0x05;
+
+    *_code = code;
+    return;
+  }
+
+  printf("\n_start:\n");
+  printf("  // CALL main\n");
+  printf("  MOV RDI,RAX  // arg1, main()\n");
+  printf("  MOV RAX,60   // exit\n");
+  printf("  SYSCALL      // exit()\n");
+}
+
+int process(char *input, int size, Options *opts) {
   char code[INPUT_SIZE];
   char *c = code;
   char *p = input;
@@ -296,91 +332,11 @@ int process(char *input, int size, Options *opts) {
   if (output_bin(opts))
     write_elf_header(size);
 
-  if (output_bin(opts)) {
-    *c++ = 0x48; // REX
-    *c++ = 0xB8; // MOV RAX,imm
-    *c = strtol(p, &p, 10);
-    c += 8;
-  } else {
-    printf("\n// _main::\n");
-    printf("    MOV      RAX,%d\n", strtol(p, &p, 10));
-  }
+  emit_mov_rax_imm(&c, &p, opts);
+  emit_start(&c, &p, opts);
 
-  if (output_bin(opts)) {
-    // _start:
-    //     call  main
-    //     mov   rdi,rax
-    //     mov   rax,60   ; exit
-    //     syscall
-    //
-    *c++ = 0x48; // REX
-    *c++ = 0x89; // MOV RDI,reg
-    *c++ = 0xC7; //   RAX
-
-    *c++ = 0x48; // REX
-    *c++ = 0xB8; // MOV RAX,imm
-    *c = 0x3c;   //   60 (exit)
-    c += 8;
-
-    *c++ = 0x0F; // SYSCALL
-    *c++ = 0x05;
-
-    warnf("Writing %d bytes of machine code\n", c - code);
-    write(STDOUT_FILENO, code, c - code);
-  } else if (output_asm(opts)) {
-    printf("\n// _start:\n");
-    printf("    // CALL  _main\n");
-    printf("    MOV       RDI,RAX  // arg1, _main()\n");
-    printf("    MOV       RAX,60   // exit()\n");
-    printf("    SYSCALL   \n");
-  }
-
-  int n = 0;
-
-  // while (*p) {
-  //   switch (*p) {
-  //     case ' ':
-  //     case '\t':
-  //     case '\n':
-  //       warnf("skipping space: %c (%d)\n", *p, *p);
-  //       break;
-  //     case '+':
-  //       *c++ = 0x48; // REX
-  //       *c++ = 0x05; // ADD RAX,imm
-  //       break;
-  //     case '-':
-  //       *c++ = 0x48; // REX
-  //       *c++ = 0x2D; // SUB RAX,imm
-  //       break;
-  //     case '0':
-  //     case '1':
-  //     case '2':
-  //     case '3':
-  //     case '4':
-  //     case '5':
-  //     case '6':
-  //     case '7':
-  //     case '8':
-  //     case '9':
-  //       n = 0;
-
-  //       do {
-  //         n = n * 10 + *p++ - '0';
-  //       } while (*p >= '0' && *p <= '9');
-
-  //       *((uint32_t *)c) = n;
-  //       c += sizeof(uint32_t);
-  //       warnf("n: %d\n", n);
-
-  //       break;
-  //     default:
-  //       warnf("unexpected character: %c (%d)\n", *p, *p);
-  //       exit(2);
-  //   }
-  //   *p++;
-  // }
-
-  // ...
+  warnf("Writing %d bytes of machine code\n", c - code);
+  write(STDOUT_FILENO, code, c - code);
 
   return EXIT_SUCCESS;
 }
@@ -395,27 +351,6 @@ int main(int argc, char **argv, char **envp) {
   if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
     die("read");
 
-  // input[num_read] = '\0';
-
-  // Token *t = malloc(sizeof(Token));
-  // t->str = "42";
-  // t->type = TK_NUM;
-  // char val[] = "    ";
-  // TokenString(t, val);
-  // warnf("t: %s\n", val);
-
-  // Lexer *lex = malloc(sizeof(Lexer));
-  // LexRun(lex);
-
-  // parse flags/opts
-  // get input
-  // lex
-  // preprocess
-  // parse
-  // type-check
-  // resolve/link
-  // output
-  //
   return process(input, num_read, opts);
 }
 
