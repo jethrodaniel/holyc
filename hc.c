@@ -84,27 +84,14 @@ int write_elf_header(int program_length) {
   write(STDOUT_FILENO, elf_output, elf_offset);
 }
 
-typedef enum {
-  OPT_OUTPUT_ASM,
-  OPT_OUTPUT_BIN,
-} OptionOutputFormat;
+typedef struct CC {
+  bool output_asm;
+} CC;
 
-typedef struct Options Options;
-
-struct Options {
-  OptionOutputFormat output_format;
-};
-
-bool output_bin(Options *opts) {
-  return opts->output_format == OPT_OUTPUT_BIN;
-}
-bool output_asm(Options *opts) {
-  return opts->output_format == OPT_OUTPUT_ASM;
-}
-
-void parse_options(Options *opts, int argc, char **argv) {
-  // defaults
-  opts->output_format = OPT_OUTPUT_BIN;
+// Set defaults, update cc options from argv values.
+//
+void parse_options(CC *cc, int argc, char **argv) {
+  cc->output_asm = false;
 
   for (int i = 0; i < argc; i++) {
     char *arg = argv[i];
@@ -115,66 +102,64 @@ void parse_options(Options *opts, int argc, char **argv) {
       continue;
 
     if (*arg == 'S')
-      opts->output_format = OPT_OUTPUT_ASM;
+      cc->output_asm = true;
   }
 }
 
-void emit_mov_rax_imm(char **_code, char **input, Options *opts) {
-  char *code = *_code;
-  if (output_bin(opts)) {
-    *code++ = 0x48; // REX
-    *code++ = 0xB8; // MOV RAX,imm
-    *code = strtol(*input, input, 10);
-    code += 8;
-    *_code = code;
+void emit_mov_rax_imm(CC *cc, char **_code, int imm) {
+  if (cc->output_asm) {
+    printf("MOV RAX,%d\n", imm);
     return;
   }
-  printf("MOV RAX,%d\n", strtol(*input, input, 10));
+  char *code = *_code;
+  *code++ = 0x48; // REX
+  *code++ = 0xB8; // MOV RAX,imm
+  *code = imm;
+  code += 8;
+  *_code = code;
 }
 
-void emit_start(char **_code, char **input, Options *opts) {
-  char *code = *_code;
-  if (output_bin(opts)) {
-    *code++ = 0x48; // REX
-    *code++ = 0x89; // MOV RDI,reg
-    *code++ = 0xC7; //   RAX
-
-    *code++ = 0x48; // REX
-    *code++ = 0xB8; // MOV RAX,imm
-    *code = 0x3c;   //   60 (exit)
-    code += 8;
-
-    *code++ = 0x0F; // SYSCALL
-    *code++ = 0x05;
-
-    *_code = code;
+void emit_start(CC *cc, char **_code, char **input) {
+  if (cc->output_asm) {
+    printf("\n_start:\n");
+    printf("  // CALL main\n");
+    printf("  MOV RDI,RAX  // arg1, main()\n");
+    printf("  MOV RAX,60   // exit\n");
+    printf("  SYSCALL      // exit()\n");
     return;
   }
 
-  printf("\n_start:\n");
-  printf("  // CALL main\n");
-  printf("  MOV RDI,RAX  // arg1, main()\n");
-  printf("  MOV RAX,60   // exit\n");
-  printf("  SYSCALL      // exit()\n");
+  char *code = *_code;
+  *code++ = 0x48; // REX
+  *code++ = 0x89; // MOV RDI,reg
+  *code++ = 0xC7; //   RAX
+
+  emit_mov_rax_imm(cc, &code, 60);
+
+  *code++ = 0x0F; // SYSCALL
+  *code++ = 0x05;
+
+  *_code = code;
 }
 
 #define INPUT_SIZE 4096
 
-int process(char *input, int size, Options *opts) {
+int process(CC *cc, char *input, int size) {
   char code[INPUT_SIZE];
   char *c = code;
   char *p = input;
 
-  if (output_bin(opts))
+  if (!cc->output_asm)
     write_elf_header(size);
 
-  emit_mov_rax_imm(&c, &p, opts);
+  int n = strtol(p, &p, 10);
+  emit_mov_rax_imm(cc, &c, n);
 
   // while (*p) {
   //   if (*p == '-') {
   //   }
   // }
-  emit_start(&c, &p, opts);
+  emit_start(cc, &c, &p);
 
   warnf("Writing %d bytes of machine code\n", c - code);
   write(STDOUT_FILENO, code, c - code);
@@ -186,13 +171,13 @@ int main(int argc, char **argv, char **envp) {
   char input[INPUT_SIZE];
   int num_read;
 
-  Options *opts = malloc(sizeof(Options));
-  parse_options(opts, argc, argv);
+  CC *cc = malloc(sizeof(CC));
+  parse_options(cc, argc, argv);
 
   if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
     die("read");
 
-  return process(input, num_read, opts);
+  return process(cc, input, num_read);
 }
 
 
