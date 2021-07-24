@@ -218,8 +218,8 @@ void print_token(CC *cc) {
 //
 // See https://github.com/Xe/TempleOS/blob/master/Compiler/Lex.HC#L441
 //
-int Lex(CC *cc, char **input) {
-  char *c = *input;
+int Lex(CC *cc) {
+  char *c = cc->input;
   int n;
 
   while (true) {
@@ -229,13 +229,13 @@ int Lex(CC *cc, char **input) {
         c++;
         break;
       case '\0':
-        *input = ++c;
+        cc->input = ++c;
         return cc->token = TK_EOF;
       case '+':
-        *input = ++c;
+        cc->input = ++c;
         return cc->token = TK_PLUS;
       case '-':
-        *input = ++c;
+        cc->input = ++c;
         return cc->token = TK_MIN;
       case '0':
       case '1':
@@ -255,7 +255,7 @@ int Lex(CC *cc, char **input) {
         } while (*c >= '0' && *c <= '9');
 
         cc->int_val = n;
-        *input = c;
+        cc->input = c;
         return cc->token = TK_INT;
       default:
         error("unexpected character '%c' (%d)", *c, *c);
@@ -282,16 +282,13 @@ int main(int argc, char **argv, char **envp) {
   if ((cc->input_size = read(STDIN_FILENO, cc->input, INPUT_SIZE)) < 0)
     die("read");
 
-  char *c = cc->code;
-  char *p = cc->input;
-
   if (!cc->output_asm)
     write_elf_header(cc->input_size);
 
   int n;
 
   // Parse
-  while (Lex(cc, &p) != TK_EOF) {
+  while (Lex(cc) != TK_EOF) {
     print_token(cc);
 
     switch (cc->token) {
@@ -311,35 +308,35 @@ int main(int argc, char **argv, char **envp) {
 
   exit(32);
 
-  emit_mov_rax_imm(cc, &c, n);
+  // emit_mov_rax_imm(cc, &c, n);
 
-  while (*p) {
-    if (*p == '-') {
-      p++;
-      n = strtol(p, &p, 10);
-      emit_sub_rax_imm(cc, &c, n);
-      continue;
-    }
+  // while (*p) {
+  //   if (*p == '-') {
+  //     p++;
+  //     n = strtol(p, &p, 10);
+  //     emit_sub_rax_imm(cc, &c, n);
+  //     continue;
+  //   }
 
-    if (*p == '+') {
-      p++;
-      n = strtol(p, &p, 10);
-      emit_add_rax_imm(cc, &c, n);
-      continue;
-    }
+  //   if (*p == '+') {
+  //     p++;
+  //     n = strtol(p, &p, 10);
+  //     emit_add_rax_imm(cc, &c, n);
+  //     continue;
+  //   }
 
-    if (*p == '\n') {
-      p++;
-      continue;
-    }
+  //   if (*p == '\n') {
+  //     p++;
+  //     continue;
+  //   }
 
-    warnf("unexpected character '%c' (%d)", *p, *p);
-    exit(1);
-  }
-  emit_start(cc, &c, &p);
+  //   warnf("unexpected character '%c' (%d)", *p, *p);
+  //   exit(1);
+  // }
+  // emit_start(cc, &c, &p);
 
-  warnf("Writing %d bytes of machine code\n", c - cc->code);
-  write(STDOUT_FILENO, cc->code, c - cc->code);
+  warnf("Writing %d bytes of machine code\n", cc->code - cc->code_buf);
+  write(STDOUT_FILENO, cc->code_buf, cc->code - cc->code_buf);
 
   return EXIT_SUCCESS;
 }
