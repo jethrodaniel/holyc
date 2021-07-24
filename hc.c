@@ -151,13 +151,13 @@ void emit_add_rax_imm(CC *cc, int imm) {
   cc->code += 4;
 }
 
-void emit_push_imm(CC *cc, int imm) {
+void emit_push(CC *cc, int n) {
   if (cc->output_asm) {
-    printf("PUSH %d\n", imm);
+    printf("PUSH %d\n", n);
     return;
   }
   *cc->code++ = 0x68; // PUSH
-  *cc->code = imm;
+  *cc->code = n;
   cc->code += 4;
 }
 
@@ -292,7 +292,7 @@ void _term(CC *cc) {
 //
 void _expr(CC *cc) {
   term(cc);
-  emit_push_imm(cc, cc->int_val);
+  emit_push(cc, cc->int_val);
   emit_pop(cc);
 
   // Lex(cc);
