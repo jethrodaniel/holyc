@@ -119,57 +119,49 @@ void parse_options(CC *cc) {
   }
 }
 
-void emit_mov_rax_imm(CC *cc, char **_code, int imm) {
+void emit_mov_rax_imm(CC *cc, int imm) {
   if (cc->output_asm) {
     printf("MOV RAX,%d\n", imm);
     return;
   }
-  char *code = *_code;
-  *code++ = 0x48; // REX
-  *code++ = 0xB8; // MOV RAX,imm
-  *code = imm;
-  code += 8;
-  *_code = code;
+  *cc->code++ = 0x48; // REX
+  *cc->code++ = 0xB8; // MOV RAX,imm
+  *cc->code = imm;
+  cc->code += 8;
 }
 
-void emit_sub_rax_imm(CC *cc, char **_code, int imm) {
+void emit_sub_rax_imm(CC *cc, int imm) {
   if (cc->output_asm) {
     printf("SUB RAX,%d\n", imm);
     return;
   }
-  char *code = *_code;
-  *code++ = 0x48; // REX
-  *code++ = 0x2D; // SUB RAX,imm
-  *code = imm;
-  code += 4;
-  *_code = code;
+  *cc->code++ = 0x48; // REX
+  *cc->code++ = 0x2D; // SUB RAX,imm
+  *cc->code = imm;
+  cc->code += 4;
 }
-void emit_add_rax_imm(CC *cc, char **_code, int imm) {
+void emit_add_rax_imm(CC *cc, int imm) {
   if (cc->output_asm) {
     printf("ADD RAX,%d\n", imm);
     return;
   }
-  char *code = *_code;
-  *code++ = 0x48; // REX
-  *code++ = 0x05; // ADD RAX,imm
-  *code = imm;
-  code += 4;
-  *_code = code;
+  *cc->code++ = 0x48; // REX
+  *cc->code++ = 0x05; // ADD RAX,imm
+  *cc->code = imm;
+  cc->code += 4;
 }
 
 
-void emit_syscall(CC *cc, char **_code) {
+void emit_syscall(CC *cc) {
   if (cc->output_asm) {
     printf("  SYSCALL");
     return;
   }
-  char *code = *_code;
-  *code++ = 0x0F; // SYSCALL
-  *code++ = 0x05;
-  *_code = code;
+  *cc->code++ = 0x0F; // SYSCALL
+  *cc->code++ = 0x05;
 }
 
-void emit_start(CC *cc, char **_code, char **input) {
+void emit_start(CC *cc) {
   if (cc->output_asm) {
     printf("\n_start:\n");
     printf("  // CALL main\n");
@@ -179,15 +171,12 @@ void emit_start(CC *cc, char **_code, char **input) {
     return;
   }
 
-  char *code = *_code;
-  *code++ = 0x48; // REX
-  *code++ = 0x89; // MOV RDI,reg
-  *code++ = 0xC7; //   RAX
+  *cc->code++ = 0x48; // REX
+  *cc->code++ = 0x89; // MOV RDI,reg
+  *cc->code++ = 0xC7; //   RAX
 
-  emit_mov_rax_imm(cc, &code, 60);
-  emit_syscall(cc, &code);
-
-  *_code = code;
+  emit_mov_rax_imm(cc, 60);
+  emit_syscall(cc);
 }
 
 typedef enum {
@@ -263,6 +252,12 @@ int Lex(CC *cc) {
   }
 }
 
+void expect_token(CC *cc, TokenType t) {
+  Lex(cc);
+  if (cc->token != t)
+    error("expected an integer, got '%c' (%d)", cc->token, cc->token);
+}
+
 #define INPUT_SIZE 4096
 
 int main(int argc, char **argv, char **envp) {
@@ -282,18 +277,14 @@ int main(int argc, char **argv, char **envp) {
   if ((cc->input_size = read(STDIN_FILENO, cc->input, INPUT_SIZE)) < 0)
     die("read");
 
-  if (!cc->output_asm)
-    write_elf_header(cc->input_size);
-
-  int n;
+  expect_token(cc, TK_INT);
+  emit_mov_rax_imm(cc, cc->int_val);
 
   // Parse
   while (Lex(cc) != TK_EOF) {
     print_token(cc);
 
     switch (cc->token) {
-    case TK_EOF:
-      break;
     case TK_INT:
       break;
     case TK_MIN:
@@ -305,10 +296,6 @@ int main(int argc, char **argv, char **envp) {
     }
   }
   print_token(cc);
-
-  exit(32);
-
-  // emit_mov_rax_imm(cc, &c, n);
 
   // while (*p) {
   //   if (*p == '-') {
@@ -335,8 +322,13 @@ int main(int argc, char **argv, char **envp) {
   // }
   // emit_start(cc, &c, &p);
 
-  warnf("Writing %d bytes of machine code\n", cc->code - cc->code_buf);
-  write(STDOUT_FILENO, cc->code_buf, cc->code - cc->code_buf);
+  int code_size = cc->code - cc->code_buf;
+
+  if (!cc->output_asm)
+    write_elf_header(code_size);
+
+  warnf("Writing %d bytes of machine code\n", code_size);
+  write(STDOUT_FILENO, cc->code_buf, code_size);
 
   return EXIT_SUCCESS;
 }
