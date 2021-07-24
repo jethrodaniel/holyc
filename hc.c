@@ -252,6 +252,12 @@ int Lex(CC *cc) {
   }
 }
 
+void consume_token(CC *cc, TokenType t) {
+  Lex(cc);
+  if (cc->token != t)
+    error("expected an integer, got '%c' (%d)", cc->token, cc->token);
+}
+
 void expect_token(CC *cc, TokenType t) {
   Lex(cc);
   if (cc->token != t)
@@ -285,11 +291,15 @@ int main(int argc, char **argv, char **envp) {
     print_token(cc);
 
     switch (cc->token) {
-    case TK_INT:
-      break;
+    // case TK_INT:
+    //   break;
     case TK_MIN:
+      expect_token(cc, TK_INT);
+      emit_sub_rax_imm(cc, cc->int_val);
       break;
     case TK_PLUS:
+      expect_token(cc, TK_INT);
+      emit_add_rax_imm(cc, cc->int_val);
       break;
     default:
       error("unexpected token '%d'", cc->token);
@@ -297,30 +307,7 @@ int main(int argc, char **argv, char **envp) {
   }
   print_token(cc);
 
-  // while (*p) {
-  //   if (*p == '-') {
-  //     p++;
-  //     n = strtol(p, &p, 10);
-  //     emit_sub_rax_imm(cc, &c, n);
-  //     continue;
-  //   }
-
-  //   if (*p == '+') {
-  //     p++;
-  //     n = strtol(p, &p, 10);
-  //     emit_add_rax_imm(cc, &c, n);
-  //     continue;
-  //   }
-
-  //   if (*p == '\n') {
-  //     p++;
-  //     continue;
-  //   }
-
-  //   warnf("unexpected character '%c' (%d)", *p, *p);
-  //   exit(1);
-  // }
-  // emit_start(cc, &c, &p);
+  emit_start(cc);
 
   int code_size = cc->code - cc->code_buf;
 
