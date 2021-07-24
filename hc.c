@@ -85,7 +85,9 @@ int write_elf_header(int program_length) {
 }
 
 typedef struct CC {
-  bool output_asm;
+  bool output_asm; // output asm, or binary?
+  int token;       // token type
+  int int_val;     // if token is int
 } CC;
 
 // Set defaults, update cc options from argv values.
@@ -143,7 +145,6 @@ void emit_add_rax_imm(CC *cc, char **_code, int imm) {
 }
 
 
-
 void emit_syscall(CC *cc, char **_code) {
   if (cc->output_asm) {
     printf("  SYSCALL");
@@ -176,6 +177,79 @@ void emit_start(CC *cc, char **_code, char **input) {
   *_code = code;
 }
 
+typedef enum {
+  TK_EOF,
+  TK_INT,
+  TK_MIN,
+  TK_PLUS,
+} TokenType;
+
+void print_token(CC *cc) {
+  switch (cc->token) {
+    case TK_EOF:
+      warnf("TK_EOF (%d)\n", cc->token);
+      break;
+    case TK_INT:
+      warnf("TK_INT (%d), int_val: %d\n", cc->token, cc->int_val);
+      break;
+    case TK_MIN:
+      warnf("TK_MIN (%d)\n", cc->token);
+      break;
+    case TK_PLUS:
+      warnf("TK_PLUS (%d)\n", cc->token);
+      break;
+  }
+}
+
+// Fetches next token.
+//
+// See https://github.com/Xe/TempleOS/blob/master/Compiler/Lex.HC#L441
+//
+int Lex(CC *cc, char **input) {
+  char *c = *input;
+  int n;
+
+  while (true) {
+    switch (*c) {
+      case '\n':
+        c++;
+        break;
+      case '\0':
+        *input = ++c;
+        return cc->token = TK_EOF;
+      case '+':
+        *input = ++c;
+        return cc->token = TK_PLUS;
+      case '-':
+        *input = ++c;
+        return cc->token = TK_MIN;
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        n = 0;
+
+        do {
+          n = n * 10 + *c - '0';
+          c++;
+        } while (*c >= '0' && *c <= '9');
+
+        cc->int_val = n;
+        *input = c;
+        return cc->token = TK_INT;
+      default:
+        warnf("unexpected character '%c' (%d)", *c, *c);
+        exit(1);
+    }
+  }
+}
+
 #define INPUT_SIZE 4096
 
 int process(CC *cc, char *input, int size) {
@@ -186,7 +260,17 @@ int process(CC *cc, char *input, int size) {
   if (!cc->output_asm)
     write_elf_header(size);
 
-  int n = strtol(p, &p, 10);
+  int n;
+
+  Lex(cc, &p);
+  print_token(cc);
+  Lex(cc, &p);
+  print_token(cc);
+  Lex(cc, &p);
+  print_token(cc);
+
+  exit(32);
+
   emit_mov_rax_imm(cc, &c, n);
 
   while (*p) {
@@ -196,13 +280,13 @@ int process(CC *cc, char *input, int size) {
       emit_sub_rax_imm(cc, &c, n);
       continue;
     }
+
     if (*p == '+') {
       p++;
       n = strtol(p, &p, 10);
       emit_add_rax_imm(cc, &c, n);
       continue;
     }
-
 
     if (*p == '\n') {
       p++;
