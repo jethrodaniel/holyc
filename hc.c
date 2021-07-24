@@ -91,8 +91,6 @@ typedef struct CC {
 // Set defaults, update cc options from argv values.
 //
 void parse_options(CC *cc, int argc, char **argv) {
-  cc->output_asm = false;
-
   for (int i = 0; i < argc; i++) {
     char *arg = argv[i];
 
@@ -119,6 +117,44 @@ void emit_mov_rax_imm(CC *cc, char **_code, int imm) {
   *_code = code;
 }
 
+void emit_sub_rax_imm(CC *cc, char **_code, int imm) {
+  if (cc->output_asm) {
+    printf("SUB RAX,%d\n", imm);
+    return;
+  }
+  char *code = *_code;
+  *code++ = 0x48; // REX
+  *code++ = 0x2D; // SUB RAX,imm
+  *code = imm;
+  code += 4;
+  *_code = code;
+}
+void emit_add_rax_imm(CC *cc, char **_code, int imm) {
+  if (cc->output_asm) {
+    printf("ADD RAX,%d\n", imm);
+    return;
+  }
+  char *code = *_code;
+  *code++ = 0x48; // REX
+  *code++ = 0x05; // ADD RAX,imm
+  *code = imm;
+  code += 4;
+  *_code = code;
+}
+
+
+
+void emit_syscall(CC *cc, char **_code) {
+  if (cc->output_asm) {
+    printf("  SYSCALL");
+    return;
+  }
+  char *code = *_code;
+  *code++ = 0x0F; // SYSCALL
+  *code++ = 0x05;
+  *_code = code;
+}
+
 void emit_start(CC *cc, char **_code, char **input) {
   if (cc->output_asm) {
     printf("\n_start:\n");
@@ -135,9 +171,7 @@ void emit_start(CC *cc, char **_code, char **input) {
   *code++ = 0xC7; //   RAX
 
   emit_mov_rax_imm(cc, &code, 60);
-
-  *code++ = 0x0F; // SYSCALL
-  *code++ = 0x05;
+  emit_syscall(cc, &code);
 
   *_code = code;
 }
@@ -155,10 +189,29 @@ int process(CC *cc, char *input, int size) {
   int n = strtol(p, &p, 10);
   emit_mov_rax_imm(cc, &c, n);
 
-  // while (*p) {
-  //   if (*p == '-') {
-  //   }
-  // }
+  while (*p) {
+    if (*p == '-') {
+      p++;
+      n = strtol(p, &p, 10);
+      emit_sub_rax_imm(cc, &c, n);
+      continue;
+    }
+    if (*p == '+') {
+      p++;
+      n = strtol(p, &p, 10);
+      emit_add_rax_imm(cc, &c, n);
+      continue;
+    }
+
+
+    if (*p == '\n') {
+      p++;
+      continue;
+    }
+
+    warnf("unexpected character '%c' (%d)", *p, *p);
+    exit(1);
+  }
   emit_start(cc, &c, &p);
 
   warnf("Writing %d bytes of machine code\n", c - code);
