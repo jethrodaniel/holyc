@@ -187,16 +187,16 @@ typedef enum {
 void print_token(CC *cc) {
   switch (cc->token) {
     case TK_EOF:
-      warnf("TK_EOF (%d)\n", cc->token);
+      warnf("[EOF, '\\0']\n", cc->token);
       break;
     case TK_INT:
-      warnf("TK_INT (%d), int_val: %d\n", cc->token, cc->int_val);
+      warnf("[INT, '%d']\n", cc->int_val);
       break;
     case TK_MIN:
-      warnf("TK_MIN (%d)\n", cc->token);
+      warnf("[MIN, '-']\n");
       break;
     case TK_PLUS:
-      warnf("TK_PLUS (%d)\n", cc->token);
+      warnf("[PLUS, '+']\n");
       break;
   }
 }
@@ -262,11 +262,9 @@ int process(CC *cc, char *input, int size) {
 
   int n;
 
-  Lex(cc, &p);
-  print_token(cc);
-  Lex(cc, &p);
-  print_token(cc);
-  Lex(cc, &p);
+  while ((n = Lex(cc, &p)) != TK_EOF) {
+    print_token(cc);
+  }
   print_token(cc);
 
   exit(32);
