@@ -90,6 +90,11 @@ typedef struct CC {
   int int_val;     // if token is int
 } CC;
 
+void error(char *fmt, ...) {
+  asm("call warnf");
+  exit(1);
+}
+
 // Set defaults, update cc options from argv values.
 //
 void parse_options(CC *cc, int argc, char **argv) {
@@ -245,8 +250,7 @@ int Lex(CC *cc, char **input) {
         *input = c;
         return cc->token = TK_INT;
       default:
-        warnf("unexpected character '%c' (%d)", *c, *c);
-        exit(1);
+        error("unexpected character '%c' (%d)", *c, *c);
     }
   }
 }
@@ -277,8 +281,7 @@ int process(CC *cc, char *input, int size) {
     case TK_PLUS:
       break;
     default:
-      warnf("unexpected token '%d'", cc->token);
-      exit(1);
+      error("unexpected token '%d'", cc->token);
     }
   }
   print_token(cc);
