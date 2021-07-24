@@ -85,7 +85,15 @@ int write_elf_header(int program_length) {
 }
 
 typedef struct CC {
+  int argc;
+  char **argv;
+  char **envp;
   bool output_asm; // output asm, or binary?
+  char *input_buf; // input source buffer
+  char *input;     // curr position in source buffer
+  int input_size;  // length of input
+  char *code_buf;  // output code buffer
+  char *code;      // curr position in code buffer
   int token;       // token type
   int int_val;     // if token is int
 } CC;
@@ -97,9 +105,9 @@ void error(char *fmt, ...) {
 
 // Set defaults, update cc options from argv values.
 //
-void parse_options(CC *cc, int argc, char **argv) {
-  for (int i = 0; i < argc; i++) {
-    char *arg = argv[i];
+void parse_options(CC *cc) {
+  for (int i = 0; i < cc->argc; i++) {
+    char *arg = cc->argv[i];
 
     if (*arg == '-')
       arg++;
@@ -257,13 +265,28 @@ int Lex(CC *cc, char **input) {
 
 #define INPUT_SIZE 4096
 
-int process(CC *cc, char *input, int size) {
-  char code[INPUT_SIZE];
-  char *c = code;
-  char *p = input;
+int main(int argc, char **argv, char **envp) {
+  char input[INPUT_SIZE];
+  int num_read;
+
+  CC *cc = malloc(sizeof(CC));
+  cc->argc = argc;
+  cc->argv = argv;
+  cc->envp = envp;
+  cc->input_buf = malloc(sizeof(char) * INPUT_SIZE);
+  cc->input = cc->input_buf;
+  cc->code_buf= malloc(sizeof(char) * INPUT_SIZE);
+  cc->code = cc->code_buf;
+  parse_options(cc);
+
+  if ((cc->input_size = read(STDIN_FILENO, cc->input, INPUT_SIZE)) < 0)
+    die("read");
+
+  char *c = cc->code;
+  char *p = cc->input;
 
   if (!cc->output_asm)
-    write_elf_header(size);
+    write_elf_header(cc->input_size);
 
   int n;
 
@@ -315,23 +338,8 @@ int process(CC *cc, char *input, int size) {
   }
   emit_start(cc, &c, &p);
 
-  warnf("Writing %d bytes of machine code\n", c - code);
-  write(STDOUT_FILENO, code, c - code);
+  warnf("Writing %d bytes of machine code\n", c - cc->code);
+  write(STDOUT_FILENO, cc->code, c - cc->code);
 
   return EXIT_SUCCESS;
 }
-
-int main(int argc, char **argv, char **envp) {
-  char input[INPUT_SIZE];
-  int num_read;
-
-  CC *cc = malloc(sizeof(CC));
-  parse_options(cc, argc, argv);
-
-  if ((num_read = read(STDIN_FILENO, input, INPUT_SIZE)) < 0)
-    die("read");
-
-  return process(cc, input, num_read);
-}
-
-
