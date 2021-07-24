@@ -151,6 +151,23 @@ void emit_add_rax_imm(CC *cc, int imm) {
   cc->code += 4;
 }
 
+void emit_push_imm(CC *cc, int imm) {
+  if (cc->output_asm) {
+    printf("PUSH %d\n", imm);
+    return;
+  }
+  *cc->code++ = 0x68; // PUSH
+  *cc->code = imm;
+  cc->code += 4;
+}
+
+void emit_pop(CC *cc) {
+  if (cc->output_asm) {
+    printf("POP\n");
+    return;
+  }
+  *cc->code++ = 0x58; // POP
+}
 
 void emit_syscall(CC *cc) {
   if (cc->output_asm) {
@@ -274,23 +291,23 @@ void _term(CC *cc) {
 //       | term
 //
 void _expr(CC *cc) {
-  _term(cc);
+  term(cc);
+  emit_push_imm(cc, cc->int_val);
+  emit_pop(cc);
 
-  emit_mov_rax_imm(cc, cc->int_val);
-
-  Lex(cc);
-  switch (cc->token) {
-    case TK_MIN:
-      expect(cc, TK_INT);
-      emit_sub_rax_imm(cc, cc->int_val);
-      break;
-    case TK_PLUS:
-      expect(cc, TK_INT);
-      emit_add_rax_imm(cc, cc->int_val);
-      break;
-    default:
-      error("unexpected token '%d'", cc->token);
-  }
+  // Lex(cc);
+  // switch (cc->token) {
+  //   case TK_MIN:
+  //     expect(cc, TK_INT);
+  //     emit_sub_rax_imm(cc, cc->int_val);
+  //     break;
+  //   case TK_PLUS:
+  //     expect(cc, TK_INT);
+  //     emit_add_rax_imm(cc, cc->int_val);
+  //     break;
+  //   default:
+  //     error("unexpected token '%d'", cc->token);
+  // }
 
   expect(cc, TK_EOF);
 }
@@ -324,12 +341,7 @@ int main(int argc, char **argv, char **envp) {
   if ((cc->input_size = read(STDIN_FILENO, cc->input, INPUT_SIZE)) < 0)
     die("read");
 
-  expect(cc, TK_INT);
-  print_token(cc);
-  emit_mov_rax_imm(cc, cc->int_val);
-
-  // expect(cc, TK_EOF);
-
+  _expr(cc);
   emit_start(cc);
 
   int code_size = cc->code - cc->code_buf;
