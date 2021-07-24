@@ -205,8 +205,6 @@ void print_token(CC *cc) {
 
 // Fetches next token.
 //
-// See https://github.com/Xe/TempleOS/blob/master/Compiler/Lex.HC#L441
-//
 int Lex(CC *cc) {
   char *c = cc->input;
   int n;
@@ -258,11 +256,54 @@ void consume_token(CC *cc, TokenType t) {
     error("expected an integer, got '%c' (%d)", cc->token, cc->token);
 }
 
-void expect_token(CC *cc, TokenType t) {
+void expect(CC *cc, TokenType t) {
   Lex(cc);
   if (cc->token != t)
-    error("expected an integer, got '%c' (%d)", cc->token, cc->token);
+    error("expected a TOKEN=%d, got '%c' (%d)", t, cc->token, cc->token);
 }
+
+// term -> int
+//
+void _term(CC *cc) {
+  expect(cc, TK_INT);
+  print_token(cc);
+}
+
+// expr -> term '+' expr
+//       | term '-' expr
+//       | term
+//
+void _expr(CC *cc) {
+  _term(cc);
+
+  emit_mov_rax_imm(cc, cc->int_val);
+
+  Lex(cc);
+  switch (cc->token) {
+    case TK_MIN:
+      expect(cc, TK_INT);
+      emit_sub_rax_imm(cc, cc->int_val);
+      break;
+    case TK_PLUS:
+      expect(cc, TK_INT);
+      emit_add_rax_imm(cc, cc->int_val);
+      break;
+    default:
+      error("unexpected token '%d'", cc->token);
+  }
+
+  expect(cc, TK_EOF);
+}
+
+
+
+// == Grammar
+//
+// expr -> term '+' expr
+//       | term '-' expr
+//       | term
+// term -> int
+// int -> 0..9+
 
 #define INPUT_SIZE 4096
 
@@ -283,29 +324,11 @@ int main(int argc, char **argv, char **envp) {
   if ((cc->input_size = read(STDIN_FILENO, cc->input, INPUT_SIZE)) < 0)
     die("read");
 
-  expect_token(cc, TK_INT);
+  expect(cc, TK_INT);
+  print_token(cc);
   emit_mov_rax_imm(cc, cc->int_val);
 
-  // Parse
-  while (Lex(cc) != TK_EOF) {
-    print_token(cc);
-
-    switch (cc->token) {
-    // case TK_INT:
-    //   break;
-    case TK_MIN:
-      expect_token(cc, TK_INT);
-      emit_sub_rax_imm(cc, cc->int_val);
-      break;
-    case TK_PLUS:
-      expect_token(cc, TK_INT);
-      emit_add_rax_imm(cc, cc->int_val);
-      break;
-    default:
-      error("unexpected token '%d'", cc->token);
-    }
-  }
-  print_token(cc);
+  // expect(cc, TK_EOF);
 
   emit_start(cc);
 
