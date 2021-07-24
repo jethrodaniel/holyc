@@ -212,6 +212,7 @@ int Lex(CC *cc, char **input) {
   while (true) {
     switch (*c) {
       case '\n':
+      case ' ':
         c++;
         break;
       case '\0':
@@ -262,8 +263,23 @@ int process(CC *cc, char *input, int size) {
 
   int n;
 
-  while ((n = Lex(cc, &p)) != TK_EOF) {
+  // Parse
+  while (Lex(cc, &p) != TK_EOF) {
     print_token(cc);
+
+    switch (cc->token) {
+    case TK_EOF:
+      break;
+    case TK_INT:
+      break;
+    case TK_MIN:
+      break;
+    case TK_PLUS:
+      break;
+    default:
+      warnf("unexpected token '%d'", cc->token);
+      exit(1);
+    }
   }
   print_token(cc);
 
