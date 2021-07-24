@@ -40,7 +40,9 @@ IV: Write basic shell
 
 ## references
 
+- [Linux syscalls](https://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/)
 - [TempleOS](https://github.com/cia-foundation/TempleOS)
+  - [MiniCompiler](https://github.com/cia-foundation/TempleOS/blob/archive/Demo/Lectures/MiniCompiler.HC)
 - [Writing a Scheme compiler](http://scheme2006.cs.uchicago.edu/11-ghuloum.pdf)
 - [Writing a C compiler](https://www.sigbus.info/compilerbook)
   - [english translation](https://translate.google.com/translate?hl=en&sl=ja&tl=en&u=https%3A%2F%2Fwww.sigbus.info%2Fcompilerbook)

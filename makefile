@@ -19,11 +19,14 @@ default: clean $(PROG) test
 $(PROG): hc.c
 	$(CC) $(CFLAGS) $< -o $(PROG)
 
-test.out: $(PROG) force test.c
+test.out: $(PROG) FORCE test.c
 	$(CC) $(CFLAGS) test.c -o $@
-test: test.out
-	./$<
-force:
+ctest: test.out
+	./$< -v
+test: FORCE
+	sh test.sh
+
+FORCE:
 
 clean:
 	rm -vf *.out $(PROG) *.o main
