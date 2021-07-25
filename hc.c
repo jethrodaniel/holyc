@@ -130,25 +130,24 @@ void emit_mov_rax_imm(CC *cc, int imm) {
   cc->code += 8;
 }
 
-void emit_sub_rax_imm(CC *cc, int imm) {
+void emit_sub_rax_rdi(CC *cc) {
   if (cc->output_asm) {
-    printf("SUB RAX,%d\n", imm);
+    printf("SUB RAX,RDI\n");
     return;
   }
   *cc->code++ = 0x48; // REX
-  *cc->code++ = 0x2D; // SUB RAX,imm
-  *cc->code = imm;
-  cc->code += 4;
+  *cc->code++ = 0x29; // SUB RAX,reg
+  *cc->code++ = 0xF8; //  RDI
 }
-void emit_add_rax_imm(CC *cc, int imm) {
+
+void emit_add_rax_rdi(CC *cc) {
   if (cc->output_asm) {
-    printf("ADD RAX,%d\n", imm);
+    printf("ADD RAX,RDI\n");
     return;
   }
   *cc->code++ = 0x48; // REX
-  *cc->code++ = 0x05; // ADD RAX,imm
-  *cc->code = imm;
-  cc->code += 4;
+  *cc->code++ = 0x01; // ADD RAX,reg
+  *cc->code++ = 0xF8; //  RDI
 }
 
 void emit_push(CC *cc, int n) {
@@ -161,12 +160,29 @@ void emit_push(CC *cc, int n) {
   cc->code += 4;
 }
 
-void emit_pop(CC *cc) {
+void emit_push_rax(CC *cc) {
   if (cc->output_asm) {
-    printf("POP\n");
+    printf("PUSH RAX\n");
     return;
   }
-  *cc->code++ = 0x58; // POP
+  *cc->code++ = 0x50; // PUSH RAX
+}
+
+
+void emit_pop_rax(CC *cc) {
+  if (cc->output_asm) {
+    printf("POP RAX\n");
+    return;
+  }
+  *cc->code++ = 0x58; // POP RAX
+}
+
+void emit_pop_rdi(CC *cc) {
+  if (cc->output_asm) {
+    printf("POP RDI\n");
+    return;
+  }
+  *cc->code++ = 0x5F; // POP RDI
 }
 
 void emit_syscall(CC *cc) {
@@ -202,6 +218,12 @@ typedef enum {
   TK_MIN,
   TK_PLUS,
 } TokenType;
+
+typedef enum {
+  PREC_EQ,
+  PREC_ADD,
+  PREC_MUL,
+} Prec;
 
 void print_token(CC *cc) {
   switch (cc->token) {
@@ -279,11 +301,22 @@ void expect(CC *cc, TokenType t) {
     error("expected a TOKEN=%d, got '%c' (%d)", t, cc->token, cc->token);
 }
 
-// term -> int
+// factor -> num
+//         #| var
+//         #| '(' expr ')'
 //
-void _term(CC *cc) {
+void _factor(CC *cc) {
   expect(cc, TK_INT);
   print_token(cc);
+  emit_push(cc, cc->int_val);
+}
+
+// term -> #factor '*' factor
+//       | #factor '/' factor
+//       | factor
+//
+void _term(CC *cc) {
+  _factor(cc);
 }
 
 // expr -> term '+' expr
@@ -291,36 +324,56 @@ void _term(CC *cc) {
 //       | term
 //
 void _expr(CC *cc) {
-  term(cc);
-  emit_push(cc, cc->int_val);
-  emit_pop(cc);
+  _term(cc);
 
-  // Lex(cc);
-  // switch (cc->token) {
-  //   case TK_MIN:
-  //     expect(cc, TK_INT);
-  //     emit_sub_rax_imm(cc, cc->int_val);
-  //     break;
-  //   case TK_PLUS:
-  //     expect(cc, TK_INT);
-  //     emit_add_rax_imm(cc, cc->int_val);
-  //     break;
-  //   default:
-  //     error("unexpected token '%d'", cc->token);
-  // }
-
-  expect(cc, TK_EOF);
+  while (true) {
+    Lex(cc);
+    switch (cc->token) {
+      case TK_MIN:
+        // _expr(cc);
+        _factor(cc);
+        emit_pop_rdi(cc);
+        emit_pop_rax(cc);
+        emit_sub_rax_rdi(cc);
+        emit_push_rax(cc);
+        break;
+      case TK_PLUS:
+        // _expr(cc);
+        _factor(cc);
+        emit_pop_rdi(cc);
+        emit_pop_rax(cc);
+        emit_add_rax_rdi(cc);
+        emit_push_rax(cc);
+        break;
+      case TK_EOF:
+        return;
+      default:
+        error("unexpected token '%d'", cc->token);
+    }
+  }
 }
 
 
+// root -> expr
+//
+void _root(CC *cc) {
+  _expr(cc);
+}
 
 // == Grammar
 //
+// root -> expr
 // expr -> term '+' expr
 //       | term '-' expr
 //       | term
-// term -> int
+// term -> factor '*' factor
+//       | factor '/' factor
+//       | factor
+// factor -> num
+//         | var
+//         | '(' expr ')'
 // int -> 0..9+
+// var -> [a-zA-Z_]\w+
 
 #define INPUT_SIZE 4096
 
@@ -341,7 +394,8 @@ int main(int argc, char **argv, char **envp) {
   if ((cc->input_size = read(STDIN_FILENO, cc->input, INPUT_SIZE)) < 0)
     die("read");
 
-  _expr(cc);
+  _root(cc);
+  emit_pop_rax(cc);
   emit_start(cc);
 
   int code_size = cc->code - cc->code_buf;
