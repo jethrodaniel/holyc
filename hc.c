@@ -94,6 +94,7 @@ typedef struct CC {
   int input_size;  // length of input
   char *code_buf;  // output code buffer
   char *code;      // curr position in code buffer
+  char *token_pos; // token start index
   int token;       // token type
   int int_val;     // if token is int
 } CC;
@@ -220,7 +221,6 @@ typedef enum {
 } TokenType;
 
 typedef enum {
-  PREC_EQ,
   PREC_ADD,
   PREC_MUL,
 } Prec;
@@ -258,9 +258,11 @@ int Lex(CC *cc) {
         cc->input = ++c;
         return cc->token = TK_EOF;
       case '+':
+        cc->token_pos = c;
         cc->input = ++c;
         return cc->token = TK_PLUS;
       case '-':
+        cc->token_pos = c;
         cc->input = ++c;
         return cc->token = TK_MIN;
       case '0':
@@ -273,6 +275,8 @@ int Lex(CC *cc) {
       case '7':
       case '8':
       case '9':
+        cc->token_pos = c;
+
         n = 0;
 
         do {
@@ -323,23 +327,30 @@ void _term(CC *cc) {
 //       | term '-' expr
 //       | term
 //
-void _expr(CC *cc) {
+void _expr(CC *cc, Prec prec) {
   _term(cc);
 
   while (true) {
     Lex(cc);
+
     switch (cc->token) {
       case TK_MIN:
-        // _expr(cc);
-        _factor(cc);
+        if (prec <= PREC_ADD) {
+          cc->input = cc->token_pos;
+          return;
+        }
+        _expr(cc, PREC_ADD);
         emit_pop_rdi(cc);
         emit_pop_rax(cc);
         emit_sub_rax_rdi(cc);
         emit_push_rax(cc);
         break;
       case TK_PLUS:
-        // _expr(cc);
-        _factor(cc);
+        if (prec <= PREC_ADD) {
+          cc->input = cc->token_pos;
+          return;
+        }
+        _expr(cc, PREC_ADD);
         emit_pop_rdi(cc);
         emit_pop_rax(cc);
         emit_add_rax_rdi(cc);
@@ -357,7 +368,7 @@ void _expr(CC *cc) {
 // root -> expr
 //
 void _root(CC *cc) {
-  _expr(cc);
+  _expr(cc, PREC_MUL);
 }
 
 // == Grammar
