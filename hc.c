@@ -223,6 +223,7 @@ typedef enum {
 typedef enum {
   PREC_ADD,
   PREC_MUL,
+  PREC_TOP,
 } Prec;
 
 void print_token(CC *cc) {
@@ -293,34 +294,35 @@ int Lex(CC *cc) {
   }
 }
 
-void consume_token(CC *cc, TokenType t) {
-  Lex(cc);
-  if (cc->token != t)
-    error("expected an integer, got '%c' (%d)", cc->token, cc->token);
-}
-
 void expect(CC *cc, TokenType t) {
   Lex(cc);
   if (cc->token != t)
     error("expected a TOKEN=%d, got '%c' (%d)", t, cc->token, cc->token);
 }
 
-// factor -> num
-//         #| var
-//         #| '(' expr ')'
+// == Grammar
 //
-void _factor(CC *cc) {
-  expect(cc, TK_INT);
-  print_token(cc);
-  emit_push(cc, cc->int_val);
-}
-
-// term -> #factor '*' factor
-//       | #factor '/' factor
+// root -> expr
+// expr -> term '+' expr
+//       | term '-' expr
+//       | term
+// term -> factor '*' factor
+//       | factor '/' factor
 //       | factor
+// factor -> num
+//         | var
+//         | '(' expr ')'
+// int -> 0..9+
+// var -> [a-zA-Z_]\w+
+
+void _expr(CC *cc, Prec prec);
+void _factor(CC *cc, Prec prec);
+void _term(CC *cc, Prec prec);
+
+// root -> expr
 //
-void _term(CC *cc) {
-  _factor(cc);
+void _root(CC *cc) {
+  _expr(cc, PREC_TOP);
 }
 
 // expr -> term '+' expr
@@ -330,7 +332,7 @@ void _term(CC *cc) {
 void _expr(CC *cc, Prec prec) {
   int tok;
 
-  _term(cc);
+  _term(cc, prec);
 
   while (true) {
     Lex(cc);
@@ -357,27 +359,24 @@ void _expr(CC *cc, Prec prec) {
   }
 }
 
-
-// root -> expr
+// term -> #factor '*' factor
+//       | #factor '/' factor
+//       | factor
 //
-void _root(CC *cc) {
-  _expr(cc, PREC_MUL);
+void _term(CC *cc, Prec prec) {
+  _factor(cc, prec);
 }
 
-// == Grammar
-//
-// root -> expr
-// expr -> term '+' expr
-//       | term '-' expr
-//       | term
-// term -> factor '*' factor
-//       | factor '/' factor
-//       | factor
 // factor -> num
-//         | var
-//         | '(' expr ')'
-// int -> 0..9+
-// var -> [a-zA-Z_]\w+
+//         #| var
+//         #| '(' expr ')'
+//
+void _factor(CC *cc, Prec prec) {
+  expect(cc, TK_INT);
+  print_token(cc);
+  emit_push(cc, cc->int_val);
+}
+
 
 #define INPUT_SIZE 4096
 
