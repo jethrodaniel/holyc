@@ -328,39 +328,32 @@ void _term(CC *cc) {
 //       | term
 //
 void _expr(CC *cc, Prec prec) {
+  int tok;
+
   _term(cc);
 
   while (true) {
     Lex(cc);
+    tok = cc->token;
 
-    switch (cc->token) {
-      case TK_MIN:
-        if (prec <= PREC_ADD) {
-          cc->input = cc->token_pos;
-          return;
-        }
-        _expr(cc, PREC_ADD);
-        emit_pop_rdi(cc);
-        emit_pop_rax(cc);
-        emit_sub_rax_rdi(cc);
-        emit_push_rax(cc);
-        break;
-      case TK_PLUS:
-        if (prec <= PREC_ADD) {
-          cc->input = cc->token_pos;
-          return;
-        }
-        _expr(cc, PREC_ADD);
-        emit_pop_rdi(cc);
-        emit_pop_rax(cc);
-        emit_add_rax_rdi(cc);
-        emit_push_rax(cc);
-        break;
-      case TK_EOF:
+    if (tok == TK_EOF) return;
+
+    if (tok == TK_MIN || tok == TK_PLUS) {
+      if (prec <= PREC_ADD) {
+        cc->input = cc->token_pos; // unlex
         return;
-      default:
-        error("unexpected token '%d'", cc->token);
-    }
+      }
+
+      _expr(cc, PREC_ADD);
+      emit_pop_rdi(cc);
+      emit_pop_rax(cc);
+
+      if (tok == TK_MIN) emit_sub_rax_rdi(cc);
+      else               emit_add_rax_rdi(cc);
+
+      emit_push_rax(cc);
+    } else
+     error("unexpected token '%d'", cc->token);
   }
 }
 
