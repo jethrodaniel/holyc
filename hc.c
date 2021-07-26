@@ -90,6 +90,11 @@ int write_elf_header(int program_length) {
   write(STDOUT_FILENO, elf_output, elf_offset);
 }
 
+typedef struct StringPair {
+  char *left;
+  char *right;
+} StringPair;
+
 // Global compiler state.
 //
 typedef struct CC {
@@ -107,7 +112,7 @@ typedef struct CC {
   int token;       // token type
   int int_val;     // if token is int
 
-  char **token_table; // token names
+  char *token_table[8][4]; // token names
 } CC;
 
 void error(char *fmt, ...) {
@@ -267,16 +272,17 @@ typedef enum {
 } TokenType;
 
 void print_token(CC *cc) {
-  char *tokname = cc->token_table[cc->token];
+  char *tokname = cc->token_table[cc->token][0];
 
   if (!tokname)
     error("%s: not sure how to print token %d\n", __func__, cc->token);
 
   warnf("[%s, ", tokname);
 
-  if (cc->token == TK_INT) {
-    warnf("%d", cc->int_val);
-  }
+  if (cc->token == TK_INT)
+    warnf("'%d'", cc->int_val);
+  else
+    warnf("'%s'", cc->token_table[cc->token][1]);
 
   warnf("]\n", tokname);
 }
@@ -488,18 +494,15 @@ int main(int argc, char **argv, char **envp) {
   cc->code_buf= malloc(sizeof(char) * INPUT_SIZE);
   cc->code = cc->code_buf;
   parse_options(cc);
-  char *token_table[] = {
-    "EOF",
-    "INT",
-    "MIN",
-    "PLUS",
-    "DIV",
-    "MUL",
-    "LPAREN",
-    "RPAREN",
 
-  };
-  cc->token_table = token_table;
+  cc->token_table[0][0] = "EOF";    cc->token_table[0][1] = "\\0";
+  cc->token_table[1][0] = "INT";    cc->token_table[1][1] = "";
+  cc->token_table[2][0] = "MIN";    cc->token_table[2][1] = "-";
+  cc->token_table[3][0] = "PLUS";   cc->token_table[3][1] = "+";
+  cc->token_table[4][0] = "DIV";    cc->token_table[4][1] = "/";
+  cc->token_table[5][0] = "MUL";    cc->token_table[5][1] = "*";
+  cc->token_table[6][0] = "LPAREN"; cc->token_table[6][1] = "(";
+  cc->token_table[7][0] = "RPAREN"; cc->token_table[7][1] = ")";
 
   if ((cc->input_size = read(STDIN_FILENO, cc->input, INPUT_SIZE)) < 0)
     die("read");
