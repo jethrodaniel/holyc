@@ -1,4 +1,9 @@
 bits 64
 
-add rax,strict 4
-sub rax,strict 4
+push 4
+push 2
+pop rax
+pop rdi
+imul rax,rdi
+cqo
+idiv rdi

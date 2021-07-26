@@ -151,6 +151,31 @@ void emit_add_rax_rdi(CC *cc) {
   *cc->code++ = 0xF8; //  RDI
 }
 
+void emit_imul_rax_rdi(CC *cc) {
+  if (cc->output_asm) {
+    printf("IMUL RAX,RDI\n");
+    return;
+  }
+  *cc->code++ = 0x48; // REX
+  *cc->code++ = 0x0F; // IMUL RAX,reg
+  *cc->code++ = 0xAF;
+  *cc->code++ = 0xC7;
+}
+
+void emit_cqo_idiv_rdi(CC *cc) {
+  if (cc->output_asm) {
+    printf("CQO\n");
+    printf("IDIV RDI\n");
+    return;
+  }
+  *cc->code++ = 0x48; // REX
+  *cc->code++ = 0x99; //  CQO
+
+  *cc->code++ = 0x48; // REX
+  *cc->code++ = 0xF7; //  IDIV
+  *cc->code++ = 0xFF; //  RDI
+}
+
 void emit_push(CC *cc, int n) {
   if (cc->output_asm) {
     printf("PUSH %d\n", n);
@@ -403,8 +428,8 @@ void _term(CC *cc, Prec prec) {
      emit_pop_rdi(cc);
      emit_pop_rax(cc);
 
-     if (tok == TK_MIN) emit_sub_rax_rdi(cc);
-     else               emit_add_rax_rdi(cc);
+     if (tok == TK_MUL) emit_imul_rax_rdi(cc);
+     else               emit_cqo_idiv_rdi(cc);
 
      emit_push_rax(cc);
   }

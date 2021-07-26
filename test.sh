@@ -23,5 +23,6 @@ assert 255 255
 assert 40 '42-2'
 assert 44 '42+2'
 assert 32 '42-20+10'
+assert 9 '1+2*3+4/2'
 
 echo OK
