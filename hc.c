@@ -493,8 +493,6 @@ void _factor(CC *cc, Prec prec) {
   if (tok != TK_INT && tok != TK_LPAREN) return Unlex(cc);
   if (tok == TK_INT)                     return emit_push(cc, cc->int_val);
 
-  if (prec <= PREC_PAREN)                return Unlex(cc);
-
   _expr(cc, PREC_PAREN);
   expect(cc, TK_RPAREN);
 }

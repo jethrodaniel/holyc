@@ -24,5 +24,12 @@ assert 40 '42-2'
 assert 44 '42+2'
 assert 32 '42-20+10'
 assert 9 '1+2*3+4/2'
+assert 4 '(1+3)'
+assert 2 '((2))'
+assert 8 '(1+3)*2'
+assert 2 '(1+3)*2/3'
+assert 4 '(1)+(3)'
+assert 12 '(1+3)*2/1+(4)'
+assert 2 '(1+3-1)*(2*3/2)-7'
 
 echo OK
