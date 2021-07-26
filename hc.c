@@ -323,6 +323,16 @@ int Lex(CC *cc) {
         cc->input = ++c;
         cc->token = TK_DIV;
         goto ret;
+      case '(':
+        cc->token_pos = c;
+        cc->input = ++c;
+        cc->token = TK_LPAREN;
+        goto ret;
+      case ')':
+        cc->token_pos = c;
+        cc->input = ++c;
+        cc->token = TK_RPAREN;
+        goto ret;
       case '0':
       case '1':
       case '2':
@@ -347,7 +357,7 @@ int Lex(CC *cc) {
         cc->token = TK_INT;
         goto ret;
       default:
-        error("unexpected character '%c' (%d)", *c, *c);
+        error("unexpected character '%c' (%d) at column %d\n", *c, *c, cc->input - cc->input_buf);
     }
   }
 
@@ -371,6 +381,7 @@ void Unlex(CC *cc) {
 typedef enum {
   PREC_MUL,
   PREC_ADD,
+  PREC_PAREN,
   PREC_TOP,
 } Prec;
 
@@ -379,7 +390,7 @@ typedef enum {
 void expect(CC *cc, TokenType t) {
   Lex(cc);
   if (cc->token != t)
-    error("expected a TOKEN=%d, got '%c' (%d)", t, cc->token, cc->token);
+    error("expected a '%s', got '%s' at column %d\n", cc->token_table[t][1], cc->token_table[cc->token][1], cc->input - cc->input_buf);
 }
 
 // == Grammar
@@ -406,7 +417,7 @@ void _term(CC *cc, Prec prec);
 void _root(CC *cc) {
   _expr(cc, PREC_TOP);
   if (cc->token != TK_EOF)
-    error("unexpected character '%c' (%d) | token: %d\n", *cc->input, *cc->input, cc->token);
+    error("unexpected character '%s' at column %d\n", cc->token_table[cc->token][1], cc->input - cc->input_buf);
 }
 
 // expr -> term '+' expr
@@ -414,6 +425,8 @@ void _root(CC *cc) {
 //       | term
 //
 void _expr(CC *cc, Prec prec) {
+  warnf("%s: %d\n", __func__, prec);
+
   int tok;
 
   _term(cc, prec);
@@ -442,6 +455,8 @@ void _expr(CC *cc, Prec prec) {
 //       | factor
 //
 void _term(CC *cc, Prec prec) {
+  warnf("%s: %d\n", __func__, prec);
+
   int tok;
 
   _factor(cc, prec);
@@ -466,12 +481,22 @@ void _term(CC *cc, Prec prec) {
 }
 
 // factor -> num
+//         | '(' expr ')'
 //         #| var
-//         #| '(' expr ')'
 //
 void _factor(CC *cc, Prec prec) {
-  expect(cc, TK_INT);
-  emit_push(cc, cc->int_val);
+  warnf("%s: %d\n", __func__, prec);
+
+  Lex(cc);
+  int tok = cc->token;
+
+  if (tok != TK_INT && tok != TK_LPAREN) return Unlex(cc);
+  if (tok == TK_INT)                     return emit_push(cc, cc->int_val);
+
+  if (prec <= PREC_PAREN)                return Unlex(cc);
+
+  _expr(cc, PREC_PAREN);
+  expect(cc, TK_RPAREN);
 }
 
 
