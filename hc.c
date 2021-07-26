@@ -218,11 +218,13 @@ typedef enum {
   TK_INT,
   TK_MIN,
   TK_PLUS,
+  TK_DIV,
+  TK_MUL,
 } TokenType;
 
 typedef enum {
-  PREC_ADD,
   PREC_MUL,
+  PREC_ADD,
   PREC_TOP,
 } Prec;
 
@@ -266,6 +268,14 @@ int Lex(CC *cc) {
         cc->token_pos = c;
         cc->input = ++c;
         return cc->token = TK_MIN;
+      case '*':
+        cc->token_pos = c;
+        cc->input = ++c;
+        return cc->token = TK_MUL;
+      case '/':
+        cc->token_pos = c;
+        cc->input = ++c;
+        return cc->token = TK_DIV;
       case '0':
       case '1':
       case '2':
@@ -323,6 +333,8 @@ void _term(CC *cc, Prec prec);
 //
 void _root(CC *cc) {
   _expr(cc, PREC_TOP);
+  if (cc->token != TK_EOF)
+    error("unexpected character '%d' (ascii) | token: %d\n", *cc->input, cc->token);
 }
 
 // expr -> term '+' expr
@@ -333,38 +345,69 @@ void _expr(CC *cc, Prec prec) {
   int tok;
 
   _term(cc, prec);
+   print_token(cc);
 
   while (true) {
     Lex(cc);
     tok = cc->token;
 
-    if (tok == TK_EOF) return;
+    if (cc->token == TK_EOF) return;
 
-    if (tok == TK_MIN || tok == TK_PLUS) {
-      if (prec <= PREC_ADD) {
-        cc->input = cc->token_pos; // unlex
-        return;
-      }
+    if (tok != TK_MIN && tok != TK_PLUS) {
+      cc->input = cc->token_pos; // unlex
+      return;
+    }
 
-      _expr(cc, PREC_ADD);
-      emit_pop_rdi(cc);
-      emit_pop_rax(cc);
+    if (prec <= PREC_ADD) {
+      cc->input = cc->token_pos; // unlex
+      return;
+    }
 
-      if (tok == TK_MIN) emit_sub_rax_rdi(cc);
-      else               emit_add_rax_rdi(cc);
+    _expr(cc, PREC_ADD);
+    emit_pop_rdi(cc);
+    emit_pop_rax(cc);
 
-      emit_push_rax(cc);
-    } else
-     error("unexpected token '%d'", cc->token);
+    if (tok == TK_MIN) emit_sub_rax_rdi(cc);
+    else               emit_add_rax_rdi(cc);
+
+    emit_push_rax(cc);
   }
 }
 
-// term -> #factor '*' factor
-//       | #factor '/' factor
+// term -> factor '*' factor
+//       | factor '/' factor
 //       | factor
 //
 void _term(CC *cc, Prec prec) {
+  int tok;
+
   _factor(cc, prec);
+
+  while (true) {
+    Lex(cc);
+    tok = cc->token;
+
+    if (cc->token == TK_EOF) return;
+
+    if (tok != TK_MUL && tok != TK_DIV) {
+      cc->input = cc->token_pos; // unlex
+      return;
+    }
+
+    if (prec <= PREC_MUL) {
+       cc->input = cc->token_pos; // unlex
+       return;
+     }
+
+     _expr(cc, PREC_MUL);
+     emit_pop_rdi(cc);
+     emit_pop_rax(cc);
+
+     if (tok == TK_MIN) emit_sub_rax_rdi(cc);
+     else               emit_add_rax_rdi(cc);
+
+     emit_push_rax(cc);
+  }
 }
 
 // factor -> num
