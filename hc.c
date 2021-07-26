@@ -28,13 +28,14 @@
 #include "lib/unistd.c"
 #include "lib/string.c"
 #include "lib/stdio.c"
-#include "lib/elf.h"
 #include "lib/stdbool.h"
 
 
 //
 // elf output
 //
+
+#include "lib/elf.h"
 
 #define ELF_START 0x401000
 #define ELF_SIZE  120
@@ -105,6 +106,8 @@ typedef struct CC {
   char *token_pos; // token start index
   int token;       // token type
   int int_val;     // if token is int
+
+  char **token_table; // token names
 } CC;
 
 void error(char *fmt, ...) {
@@ -259,23 +262,23 @@ typedef enum {
   TK_PLUS,
   TK_DIV,
   TK_MUL,
+  TK_LPAREN,
+  TK_RPAREN,
 } TokenType;
 
 void print_token(CC *cc) {
-  switch (cc->token) {
-    case TK_EOF:
-      warnf("[EOF, '\\0']\n", cc->token);
-      break;
-    case TK_INT:
-      warnf("[INT, '%d']\n", cc->int_val);
-      break;
-    case TK_MIN:
-      warnf("[MIN, '-']\n");
-      break;
-    case TK_PLUS:
-      warnf("[PLUS, '+']\n");
-      break;
+  char *tokname = cc->token_table[cc->token];
+
+  if (!tokname)
+    error("%s: not sure how to print token %d\n", __func__, cc->token);
+
+  warnf("[%s, ", tokname);
+
+  if (cc->token == TK_INT) {
+    warnf("%d", cc->int_val);
   }
+
+  warnf("]\n", tokname);
 }
 
 // Fetches next token.
@@ -485,6 +488,18 @@ int main(int argc, char **argv, char **envp) {
   cc->code_buf= malloc(sizeof(char) * INPUT_SIZE);
   cc->code = cc->code_buf;
   parse_options(cc);
+  char *token_table[] = {
+    "EOF",
+    "INT",
+    "MIN",
+    "PLUS",
+    "DIV",
+    "MUL",
+    "LPAREN",
+    "RPAREN",
+
+  };
+  cc->token_table = token_table;
 
   if ((cc->input_size = read(STDIN_FILENO, cc->input, INPUT_SIZE)) < 0)
     die("read");
