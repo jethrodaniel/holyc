@@ -347,6 +347,11 @@ ret:
   return cc->token;
 }
 
+// Unfetches next token.
+//
+void Unlex(CC *cc) {
+  cc->input = cc->token_pos; // unlex
+}
 
 //
 // Parsing
@@ -392,7 +397,7 @@ void _term(CC *cc, Prec prec);
 void _root(CC *cc) {
   _expr(cc, PREC_TOP);
   if (cc->token != TK_EOF)
-    error("unexpected character '%d' (ascii) | token: %d\n", *cc->input, cc->token);
+    error("unexpected character '%c' (%d) | token: %d\n", *cc->input, *cc->input, cc->token);
 }
 
 // expr -> term '+' expr
@@ -409,16 +414,8 @@ void _expr(CC *cc, Prec prec) {
     tok = cc->token;
 
     if (cc->token == TK_EOF) return;
-
-    if (tok != TK_MIN && tok != TK_PLUS) {
-      cc->input = cc->token_pos; // unlex
-      return;
-    }
-
-    if (prec <= PREC_ADD) {
-      cc->input = cc->token_pos; // unlex
-      return;
-    }
+    if (tok != TK_MIN && tok != TK_PLUS) return Unlex(cc);
+    if (prec <= PREC_ADD)                return Unlex(cc);
 
     _expr(cc, PREC_ADD);
     emit_pop_rdi(cc);
@@ -445,16 +442,8 @@ void _term(CC *cc, Prec prec) {
     tok = cc->token;
 
     if (cc->token == TK_EOF) return;
-
-    if (tok != TK_MUL && tok != TK_DIV) {
-      cc->input = cc->token_pos; // unlex
-      return;
-    }
-
-    if (prec <= PREC_MUL) {
-       cc->input = cc->token_pos; // unlex
-       return;
-     }
+    if (tok != TK_MUL && tok != TK_DIV) return Unlex(cc);
+    if (prec <= PREC_MUL)               return Unlex(cc);
 
      _expr(cc, PREC_MUL);
      emit_pop_rdi(cc);
@@ -473,10 +462,13 @@ void _term(CC *cc, Prec prec) {
 //
 void _factor(CC *cc, Prec prec) {
   expect(cc, TK_INT);
-  print_token(cc);
   emit_push(cc, cc->int_val);
 }
 
+
+//
+// main()
+//
 
 #define INPUT_SIZE 4096
 
