@@ -31,6 +31,11 @@
 #include "lib/elf.h"
 #include "lib/stdbool.h"
 
+
+//
+// elf output
+//
+
 #define ELF_START 0x401000
 #define ELF_SIZE  120
 
@@ -84,7 +89,10 @@ int write_elf_header(int program_length) {
   write(STDOUT_FILENO, elf_output, elf_offset);
 }
 
+// Global compiler state.
+//
 typedef struct CC {
+  // globals from main()
   int argc;
   char **argv;
   char **envp;
@@ -110,15 +118,17 @@ void parse_options(CC *cc) {
   for (int i = 0; i < cc->argc; i++) {
     char *arg = cc->argv[i];
 
-    if (*arg == '-')
-      arg++;
-    else
-      continue;
+    if (*arg == '-') arg++;
+    else             continue;
 
-    if (*arg == 'S')
-      cc->output_asm = true;
+    if (*arg == 'S') cc->output_asm = true;
   }
 }
+
+
+//
+// Codegen
+//
 
 void emit_mov_rax_imm(CC *cc, int imm) {
   if (cc->output_asm) {
@@ -238,6 +248,10 @@ void emit_start(CC *cc) {
   emit_syscall(cc);
 }
 
+//
+// Tokenizing
+//
+
 typedef enum {
   TK_EOF,
   TK_INT,
@@ -246,12 +260,6 @@ typedef enum {
   TK_DIV,
   TK_MUL,
 } TokenType;
-
-typedef enum {
-  PREC_MUL,
-  PREC_ADD,
-  PREC_TOP,
-} Prec;
 
 void print_token(CC *cc) {
   switch (cc->token) {
@@ -284,23 +292,28 @@ int Lex(CC *cc) {
         break;
       case '\0':
         cc->input = ++c;
-        return cc->token = TK_EOF;
+        cc->token = TK_EOF;
+        goto ret;
       case '+':
         cc->token_pos = c;
         cc->input = ++c;
-        return cc->token = TK_PLUS;
+        cc->token = TK_PLUS;
+        goto ret;
       case '-':
         cc->token_pos = c;
         cc->input = ++c;
-        return cc->token = TK_MIN;
+        cc->token = TK_MIN;
+        goto ret;
       case '*':
         cc->token_pos = c;
         cc->input = ++c;
-        return cc->token = TK_MUL;
+        cc->token = TK_MUL;
+        goto ret;
       case '/':
         cc->token_pos = c;
         cc->input = ++c;
-        return cc->token = TK_DIV;
+        cc->token = TK_DIV;
+        goto ret;
       case '0':
       case '1':
       case '2':
@@ -322,13 +335,33 @@ int Lex(CC *cc) {
 
         cc->int_val = n;
         cc->input = c;
-        return cc->token = TK_INT;
+        cc->token = TK_INT;
+        goto ret;
       default:
         error("unexpected character '%c' (%d)", *c, *c);
     }
   }
+
+ret:
+  print_token(cc);
+  return cc->token;
 }
 
+
+//
+// Parsing
+//
+
+// Operator precedence
+//
+typedef enum {
+  PREC_MUL,
+  PREC_ADD,
+  PREC_TOP,
+} Prec;
+
+// Get next token, error if it's not what we expect.
+//
 void expect(CC *cc, TokenType t) {
   Lex(cc);
   if (cc->token != t)
@@ -345,10 +378,10 @@ void expect(CC *cc, TokenType t) {
 //       | factor '/' factor
 //       | factor
 // factor -> num
-//         | var
-//         | '(' expr ')'
+//         #| var
+//         #| '(' expr ')'
 // int -> 0..9+
-// var -> [a-zA-Z_]\w+
+// #var -> [a-zA-Z_]\w+
 
 void _expr(CC *cc, Prec prec);
 void _factor(CC *cc, Prec prec);
@@ -370,7 +403,6 @@ void _expr(CC *cc, Prec prec) {
   int tok;
 
   _term(cc, prec);
-   print_token(cc);
 
   while (true) {
     Lex(cc);
