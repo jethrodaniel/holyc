@@ -19,10 +19,10 @@ default: clean $(PROG) test
 $(PROG): hc.c
 	$(CC) $(CFLAGS) $< -o $(PROG)
 
-test.out: $(PROG) FORCE test.c
-	$(CC) $(CFLAGS) test.c -o $@
-ctest: test.out
-	./$< -v
+# test.out: $(PROG) FORCE test.c
+# 	$(CC) $(CFLAGS) test.c -o $@
+# ctest: test.out
+# 	./$< -v
 test: FORCE
 	sh test.sh
 
@@ -33,11 +33,5 @@ clean:
 
 #--
 
-a.out: $(PROG) force
-	echo 42 | ./$(PROG) > $@ && chmod u+x $@
-run: a.out
-	./a.out ; echo $$?
-disasm: asm.out
-	dd skip=120 bs=1 if=./$< 2> /dev/null | ndisasm -b64 -
-asm.out: test.s
-	nasm -f bin $< -o $@ && ndisasm -b64 $@
+docker:
+	docker build -t holyc .
