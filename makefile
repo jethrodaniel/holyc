@@ -30,11 +30,20 @@ CFLAGS += -mno-red-zone
 # TODO
 # CFLAGS += -fno-asynchronous-unwind-tables
 
+# Allow for #include </lib/...> instead of relative paths
+CFLAGS += -I .
+
+#--
 
 default: clean $(PROG) test
 
 $(PROG): hc.c
 	$(CC) $(CFLAGS) $< -o $(PROG)
+
+clean:
+	rm -vf *.out $(PROG) *.o main
+
+#--
 
 # test.out: $(PROG) FORCE test.c
 # 	$(CC) $(CFLAGS) test.c -o $@
@@ -42,11 +51,7 @@ $(PROG): hc.c
 # 	./$< -v
 test: FORCE
 	sh test.sh
-
 FORCE:
-
-clean:
-	rm -vf *.out $(PROG) *.o main
 
 #--
 
