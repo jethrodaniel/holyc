@@ -1,3 +1,6 @@
+#ifndef HOLYC_LIB_STDINT
+#define HOLYC_LIB_STDINT
+
 #define uint64_t unsigned long
 #define uint32_t unsigned int
 #define uint16_t unsigned short
@@ -7,3 +10,5 @@
 #define int64_t long long int
 #define size_t unsigned long long int
 #define intptr_t long int
+
+#endif // HOLYC_LIB_STDINT

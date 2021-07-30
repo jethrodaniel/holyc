@@ -1,3 +1,6 @@
+#ifndef HOLYC_LIB_UNISTD
+#define HOLYC_LIB_UNISTD
+
 #define STDIN_FILENO  0
 #define STDOUT_FILENO 1
 #define STDERR_FILENO 2
@@ -12,3 +15,5 @@ int read(int fd, char *buf, int length) {
   asm("mov  rax, 0");
   asm("syscall");
 }
+
+#endif // HOLYC_LIB_UNISTD

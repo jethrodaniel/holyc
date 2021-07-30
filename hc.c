@@ -20,16 +20,16 @@
 //  clobbers rcx, r11, and rax
 
 
-#include "lib/boot.c"
+#include "lib/mman.c"
+#include "lib/stdbool.h"
 #include "lib/stddef.h"
 #include "lib/stdint.h"
-#include "lib/mman.c"
-#include "lib/stdlib.c"
-#include "lib/unistd.c"
-#include "lib/string.c"
 #include "lib/stdio.c"
-#include "lib/stdbool.h"
+#include "lib/stdlib.c"
+#include "lib/string.c"
+#include "lib/unistd.c"
 
+#include "lib/boot.c"
 
 //
 // elf output

@@ -1,3 +1,6 @@
+#ifndef HOLYC_LIB_STDLIB
+#define HOLYC_LIB_STDLIB
+
 int exit(int code) {
   asm("mov  rax, 60");
   asm("syscall");
@@ -53,3 +56,5 @@ void *malloc(int n) {
     0   // no offset
   );
 }
+
+#endif // HOLYC_LIB_STDLIB

@@ -1,3 +1,6 @@
+#ifndef HOLYC_LIB_ELF
+#define HOLYC_LIB_ELF
+
 typedef uint16_t Elf64_Half;
 typedef uint32_t Elf64_Word;
 typedef uint64_t Elf64_Off;
@@ -66,3 +69,5 @@ typedef struct {
 #define EM_X86_64	62
 
 #define EV_CURRENT	1
+
+#endif // HOLYC_LIB_ELF

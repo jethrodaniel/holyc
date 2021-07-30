@@ -1,3 +1,6 @@
+#ifndef HOLYC_LIB_STRING
+#define HOLYC_LIB_STRING
+
 int strlen(char *str) {
   int i = 0;
   while(str[i])
@@ -54,3 +57,5 @@ void *memcpy(void *dest, const void *src, size_t n) {
 
   return dest;
 }
+
+#endif // HOLYC_LIB_STRING

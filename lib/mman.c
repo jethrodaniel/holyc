@@ -1,3 +1,8 @@
+#ifndef HOLYC_LIB_MMAN
+#define HOLYC_LIB_MMAN
+
+#include "./stdint.h"
+
 #define PROT_READ     0x1
 #define PROT_WRITE    0x2
 #define PROT_EXEC     0x4
@@ -14,3 +19,5 @@ int munmap(void *addr, size_t length) {
   asm("mov rax, 11");   // munmap
   asm("syscall");
 }
+
+#endif // HOLYC_LIB_MMAN

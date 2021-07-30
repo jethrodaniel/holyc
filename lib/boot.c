@@ -1,3 +1,6 @@
+#ifndef HOLYC_LIB_BOOT
+#define HOLYC_LIB_BOOT
+
 asm(".globl _start");
 asm("_start:");
   asm("mov    rdi, QWORD PTR [rsp]"); // argc
@@ -9,3 +12,4 @@ asm("_start:");
   asm("mov    rax, 60"); // exit
   asm("call   exit");    // exit(status)
 
+#endif // HOLYC_LIB_BOOT

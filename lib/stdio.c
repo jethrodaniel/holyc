@@ -1,3 +1,9 @@
+#ifndef HOLYC_LIB_STDIO
+#define HOLYC_LIB_STDIO
+
+#include "./unistd.c"
+#include "./string.c"
+
 // putc()
 
 void fputc(int fd, char c) {
@@ -129,3 +135,5 @@ static void _warnf_print_itoa(int n) {
   itoa(n, buf);
   warn(buf);
 }
+
+#endif // HOLYC_LIB_STDIO
