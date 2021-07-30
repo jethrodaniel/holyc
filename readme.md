@@ -51,3 +51,5 @@ IV: Write basic shell
 - [Linux program startup](https://web.archive.org/web/20191210114310/http://dbp-consulting.com/tutorials/debugging/linuxProgramStartup.html)
 - [Nascent C compilers from Bell Labs](https://github.com/dspinellis/unix-history-repo/blob/Research-V2-Snapshot-Development/c/nc0/c00.c)
 - [x86_64 varargs](https://blog.nelhage.com/2010/10/amd64-and-va_arg/)
+- [SysV ABI links](https://wiki.osdev.org/System_V_ABI)
+- [SysV linking](https://www.cl.cam.ac.uk/~pes20/rems/papers/oopsla-elf-linking-2016.pdf)
