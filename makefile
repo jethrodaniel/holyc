@@ -1,18 +1,20 @@
 PROG = holyc
 
 CC := gcc
-CFLAGS = -O0 -static -nostdlib -ffreestanding -e _start
 
-# https://stackoverflow.com/a/16007194/7132678
-CFLAGS += -fno-asynchronous-unwind-tables
+CFLAGS += -O0                         # simple code output
+CFLAGS += -e _start                   # entry-point
+CFLAGS += -static                     # don't link against shared libraries?
+CFLAGS += -nostdlib                   # don't link any libs or startup files
+CFLAGS += -ffreestanding              # disable builtin functions
+CFLAGS += -mincoming-stack-boundary=4 # ensure 16-byte alignment
+CFLAGS += -masm=intel                 # use Intel assembly syntax
 
-# abi conradicts the CPU?
-CFLAGS += -mno-red-zone
+# SysV requires 128-byte redzone, but kernel code can't use it
+# CFLAGS += -mno-red-zone
 
-# https://stackoverflow.com/questions/2548486/compiling-without-libc?noredirect=1&lq=1#comment109923208_2548601
-CFLAGS += -mincoming-stack-boundary=4
-
-CFLAGS += -masm=intel
+# SysV requires .eh_frame stuff?
+# CFLAGS += -fno-asynchronous-unwind-tables
 
 default: clean $(PROG) test
 
