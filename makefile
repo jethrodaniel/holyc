@@ -2,19 +2,34 @@ PROG = holyc
 
 CC := gcc
 
-CFLAGS += -O0                         # simple code output
-CFLAGS += -e _start                   # entry-point
-CFLAGS += -static                     # don't link against shared libraries?
-CFLAGS += -nostdlib                   # don't link any libs or startup files
-CFLAGS += -ffreestanding              # disable builtin functions
-CFLAGS += -mincoming-stack-boundary=4 # ensure 16-byte alignment
-CFLAGS += -masm=intel                 # use Intel assembly syntax
+# simple code output
+CFLAGS += -O0
 
-# SysV requires 128-byte redzone, but kernel code can't use it
-# CFLAGS += -mno-red-zone
+# entry-point
+CFLAGS += -e _start
 
-# SysV requires .eh_frame stuff?
+# use Intel assembly syntax
+CFLAGS += -masm=intel
+
+# output standalone executable
+CFLAGS += -static
+
+# don't link any libs or startup files
+CFLAGS += -nostdlib
+
+# disable builtin functions
+CFLAGS += -ffreestanding
+
+# ensure 16-byte alignment, required by SysV
+CFLAGS += -mincoming-stack-boundary=4
+
+# 128-byte redzone, required by SysV (kernel code can't use it)
+CFLAGS += -mno-red-zone
+
+# .eh_frame stuff?, required by SysV
+# TODO
 # CFLAGS += -fno-asynchronous-unwind-tables
+
 
 default: clean $(PROG) test
 
