@@ -37,8 +37,8 @@
 
 #include "lib/elf.h"
 
-#define ELF_START 0x401000
-#define ELF_SIZE  120
+#define ELF_START 0x401000 // linux start address for x86_64
+#define ELF_SIZE  120      // minimal elf header size
 
 int write_elf_header(int program_length) {
   uint64_t elf_offset = 0;
@@ -90,11 +90,6 @@ int write_elf_header(int program_length) {
   write(STDOUT_FILENO, elf_output, elf_offset);
 }
 
-typedef struct StringPair {
-  char *left;
-  char *right;
-} StringPair;
-
 // Global compiler state.
 //
 typedef struct CC {
@@ -112,9 +107,11 @@ typedef struct CC {
   int token;       // token type
   int int_val;     // if token is int
 
-  char *token_table[8][4]; // token names
+  char *token_table[8][4]; // token names, must match tokens exactly
 } CC;
 
+// Print to stderr and exit.
+//
 void error(char *fmt, ...) {
   asm("call warnf");
   exit(1);
@@ -139,10 +136,9 @@ void parse_options(CC *cc) {
 //
 
 void emit_mov_rax_imm(CC *cc, int imm) {
-  if (cc->output_asm) {
-    printf("MOV RAX,%d\n", imm);
-    return;
-  }
+  if (cc->output_asm)
+    return printf("MOV RAX,%d\n", imm);
+
   *cc->code++ = 0x48; // REX
   *cc->code++ = 0xB8; // MOV RAX,imm
   *cc->code = imm;
@@ -150,30 +146,27 @@ void emit_mov_rax_imm(CC *cc, int imm) {
 }
 
 void emit_sub_rax_rdi(CC *cc) {
-  if (cc->output_asm) {
-    printf("SUB RAX,RDI\n");
-    return;
-  }
+  if (cc->output_asm)
+    return printf("SUB RAX,RDI\n");
+
   *cc->code++ = 0x48; // REX
   *cc->code++ = 0x29; // SUB RAX,reg
   *cc->code++ = 0xF8; //  RDI
 }
 
 void emit_add_rax_rdi(CC *cc) {
-  if (cc->output_asm) {
-    printf("ADD RAX,RDI\n");
-    return;
-  }
+  if (cc->output_asm)
+    return printf("ADD RAX,RDI\n");
+
   *cc->code++ = 0x48; // REX
   *cc->code++ = 0x01; // ADD RAX,reg
   *cc->code++ = 0xF8; //  RDI
 }
 
 void emit_imul_rax_rdi(CC *cc) {
-  if (cc->output_asm) {
-    printf("IMUL RAX,RDI\n");
-    return;
-  }
+  if (cc->output_asm)
+    return printf("IMUL RAX,RDI\n");
+
   *cc->code++ = 0x48; // REX
   *cc->code++ = 0x0F; // IMUL RAX,reg
   *cc->code++ = 0xAF;
@@ -181,11 +174,9 @@ void emit_imul_rax_rdi(CC *cc) {
 }
 
 void emit_cqo_idiv_rdi(CC *cc) {
-  if (cc->output_asm) {
-    printf("CQO\n");
-    printf("IDIV RDI\n");
-    return;
-  }
+  if (cc->output_asm)
+    return printf("CQO\nIDIV RDI\n");
+
   *cc->code++ = 0x48; // REX
   *cc->code++ = 0x99; //  CQO
 
@@ -195,58 +186,52 @@ void emit_cqo_idiv_rdi(CC *cc) {
 }
 
 void emit_push(CC *cc, int n) {
-  if (cc->output_asm) {
-    printf("PUSH %d\n", n);
-    return;
-  }
+  if (cc->output_asm)
+    return printf("PUSH %d\n", n);
+
   *cc->code++ = 0x68; // PUSH
   *cc->code = n;
   cc->code += 4;
 }
 
 void emit_push_rax(CC *cc) {
-  if (cc->output_asm) {
-    printf("PUSH RAX\n");
-    return;
-  }
+  if (cc->output_asm)
+    return printf("PUSH RAX\n");
+
   *cc->code++ = 0x50; // PUSH RAX
 }
 
 
 void emit_pop_rax(CC *cc) {
-  if (cc->output_asm) {
-    printf("POP RAX\n");
-    return;
-  }
+  if (cc->output_asm)
+    return printf("POP RAX\n");
+
   *cc->code++ = 0x58; // POP RAX
 }
 
 void emit_pop_rdi(CC *cc) {
-  if (cc->output_asm) {
-    printf("POP RDI\n");
-    return;
-  }
+  if (cc->output_asm)
+    return printf("POP RDI\n");
+
   *cc->code++ = 0x5F; // POP RDI
 }
 
 void emit_syscall(CC *cc) {
-  if (cc->output_asm) {
-    printf("  SYSCALL");
-    return;
-  }
+  if (cc->output_asm)
+    return printf("  SYSCALL");
+
   *cc->code++ = 0x0F; // SYSCALL
   *cc->code++ = 0x05;
 }
 
 void emit_start(CC *cc) {
-  if (cc->output_asm) {
-    printf("\n_start:\n");
-    printf("  // CALL main\n");
-    printf("  MOV RDI,RAX  // arg1, main()\n");
-    printf("  MOV RAX,60   // exit\n");
-    printf("  SYSCALL      // exit()\n");
-    return;
-  }
+  if (cc->output_asm)
+    return printf(
+      "\n_start:\n"
+      "  // CALL main\n"
+      "  MOV RDI,RAX  // arg1, main()\n"
+      "  MOV RAX,60   // exit\n"
+      "  SYSCALL      // exit()\n");
 
   *cc->code++ = 0x48; // REX
   *cc->code++ = 0x89; // MOV RDI,reg
@@ -271,6 +256,8 @@ typedef enum {
   TK_RPAREN,
 } TokenType;
 
+// Print a token for debugging.
+//
 void print_token(CC *cc) {
   char *tokname = cc->token_table[cc->token][0];
 
@@ -366,10 +353,10 @@ ret:
   return cc->token;
 }
 
-// Unfetches next token.
+// Unfetches next token. HACKY
 //
 void Unlex(CC *cc) {
-  cc->input = cc->token_pos; // unlex
+  cc->input = cc->token_pos;
 }
 
 //
@@ -504,6 +491,8 @@ void _factor(CC *cc, Prec prec) {
 
 #define INPUT_SIZE 4096
 
+// Read code from stdin, options from argv, output asm or binary to stdout.
+//
 int main(int argc, char **argv, char **envp) {
   char input[INPUT_SIZE];
   int num_read;
