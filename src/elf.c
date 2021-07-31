@@ -1,5 +1,9 @@
-#include <lib/elf.h>
+#include <lib/stddef.h>
 #include <lib/stdio.c>
+#include <lib/stdlib.c>
+#include "lib/string.c"
+
+#include <lib/elf.h>
 
 #define ELF_START 0x401000 // linux start address for x86_64
 #define ELF_SIZE  120      // minimal elf header size

@@ -1,6 +1,9 @@
 #ifndef HOLYC_LIB_STDLIB
 #define HOLYC_LIB_STDLIB
 
+#include <lib/mman.c>
+#include <lib/stddef.h>
+
 int exit(int code) {
   asm("mov  rax, 60");
   asm("syscall");

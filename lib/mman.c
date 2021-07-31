@@ -1,7 +1,7 @@
 #ifndef HOLYC_LIB_MMAN
 #define HOLYC_LIB_MMAN
 
-#include "./stdint.h"
+#include <lib/stdint.h>
 
 #define PROT_READ     0x1
 #define PROT_WRITE    0x2

@@ -1,6 +1,9 @@
 #ifndef HOLYC_LIB_STRING
 #define HOLYC_LIB_STRING
 
+#include <lib/stdint.h>
+#include <lib/stddef.h>
+
 int strlen(char *str) {
   int i = 0;
   while(str[i])

@@ -1,8 +1,8 @@
 #ifndef HOLYC_LIB_STDIO
 #define HOLYC_LIB_STDIO
 
-#include "./unistd.c"
-#include "./string.c"
+#include <lib/unistd.c>
+#include <lib/string.c>
 
 // putc()
 

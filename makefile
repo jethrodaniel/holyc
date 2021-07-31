@@ -2,6 +2,8 @@ PROG = holyc
 
 CC := gcc
 
+#--
+
 # simple code output
 CFLAGS += -O0
 
@@ -37,11 +39,16 @@ CFLAGS += -I .
 
 default: clean $(PROG) test
 
-$(PROG): hc.c
+SRCS = $(wildcard hc.c src/*.c lib/*.c)
+OBJS = $(SRCS:.c=.o)
+
+$(PROG): $(OBJS)
 	$(CC) $(CFLAGS) $< -o $(PROG)
 
 clean:
-	rm -vf *.out $(PROG) *.o main
+	rm -vf *.out $(PROG)
+purge: clean
+	rm -vf *.o src/*.o lib/*.o
 
 #--
 
