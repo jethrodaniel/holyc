@@ -53,9 +53,9 @@ purge: clean
 #--
 
 test.out: $(PROG) FORCE test.c clean
-	$(CC) $(CFLAGS) test.c -o $@
+	$(CC) $(CFLAGS) -g test.c -o $@
 ctest: test.out
-	./$< # -v
+	./$< -v
 
 test: FORCE
 	sh test.sh

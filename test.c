@@ -1,18 +1,22 @@
 #include <lib/stdio.c>
 #include <lib/stdbool.h>
 #include <lib/stdlib.c>
+#include <lib/string.c>
 #include <src/boot.c>
 
-#define NUM_TESTS         1  // *Must* be kept up to date
-#define TEST_NAME_MAX_LEN 16
-#define TEST_ERR_MAX_LEN  16
+#define NUM_TESTS         3  // *Must* be kept up to date
+#define TEST_NAME_MAX_LEN 64
+#define TEST_ERR_MAX_LEN  64
+
+typedef void (*TestFn)();
 
 // A single test.
 //
 typedef struct Test {
   char name[TEST_NAME_MAX_LEN];
+  TestFn fn;
   bool passed;
-  char err[TEST_ERR_MAX_LEN];
+  char *err[TEST_ERR_MAX_LEN];
 } Test;
 
 // The test suite's context.
@@ -26,27 +30,30 @@ typedef struct TestRunner {
 
 //
 
-char *test_exits_with_number(T *t) {
-  if (t->verbose) printf("%s: ", __func__);
-
-  int n = 42;
-  return 0;
+void test_pass(Test *t) {
+  t->passed = true;
 }
 
-void run_test(char *(*fn)(), T *t) {
-  char *msg = fn(t);
+void test_fail(Test *t) {
+  char *msg = "failed";
+  memcpy(t->err, msg, strlen(msg));
+}
 
-  if (msg)
-    printf("%s", msg);
-  else
-    printf(".");
+void run_test(T *t, Test *test) {
+  test->fn(test);
+  if (t->verbose) printf("%s: ", test->name);
+
+  if (test->passed) return printf(".\n");
+
+  if (t->verbose) printf("%s\n", test->err);
+  else            printf("x\n");
 }
 
 // Run all tests.
 //
 void run_tests(T *t) {
-  run_test(test_exits_with_number, t);
-  printf("\n");
+  for (int i = 0; i < NUM_TESTS; i++)
+    run_test(t, &t->tests[i]);
 }
 
 //--
@@ -65,7 +72,6 @@ void parse_options(T *t) {
       exit(2);
     }
 
-    warnf("verbose\n");
     t->verbose = true;
   }
 }
@@ -77,5 +83,13 @@ int main(int argc, char **argv) {
   t->verbose = false;
   t->argc = argc;
   t->argv = argv;
+  t->tests[0] = (Test){.name="test_pass", .fn=test_pass};
+  t->tests[1] = (Test){.name="test_fail", .fn=test_fail};
+  t->tests[2] = (Test){.name="test_fail", .fn=test_fail};
+
+  parse_options(t);
+
   run_tests(t);
+
+  return EXIT_SUCCESS;
 }
