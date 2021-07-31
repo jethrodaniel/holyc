@@ -52,10 +52,11 @@ purge: clean
 
 #--
 
-# test.out: $(PROG) FORCE test.c
-# 	$(CC) $(CFLAGS) test.c -o $@
-# ctest: test.out
-# 	./$< -v
+test.out: $(PROG) FORCE test.c clean
+	$(CC) $(CFLAGS) test.c -o $@
+ctest: test.out
+	./$< # -v
+
 test: FORCE
 	sh test.sh
 FORCE:
