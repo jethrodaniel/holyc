@@ -7,12 +7,14 @@
 #define EXIT_SUCCESS  0
 
 int write(int fd, char *buf, int length) {
-  asm("mov  rax, 1");
+  // asm("mov rax, 1");
+  asm("mov $0x2000004, %rax");
   asm("syscall");
 }
 
 int read(int fd, char *buf, int length) {
-  asm("mov  rax, 0");
+  // asm("mov rax, 0");
+  asm("mov $0x2000000, %rax");
   asm("syscall");
 }
 

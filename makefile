@@ -28,6 +28,8 @@ CFLAGS += -ffreestanding
 # 128-byte redzone, required by SysV (kernel code can't use it)
 CFLAGS += -mno-red-zone
 
+CFLAGS += -fno-stack-protector
+
 # .eh_frame stuff?, required by SysV
 # TODO
 # CFLAGS += -fno-asynchronous-unwind-tables

@@ -5,7 +5,9 @@
 #include <lib/stddef.h>
 
 int exit(int code) {
-  asm("mov  rax, 60");
+  // mov rax, 60
+  // asm("mov $60, %rax");
+  asm("mov $0x2000001, %rax");
   asm("syscall");
 }
 
