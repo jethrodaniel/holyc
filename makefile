@@ -23,7 +23,7 @@ CFLAGS += -nostdlib
 CFLAGS += -ffreestanding
 
 # ensure 16-byte alignment, required by SysV
-CFLAGS += -mincoming-stack-boundary=4
+# CFLAGS += -mincoming-stack-boundary=4
 
 # 128-byte redzone, required by SysV (kernel code can't use it)
 CFLAGS += -mno-red-zone

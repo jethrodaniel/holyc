@@ -48,7 +48,11 @@ IV: Write basic shell
   - [english translation](https://translate.google.com/translate?hl=en&sl=ja&tl=en&u=https%3A%2F%2Fwww.sigbus.info%2Fcompilerbook)
   - [that project's successor](https://github.com/rui314/chibicc)
 - [Writing elf output](https://github.com/lazear/lass/blob/66771edd7fa883e0620b3e00777320e6577f7f33/assembler.c#L53)
-- [Linux program startup](https://web.archive.org/web/20191210114310/http://dbp-consulting.com/tutorials/debugging/linuxProgramStartup.html)
+- Program startup/boot:
+  - [Linux program startup](https://web.archive.org/web/20191210114310/http://dbp-consulting.com/tutorials/debugging/linuxProgramStartup.html)
+  - [MacOS libc startup](https://embeddedartistry.com/blog/2019/05/20/exploring-startup-implementations-os-x/)
+- Assembly hello worlds
+  - https://gist.github.com/FiloSottile/7125822
 - [Nascent C compilers from Bell Labs](https://github.com/dspinellis/unix-history-repo/blob/Research-V2-Snapshot-Development/c/nc0/c00.c)
 - [x86_64 varargs](https://blog.nelhage.com/2010/10/amd64-and-va_arg/)
 - [SysV ABI links](https://wiki.osdev.org/System_V_ABI)
