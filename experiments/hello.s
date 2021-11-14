@@ -1,14 +1,9 @@
-; nasm -f macho64 64.asm && ld -macosx_version_min 10.7.0 -lSystem -o 64 64.o && ./64
-;
-; From https://gist.github.com/FiloSottile/7125822
-
-; global start
-global _main
+global _start
+global printf
 
 section .text
 
-; start:
-_main:
+_start:
     mov     rax, 0x2000004 ; write
     mov     rdi, 1 ; stdout
     mov     rsi, msg
@@ -22,5 +17,5 @@ _main:
 
 section .data
 
-msg:    db      "Hello, world!", 10
+msg:    db      "hi! (freestanding)", 18, 10
 .len:   equ     $ - msg
