@@ -34,8 +34,7 @@
 // Print to stderr and exit.
 //
 void error(char *fmt, ...) {
-  // asm("call warnf");
-  asm("call _warnf");
+  __asm__("call _warnf");
   exit(1);
 }
 

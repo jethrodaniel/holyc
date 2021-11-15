@@ -57,3 +57,6 @@ IV: Write basic shell
 - [x86_64 varargs](https://blog.nelhage.com/2010/10/amd64-and-va_arg/)
 - [SysV ABI links](https://wiki.osdev.org/System_V_ABI)
 - [SysV linking](https://www.cl.cam.ac.uk/~pes20/rems/papers/oopsla-elf-linking-2016.pdf)
+- Syscall info
+  - [MacOS](https://opensource.apple.com/source/xnu/xnu-1504.3.12/bsd/kern/syscalls.master)
+  - [Linux](https://filippo.io/linux-syscall-table/)

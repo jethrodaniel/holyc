@@ -1,11 +1,12 @@
 FROM alpine:3.14.0 AS build
-RUN apk add --no-cache make gcc
+RUN apk add --no-cache make build-base nasm
 
 COPY . /app/holyc
 WORKDIR /app/holyc
 RUN make
 
-FROM scratch
-COPY --from=build /app/holyc/holyc /bin/holyc
+# # FROM scratch
+# FROM alpine:3.14.0
+# COPY --from=build /app/holyc/holyc /bin/holyc
 
-ENTRYPOINT ["/bin/holyc"]
+# CMD ["/bin/holyc"]

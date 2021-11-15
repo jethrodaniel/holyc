@@ -10,14 +10,22 @@
 #define MAP_PRIVATE   0x02
 
 void *mmap(void *addr, int64_t length, int prot, int flags, int fd, off_t offset) {
-  asm("mov $9, %rax");   // mmap
-  asm("mov %rcx, %r10"); // arg4 for syscalls
-  asm("syscall");
+#ifdef __APPLE__
+  __asm__("mov $197, %rax");
+#else
+  __asm__("mov $9, %rax");
+#endif
+  __asm__("mov %rcx, %r10"); // arg4 for syscalls ??
+  __asm__("syscall");
 }
 
 int munmap(void *addr, size_t length) {
-  asm("mov $11, %rax");   // munmap
-  asm("syscall");
+#ifdef __APPLE__
+  __asm__("mov $73, %rax");
+#else
+  __asm__("mov $11, %rax");
+#endif
+  __asm__("syscall");
 }
 
 #endif // HOLYC_LIB_MMAN

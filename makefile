@@ -1,6 +1,8 @@
 PROG = holyc
 
-CC := gcc
+# CC := gcc
+#
+UNAME := $(shell uname)
 
 #--
 
@@ -10,8 +12,8 @@ CFLAGS += -O0
 # entry-point
 CFLAGS += -e _start
 
-# use Intel assembly syntax
-CFLAGS += -masm=intel
+# clang yells at us for using `-e` with `-c`...
+CFLAGS += -Wno-unused-command-line-argument
 
 # output standalone executable
 CFLAGS += -static
@@ -22,16 +24,37 @@ CFLAGS += -nostdlib
 # disable builtin functions
 CFLAGS += -ffreestanding
 
-# ensure 16-byte alignment, required by SysV
-# CFLAGS += -mincoming-stack-boundary=4
+# ensure 16-byte alignment, required by SysV | TODO: any of this needed?
+ifeq ($(UNAME), Linux)
+  # CFLAGS += -mincoming-stack-boundary=4
+
+  # Ensure we can still `call` without having to check if `__APPLE__`
+  CFLAGS += -fleading-underscore
+endif
+ifeq ($(UNAME), Darwin)
+  # CFLAGS += -mstack-alignment=4
+
+  # Needed to prevent:
+  #     Undefined symbols for architecture x86_64:
+  #       "___stack_chk_fail", referenced from:
+  #           __printf_print_itoa in hc.o
+  #           __warnf_print_itoa in hc.o
+  #           _main in hc.o
+  #       "___stack_chk_guard", referenced from:
+  #           __printf_print_itoa in hc.o
+  #           __warnf_print_itoa in hc.o
+  #           _main in hc.o
+  CFLAGS += -fno-stack-protector
+endif
 
 # 128-byte redzone, required by SysV (kernel code can't use it)
 CFLAGS += -mno-red-zone
 
-CFLAGS += -fno-stack-protector
+# asm stubs return via `rax`, not `return`
+CFLAGS += -Wno-return-type
 
 # .eh_frame stuff?, required by SysV
-# TODO
+# TODO: is this needed?
 # CFLAGS += -fno-asynchronous-unwind-tables
 
 # Allow for #include </lib/...> instead of relative paths
@@ -48,9 +71,8 @@ $(PROG): $(OBJS)
 	$(CC) $(CFLAGS) $< -o $(PROG)
 
 clean:
-	rm -vf *.out $(PROG)
-purge: clean
-	rm -vf *.o src/*.o lib/*.o
+	rm -vf *.o *.out $(PROG) src/*.o lib/*.o
+	make -C experiments clean
 
 #--
 
@@ -66,4 +88,4 @@ FORCE:
 #--
 
 docker:
-	docker build -t holyc .
+	docker build -t holyc . && docker run -it --rm holyc

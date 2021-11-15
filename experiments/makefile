@@ -17,13 +17,7 @@ CFLAGS += -static
 CFLAGS += -nostdlib
 CFLAGS += -ffreestanding
 CFLAGS += -fno-stack-protector
-
-# asm stubs return via `rax`, not `return`
 CFLAGS += -Wno-return-type
-
-# clang ignores this for inline asm
-# CFLAGS += -masm=intel
-
 CFLAGS += -I ..
 
 default: hello libc main clean
