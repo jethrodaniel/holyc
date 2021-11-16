@@ -1,15 +1,12 @@
-global _start
-extern _main
+.global _start
+.extern _main,_exit
 
-section .text
+.text
 
 _start:
-    sub rsp, 8          ; align rsp to 16-bytes
-
-    call _main
-
-    add rsp, 8          ; restore rsp
-
-    mov rdi, rax
-    mov rax, 0x2000001  ; exit
-    syscall
+; popq %rdi
+; movq %rsp, %rsi
+; andq $0xfffffffffffffff0, %rsp
+call _main
+movq %rax, %rdi
+call _exit

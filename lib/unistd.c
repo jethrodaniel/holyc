@@ -1,27 +1,30 @@
 #ifndef HOLYC_LIB_UNISTD
 #define HOLYC_LIB_UNISTD
 
-#define STDIN_FILENO 0
+#define STDIN_FILENO  0
+#define STDIN         STDIN_FILENO
 #define STDOUT_FILENO 1
+#define STDOUT        STDOUT_FILENO
 #define STDERR_FILENO 2
-#define EXIT_SUCCESS 0
+#define EXIT_SUCCESS  0
 
-int write(int fd, char *buf, int length) {
+#include <lib/stdint.h>
+#include <lib/syscall.c>
+
+int64_t write(int fd, void *buf, size_t length) {
 #ifdef __APPLE__
-  __asm__("mov $0x2000004, %rax");
+  return syscall(fd, buf, length, 0, 0, 0, SYSCALL_GET(4));
 #else
-  __asm__("mov $1, %rax");
+  return syscall(fd, buf, length, 0, 0, 0, SYSCALL_GET(1));
 #endif
-  __asm__("syscall");
 }
 
-int read(int fd, char *buf, int length) {
+int64_t read(int fd, char *buf, size_t length) {
 #ifdef __APPLE__
-  __asm__("mov $0x2000000, %rax");
+  return syscall(fd, buf, length, 0, 0, 0, SYSCALL_GET(3));
 #else
-  __asm__("mov $0, %rax");
+  return syscall(fd, buf, length, 0, 0, 0, SYSCALL_GET(0));
 #endif
-  __asm__("syscall");
 }
 
 #endif // HOLYC_LIB_UNISTD

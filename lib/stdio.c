@@ -42,88 +42,6 @@ void die(char *str) {
 
 // printf()
 
-int dprintf(int fd, char *fmt, ...) {
-  asm("pushq %r9");  // varg4
-  asm("pushq %r8");  // varg3
-  asm("pushq %rcx"); // varg2
-  asm("pushq %rdx"); // varg1
-
-  char *c = fmt;
-  int popped = 0;
-
-  while (*c) {
-    if (*c != '%') {
-      if (fd == 1)
-        putc(*c++);
-      if (fd == 2)
-        warnc(*c++);
-      continue;
-    }
-
-    if (popped > 4)
-      die("printf with more than 4 args unsupported");
-
-    switch (*++c) { // eat '%'
-      case 'c':
-      case 'd':
-      case 'f':
-      case 's':
-        asm("popq %rdi");
-        popped++;
-
-        if (*c == 's') {
-          if (fd == 1)
-            asm("call _print");
-          if (fd == 2)
-            asm("call _warn");
-        }
-
-        if (*c == 'd') {
-          if (fd == 1)
-            asm("call __printf_print_itoa");
-          if (fd == 2)
-            asm("call __warnf_print_itoa");
-        }
-        if (*c == 'c') asm("call _putc");
-        if (*c == 'f') die("unsupported printf format '%f'");
-
-        break;
-      default:
-        warn("unknown printf format '%");
-        putc(*c); // todo
-        warn("'");
-    }
-    c++;
-  }
-
-  for (int i = popped; i < 4; i++)
-    asm("popq %r8"); // can we trash this reg?
-
-  // xor r8, r8
-  asm("xor %r8, %r8"); // can we trash this reg?
-}
-
-void printf(char *fmt, ...) {
-  // mov r9, r8
-  asm("mov %r8, %r9");   // varg4
-  asm("mov %rcx, %r8");  // varg3
-  asm("mov %rdx, %rcx"); // varg2
-  asm("mov %rsi, %rdx"); // varg1
-  asm("mov %rdi, %rsi"); // arg2, fmt
-  asm("mov $1, %rdi");   // arg1, stdout
-  asm("call _dprintf"); // dprintf()
-}
-
-void warnf(char *fmt, ...) {
-  asm("mov %r8, %r9");   // varg4
-  asm("mov %rcx, %r8");  // varg3
-  asm("mov %rdx, %rcx"); // varg2
-  asm("mov %rsi, %rdx"); // varg1
-  asm("mov %rdi, %rsi"); // arg2, fmt
-  asm("mov $2, %rdi");   // arg1, stderr
-  asm("call _dprintf"); // dprintf()
-}
-
 // todo: get len of number, then malloc
 //
 void _printf_print_itoa(int n) {
@@ -136,6 +54,92 @@ void _warnf_print_itoa(int n) {
   char buf[] = "                "; // 5
   itoa(n, buf);
   warn(buf);
+}
+
+int dprintf(int fd, char *fmt, ...) {
+  int64_t varg1 = 1, varg2 = 2, varg3 = 3, varg4 = 4;
+
+  __asm__("mov %rdx, 0x58(%rsp)"); // varg1
+  __asm__("mov %rcx, 0x50(%rsp)"); // varg2
+  __asm__("mov %r8,  0x48(%rsp)"); // varg3
+  __asm__("mov %r9,  0x40(%rsp)"); // varg4
+
+  int64_t vargs[] = {varg1, varg2, varg3, varg4};
+
+  char *c = fmt;
+  int vars = 0, current = 0;
+
+  while (*c)
+    if (*c++ == '%') vars++;
+
+  if (vars > 4)
+    die("printf with more than 4 args unsupported");
+
+  if (fd < 1 || fd > 2)
+    die("dprintf fd must be 1 or 2");
+
+  c = fmt;
+
+  while (*c) {
+    if (*c != '%') {
+      if (fd == 1)
+        putc(*c++);
+      if (fd == 2)
+        warnc(*c++);
+      continue;
+    }
+
+    switch (*++c) { // eat '%'
+      case 'c':
+      case 'd':
+      case 'i':
+      case 'f':
+      case 's':
+        if (*c == 's') {
+          if (fd == 1)
+            print(vargs[current++]);
+          if (fd == 2)
+            warn(vargs[current++]);
+        }
+
+        if (*c == 'd' || *c == 'i') {
+          if (fd == 1)
+            _printf_print_itoa(vargs[current++]);
+          if (fd == 2)
+            _warnf_print_itoa(vargs[current++]);
+        }
+        if (*c == 'c') putc(vargs[current++]);
+        if (*c == 'f') die("unsupported printf format '%f'");
+
+        break;
+      default:
+        warn("[abort] unknown printf format '%");
+        warnc(*c);
+        warn("'\n");
+        exit(2);
+    }
+    c++;
+  }
+}
+
+void printf(char *fmt, ...) {
+  __asm__("mov %r8, %r9");   // varg4
+  __asm__("mov %rcx, %r8");  // varg3
+  __asm__("mov %rdx, %rcx"); // varg2
+  __asm__("mov %rsi, %rdx"); // varg1
+  __asm__("mov %rdi, %rsi"); // arg2, fmt
+  __asm__("mov $1, %rdi");   // arg1, stdout
+  __asm__("call _dprintf"); // dprintf()
+}
+
+void warnf(char *fmt, ...) {
+  __asm__("mov %r8, %r9");   // varg4
+  __asm__("mov %rcx, %r8");  // varg3
+  __asm__("mov %rdx, %rcx"); // varg2
+  __asm__("mov %rsi, %rdx"); // varg1
+  __asm__("mov %rdi, %rsi"); // arg2, fmt
+  __asm__("mov $2, %rdi");   // arg1, stderr
+  __asm__("call _dprintf"); // dprintf()
 }
 
 #endif // HOLYC_LIB_STDIO

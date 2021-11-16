@@ -19,6 +19,7 @@ CFLAGS += -ffreestanding
 CFLAGS += -fno-stack-protector
 CFLAGS += -Wno-return-type
 CFLAGS += -I ..
+CFLAGS += -mstack-alignment=4
 
 default: hello libc main clean
 
@@ -33,9 +34,9 @@ libc: libc.s
 	./$@
 
 main: main.s main.c
-	nasm $(NASM_FLAGS) -o start.o main.s
+	gcc $(CFLAGS) -c main.s -o start.o
 	gcc $(CFLAGS) -c main.c
-	ld $(LDFLAGS) -o $@ start.o main.o
+	ld $(LDFLAGS) -o $@ main.o start.o
 	./$@
 
 clean:

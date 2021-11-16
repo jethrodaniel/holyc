@@ -6,11 +6,10 @@
 
 int exit(int code) {
 #ifdef __APPLE__
-  __asm__("mov $0x2000001, %rax");
+  return syscall(code, 0, 0, 0, 0, 0, SYSCALL_GET(1));
 #else
-  __asm__("mov $60, %rax");
+  return syscall(code, 0, 0, 0, 0, 0, SYSCALL_GET(60));
 #endif
-  __asm__("syscall");
 }
 
 int atoi(char *str) {
@@ -48,9 +47,9 @@ long strtol(char *str, char **end, int base) {
 //
 // https://my.eng.utah.edu/~cs4400/malloc.pdf
 //
-void *malloc(int n) {
+void *malloc(int64_t n) {
   return mmap(NULL, // let kernel decide where the mem is
-              n, PROT_READ | PROT_WRITE | PROT_EXEC,
+              n, PROT_READ | PROT_WRITE,
               MAP_ANONYMOUS | MAP_PRIVATE,
               -1, // map anon
               0   // no offset

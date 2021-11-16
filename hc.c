@@ -465,10 +465,11 @@ int main(int argc, char **argv, char **envp) {
 
   int code_size = cc->code - cc->code_buf;
 
-  if (!cc->output_asm)
-    write_elf_header(code_size);
+  if (cc->output_asm)
+    return EXIT_SUCCESS;
 
   warnf("Writing %d bytes of machine code\n", code_size);
+  write_elf_header(code_size);
   write(STDOUT_FILENO, cc->code_buf, code_size);
 
   return EXIT_SUCCESS;

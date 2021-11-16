@@ -14,24 +14,25 @@
 #endif
 
 #define MAP_PRIVATE   0x02
+#define MAP_FAILED ((void *) - 1 )
 
-void *mmap(void *addr, int64_t length, int prot, int flags, int fd, off_t offset) {
+#include <lib/syscall.c>
+
+// void *mmap(void *addr, int64_t length, int prot, int flags, int fd, off_t offset) {
+void *mmap(void *addr, long long length, long long prot, long long flags, long long fd, long long offset) {
 #ifdef __APPLE__
-  __asm__("mov $0x2000197, %rax");
+  return syscall(addr, length, prot, flags, fd, offset, SYSCALL_GET(197));
 #else
-  __asm__("mov $9, %rax");
+  return syscall(addr, length, prot, flags, fd, offset, SYSCALL_GET(9));
 #endif
-  __asm__("mov %rcx, %r10"); // arg4 for syscalls is different
-  __asm__("syscall");
 }
 
-int munmap(void *addr, size_t length) {
+int64_t munmap(void *addr, size_t length) {
 #ifdef __APPLE__
-  __asm__("mov $0x2000073, %rax");
+  return syscall(addr, length, 0, 0, 0, 0, SYSCALL_GET(73));
 #else
-  __asm__("mov $11, %rax");
+  return syscall(addr, length, 0, 0, 0, 0, SYSCALL_GET(11));
 #endif
-  __asm__("syscall");
 }
 
 #endif // HOLYC_LIB_MMAN
