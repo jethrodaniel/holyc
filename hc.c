@@ -460,13 +460,14 @@ int main(int argc, char **argv, char **envp) {
     die("read");
 
   _root(cc);
+
+  if (cc->output_asm)
+    return EXIT_SUCCESS;
+
   emit_pop_rax(cc);
   emit_start(cc);
 
   int code_size = cc->code - cc->code_buf;
-
-  if (cc->output_asm)
-    return EXIT_SUCCESS;
 
   warnf("Writing %d bytes of machine code\n", code_size);
   write_elf_header(code_size);
