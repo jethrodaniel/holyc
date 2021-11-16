@@ -18,8 +18,7 @@
 
 #include <lib/syscall.c>
 
-// void *mmap(void *addr, int64_t length, int prot, int flags, int fd, off_t offset) {
-void *mmap(void *addr, long long length, long long prot, long long flags, long long fd, long long offset) {
+void *mmap(void *addr, int64_t length, int prot, int flags, int fd, off_t offset) {
 #ifdef __APPLE__
   return syscall(addr, length, prot, flags, fd, offset, SYSCALL_GET(197));
 #else

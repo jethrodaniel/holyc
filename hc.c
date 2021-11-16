@@ -9,7 +9,7 @@
 // - r8
 // - r9
 //
-// Linux syscalls use:
+// Syscalls use:
 //
 //  rdi
 //  rsi
@@ -17,7 +17,7 @@
 //  r10
 //  r9
 //
-//  clobbers rcx, r11, and rax
+//  and clobbers rcx, r11, and rax
 
 #include "lib/mman.c"
 #include "lib/stdbool.h"
