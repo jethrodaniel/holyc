@@ -11,7 +11,7 @@ endif
 LDFLAGS := -static
 LDFLAGS += -e _start
 
-CFLAGS := -g
+# CFLAGS := -g
 CFLAGS += -O0
 CFLAGS += -static
 CFLAGS += -nostdlib
@@ -21,7 +21,7 @@ CFLAGS += -Wno-return-type
 CFLAGS += -I ..
 CFLAGS += -mstack-alignment=4
 
-default: hello libc main clean
+default: hello libc main macho clean
 
 hello: hello.s
 	nasm $(NASM_FLAGS) $<
@@ -33,11 +33,13 @@ libc: libc.s
 	ld $(LIBC_LDFLAGS) -o $@ $@.o
 	./$@
 
-main: main.s main.c
-	gcc $(CFLAGS) -c main.s -o start.o
-	gcc $(CFLAGS) -c main.c
-	ld $(LDFLAGS) -o $@ main.o start.o
+main: main.c
+	cc -e _start $(CFLAGS) $< -o $@
+	./$@
+
+macho: macho.c
+	cc -e _start $(CFLAGS) $< -o $@
 	./$@
 
 clean:
-	rm -fv *.o hello libc main
+	rm -fv *.o hello libc main macho
