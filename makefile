@@ -53,6 +53,9 @@ CFLAGS += -mno-red-zone
 # asm stubs return via `rax`, not `return`
 CFLAGS += -Wno-return-type
 
+# don't yell at me
+CFLAGS += -Wno-int-conversion
+
 # .eh_frame stuff?, required by SysV
 # TODO: is this needed?
 # CFLAGS += -fno-asynchronous-unwind-tables

@@ -2,6 +2,8 @@
 #define HOLYC_LIB_BOOT
 
 __asm__(".globl _start");
+__asm__(".extern _main, _exit");
+
 __asm__("_start:");
 
 __asm__("movq  (%rsp),  %rdi");         // argc
