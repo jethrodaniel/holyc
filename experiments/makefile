@@ -36,11 +36,11 @@ libc: libc.s
 	ld $(LIBC_LDFLAGS) -o bin/$@ $@.o
 	./bin/$@
 
-main: main.c
+main: main.c bin
 	cc -e _start $(CFLAGS) $< -o bin/$@
 	./bin/$@
 
-macho: macho.c
+macho: macho.c bin
 	cc -e _start $(CFLAGS) $< -o bin/$@
 	./bin/$@ || true
 

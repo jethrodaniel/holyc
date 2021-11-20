@@ -74,7 +74,7 @@ $(PROG): $(OBJS)
 	$(CC) $(CFLAGS) $< -o $(PROG)
 
 clean:
-	rm -vf *.o *.out $(PROG) src/*.o lib/*.o
+	rm -vf *.o *.out $(PROG) src/*.o lib/*.o out
 	make -C experiments clean
 
 #--

@@ -76,3 +76,14 @@ typedef struct section_64 { /* for 64-bit architectures */
 // the real text part of the text section no headers,
 // and no padding
 #define	SECT_TEXT	"__text"
+
+// section contains only true machine instructions
+#define S_ATTR_PURE_INSTRUCTIONS 0x80000000
+
+// section contains some machine instructions
+#define S_ATTR_SOME_INSTRUCTIONS 0x00000400
+
+// the segment containing all structs created and maintained
+// by the link editor.  Created with -seglinkedit option to
+// ld(1) for MH_EXECUTE and FVMLIB file types only
+#define	SEG_LINKEDIT	"__LINKEDIT"

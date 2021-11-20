@@ -36,18 +36,43 @@ int write_macho_header(int program_length) {
   c->cmd = LC_SEGMENT_64;
   c->cmdsize = 72;
   memcpy(c->segname, SEG_TEXT, strlen(SEG_TEXT));
+  c->vmaddr = 0x100000000;
+  c->vmsize = 0x1000;
+  c->fileoff = 0;
+  c->filesize = 4096;
   c->maxprot = VM_PROT_READ | VM_PROT_EXECUTE;
   c->initprot = VM_PROT_READ | VM_PROT_EXECUTE;
+  c->nsects = 1;
+  c->flags = 0;
 
-  section_64 *s = malloc(sizeof(section_64));
-  memcpy(s->sectname, SEC_TEXT, strlen(SEC_TEXT));
-  memcpy(s->segname, SEG_TEXT, strlen(SEG_TEXT));
-  // s->maxprot = VM_PROT_READ | VM_PROT_EXECUTE;
-  // s->initprot = VM_PROT_READ | VM_PROT_EXECUTE;
+  section_64 *text = malloc(sizeof(section_64));
+  memcpy(text->sectname, SECT_TEXT, strlen(SECT_TEXT));
+  memcpy(text->segname, SEG_TEXT, strlen(SEG_TEXT));
+  text->addr = 0x100000000 + 4000;
+  text->size = 83; // TODO actual code size
+  text->offset = 4000;
+  text->align = 1<<4;
+  text->reloff = 0;
+  text->nreloc = 0;
+  text->flags = S_ATTR_PURE_INSTRUCTIONS | S_ATTR_SOME_INSTRUCTIONS;
+
+  // https://stackoverflow.com/a/55959072
+  segment_command_64 *linkedit = malloc(sizeof(segment_command_64));
+  linkedit->cmd = LC_SEGMENT_64;
+  linkedit->cmdsize = 72;
+  memcpy(linkedit->segname, SEG_LINKEDIT, strlen(SEG_LINKEDIT));
+  linkedit->vmaddr = 0x1000;
+  linkedit->vmsize = 0x1000;
+  linkedit->fileoff = 4096;
+  linkedit->filesize = 88;
+  linkedit->maxprot = VM_PROT_READ;
+  linkedit->initprot = VM_PROT_READ;
+  linkedit->nsects = 0;
+  linkedit->flags = 0;
 
   int64_t size =
       sizeof(mach_header_64) +
-    + sizeof(segment_command_64) * 2
+    + sizeof(segment_command_64) * 3
     + sizeof(section_64);
 
   warnf("size: %d",size);
@@ -55,5 +80,6 @@ int write_macho_header(int program_length) {
   write(STDOUT_FILENO, h, sizeof(mach_header_64));
   write(STDOUT_FILENO, p0, sizeof(segment_command_64));
   write(STDOUT_FILENO, c, sizeof(segment_command_64));
-  write(STDOUT_FILENO, s, sizeof(section_64));
+  write(STDOUT_FILENO, text, sizeof(section_64));
+  write(STDOUT_FILENO, linkedit, sizeof(segment_command_64));
 }
