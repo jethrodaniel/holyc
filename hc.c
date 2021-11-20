@@ -431,11 +431,17 @@ void _factor(CC *cc, Prec prec) {
 
 #define INPUT_SIZE 4096
 
+#include <src/macho.c>
+
 // Read code from stdin, options from argv, output asm or binary to stdout.
 //
 int main(int argc, char **argv, char **envp) {
   char input[INPUT_SIZE];
   int num_read;
+
+  write_macho_header(10);
+  exit(2);
+  // die("\n");
 
   CC *cc = malloc(sizeof(CC));
   cc->argc = argc;

@@ -8,6 +8,7 @@
 
 #define off_t int
 #define int64_t long long int
+#define int32_t int
 #define size_t unsigned long long int
 #define intptr_t long int
 
