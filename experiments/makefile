@@ -21,25 +21,28 @@ CFLAGS += -Wno-return-type
 CFLAGS += -I ..
 CFLAGS += -mstack-alignment=4
 
-default: hello libc main macho clean
+default: bin hello libc main macho clean
+
+bin:
+	mkdir -p bin
 
 hello: hello.s
 	nasm $(NASM_FLAGS) $<
-	ld $(LDFLAGS) -o $@ $@.o
-	./$@
+	ld $(LDFLAGS) -o bin/$@ $@.o
+	./bin/$@
 
 libc: libc.s
 	nasm $(NASM_FLAGS) $<
-	ld $(LIBC_LDFLAGS) -o $@ $@.o
-	./$@
+	ld $(LIBC_LDFLAGS) -o bin/$@ $@.o
+	./bin/$@
 
 main: main.c
-	cc -e _start $(CFLAGS) $< -o $@
-	./$@
+	cc -e _start $(CFLAGS) $< -o bin/$@
+	./bin/$@
 
 macho: macho.c
-	cc -e _start $(CFLAGS) $< -o $@
-	./$@
+	cc -e _start $(CFLAGS) $< -o bin/$@
+	./bin/$@ || true
 
 clean:
-	rm -fv *.o hello libc main macho
+	rm -rfv bin *.o
