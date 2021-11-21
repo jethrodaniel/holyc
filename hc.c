@@ -75,14 +75,14 @@ void parse_options(CC *cc) {
 // Codegen
 //
 
-void emit_mov_rax_imm(CC *cc, int imm) {
+void emit_mov_rax_imm(CC *cc, uint64_t imm) {
   if (cc->output_asm)
     return printf("MOV RAX,%d\n", imm);
 
   *cc->code++ = 0x48; // REX
   *cc->code++ = 0xB8; // MOV RAX,imm
-  *cc->code = imm;
-  cc->code += 8;
+  for (int i = 0; i < 8; i++)
+    *cc->code++ = imm >> 8*i;
 }
 
 void emit_sub_rax_rdi(CC *cc) {
@@ -177,7 +177,11 @@ void emit_start(CC *cc) {
   *cc->code++ = 0x89; // MOV RDI,reg
   *cc->code++ = 0xC7; //   RAX
 
+#ifdef __APPLE__
+  emit_mov_rax_imm(cc, 0x2000001);
+#else
   emit_mov_rax_imm(cc, 60);
+#endif
   emit_syscall(cc);
 }
 

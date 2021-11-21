@@ -59,7 +59,7 @@ int write_macho(uint8_t *code_buf, int code_size) {
   memcpy(text->sectname, SECT_TEXT, strlen(SECT_TEXT));
   memcpy(text->segname, SEG_TEXT, strlen(SEG_TEXT));
   text->addr = 0x100000000 + 4000;
-  text->size = 0x53; //code_size;
+  text->size = code_size;
   text->offset = 4000;
   text->align = 1<<2;
   text->reloff = 0;
@@ -121,8 +121,7 @@ int write_macho(uint8_t *code_buf, int code_size) {
   int64_t padsize = text->offset - size;
   int64_t *pad = malloc(padsize);
 
-  int64_t codesize = symtbl->symoff - (text-> offset + text->size);
-  int64_t *code = malloc(codesize);
+  int64_t *code = malloc(code_size);
   memcpy(code, code_buf, code_size);
 
   // int64_t padsize = symtbl->symoff - size;
@@ -137,21 +136,75 @@ int write_macho(uint8_t *code_buf, int code_size) {
   actual_symtbl[1].n_un.n_strx = 2;
   actual_symtbl[2].n_un.n_strx = 3;
 
-  int64_t bufsize = 4184 - size - padsize - codesize - actual_symtblsize;
+  int64_t bufsize = 4184 - size - padsize - code_size - actual_symtblsize;
   int64_t *buf = malloc(bufsize);
 
-  write(STDOUT_FILENO, h, sizeof(mach_header_64));
-  write(STDOUT_FILENO, p0, sizeof(segment_command_64));
-  write(STDOUT_FILENO, c, sizeof(segment_command_64));
-  write(STDOUT_FILENO, text, sizeof(section_64));
-  write(STDOUT_FILENO, linkedit, sizeof(segment_command_64));
-  write(STDOUT_FILENO, symtbl, sizeof(symtab_command));
-  write(STDOUT_FILENO, uuid, sizeof(uuid_command));
-  write(STDOUT_FILENO, v, sizeof(source_version_command));
-  write(STDOUT_FILENO, t, sizeof(thread_command));
-  write(STDOUT_FILENO, reg, sizeof(_STRUCT_X86_THREAD_STATE64));
-  write(STDOUT_FILENO, pad, padsize);
-  write(STDOUT_FILENO, code, codesize);
-  write(STDOUT_FILENO, actual_symtbl, actual_symtblsize);
-  write(STDOUT_FILENO, buf, bufsize);
+  // uint8_t *strtbl = malloc(symtbl->strsize);
+  // memcpy(strtbl, "main", 5);
+
+  int64_t offset = 0;
+
+  size = 0;
+
+  warnf("  | mach_header_64: %i\n", offset);
+  write(STDOUT_FILENO, h, size = sizeof(mach_header_64));
+  offset += size;
+
+  warnf("  | pagezero: %i\n", offset);
+  write(STDOUT_FILENO, p0, size = sizeof(segment_command_64));
+  offset += size;
+
+  warnf("  | __TEXT: %i\n", offset);
+  write(STDOUT_FILENO, c, size = sizeof(segment_command_64));
+  offset += size;
+
+  warnf("  | __text: %i\n", offset);
+  write(STDOUT_FILENO, text, size = sizeof(section_64));
+  offset += size;
+
+  warnf("  | __LINKEDIT: %i\n", offset);
+  write(STDOUT_FILENO, linkedit, size = sizeof(segment_command_64));
+  offset += size;
+
+  warnf("  | LC_SYMTAB: %i\n", offset);
+  write(STDOUT_FILENO, symtbl, size = sizeof(symtab_command));
+  offset += size;
+
+  warnf("  | LC_UUID: %i\n", offset);
+  write(STDOUT_FILENO, uuid, size = sizeof(uuid_command));
+  offset += size;
+
+  warnf("  | LC_SOURCE_VERSION: %i\n", offset);
+  write(STDOUT_FILENO, v, size = sizeof(source_version_command));
+  offset += size;
+
+  warnf("  | LC_UNIXTHREAD: %i\n", offset);
+  write(STDOUT_FILENO, t, size = sizeof(thread_command));
+  offset += size;
+
+  warnf("  | LC_UNIXTHREAD.state: %i\n", offset);
+  write(STDOUT_FILENO, reg, size = sizeof(_STRUCT_X86_THREAD_STATE64));
+  offset += size;
+
+  warnf("  | padding: %i\n", offset);
+  write(STDOUT_FILENO, pad, size = padsize);
+  offset += size;
+
+  warnf("  | text: %i\n", offset);
+  write(STDOUT_FILENO, code, size = code_size);
+  offset += size;
+
+  warnf("  | symtbl: %i\n", offset);
+  write(STDOUT_FILENO, actual_symtbl, size = actual_symtblsize);
+  offset += size;
+
+  warnf("  | buf: %i\n", offset);
+  write(STDOUT_FILENO, buf, size = bufsize);
+  offset += size;
+
+  // warnf("  | strtbl: %i\n", offset);
+  // write(STDOUT_FILENO, strtbl, size = symtbl->strsize);
+  // offset += size;
+
+  warnf("  | final offset: %i\n", offset);
 }

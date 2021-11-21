@@ -1,9 +1,7 @@
 bits 64
 
-push 4
-push 2
+push 1
 pop rax
-pop rdi
-imul rax,rdi
-cqo
-idiv rdi
+mov rdi, rax
+mov rax, strict 0x2000001
+syscall
