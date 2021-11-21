@@ -68,14 +68,14 @@ typedef struct section_64 { /* for 64-bit architectures */
 
 // the pagezero segment which has no protections and
 // catches NULL references for MH_EXECUTE files
-#define	SEG_PAGEZERO	"__PAGEZERO"
+#define SEG_PAGEZERO "__PAGEZERO"
 
 // the tradition UNIX text segment
-#define	SEG_TEXT	"__TEXT"
+#define SEG_TEXT "__TEXT"
 
 // the real text part of the text section no headers,
 // and no padding
-#define	SECT_TEXT	"__text"
+#define SECT_TEXT "__text"
 
 // section contains only true machine instructions
 #define S_ATTR_PURE_INSTRUCTIONS 0x80000000
@@ -86,4 +86,95 @@ typedef struct section_64 { /* for 64-bit architectures */
 // the segment containing all structs created and maintained
 // by the link editor.  Created with -seglinkedit option to
 // ld(1) for MH_EXECUTE and FVMLIB file types only
-#define	SEG_LINKEDIT	"__LINKEDIT"
+#define SEG_LINKEDIT "__LINKEDIT"
+
+// link-edit stab symbol table info
+#define LC_SYMTAB 0x2
+
+// the uuid
+#define LC_UUID  0x1b
+
+// source version used to build binary
+#define LC_SOURCE_VERSION 0x2A
+
+// unix thread (includes a stack)
+#define LC_UNIXTHREAD 0x5
+
+#define x86_THREAD_STATE64 4
+
+#define	_STRUCT_X86_THREAD_STATE64	struct x86_thread_state64
+_STRUCT_X86_THREAD_STATE64
+{
+	uint64_t	rax;
+	uint64_t	rbx;
+	uint64_t	rcx;
+	uint64_t	rdx;
+	uint64_t	rdi;
+	uint64_t	rsi;
+	uint64_t	rbp;
+	uint64_t	rsp;
+	uint64_t	r8;
+	uint64_t	r9;
+	uint64_t	r10;
+	uint64_t	r11;
+	uint64_t	r12;
+	uint64_t	r13;
+	uint64_t	r14;
+	uint64_t	r15;
+	uint64_t	rip;
+	uint64_t	rflags;
+	uint64_t	cs;
+	uint64_t	fs;
+	uint64_t	gs;
+};
+
+typedef unsigned int            __darwin_natural_t;
+typedef __darwin_natural_t      natural_t;
+typedef natural_t mach_msg_type_number_t;
+
+typedef _STRUCT_X86_THREAD_STATE64 x86_thread_state64_t;
+#define x86_THREAD_STATE64_COUNT ((mach_msg_type_number_t) \
+    (sizeof (x86_thread_state64_t) / sizeof (int) ))
+
+typedef struct symtab_command {
+  uint32_t cmd;     // LC_SYMTAB
+  uint32_t cmdsize; // sizeof(struct symtab_command)
+  uint32_t symoff;  // symbol table offset
+  uint32_t nsyms;   // number of symbol table entries
+  uint32_t stroff;  // string table offset
+  uint32_t strsize; // string table size in bytes
+} symtab_command;
+
+
+// The uuid load command contains a single 128-bit unique
+// random number that identifies an object produced by the
+// static link editor.
+typedef struct uuid_command {
+  uint32_t cmd;     // LC_UUID
+  uint32_t cmdsize; // sizeof(struct uuid_command)
+  uint8_t uuid[16]; // the 128-bit uuid
+} uuid_command;
+
+typedef struct source_version_command {
+  uint32_t  cmd;     // LC_SOURCE_VERSION
+  uint32_t  cmdsize; // 16
+  uint64_t  version; // A.B.C.D.E packed as a24.b10.c10.d10.e10
+} source_version_command;
+
+typedef struct thread_command {
+  uint32_t cmd;     // LC_THREAD or  LC_UNIXTHREAD
+  uint32_t cmdsize; // total size of this command
+  uint32_t flavor;  // flavor of thread state
+  uint32_t count;   // count of uint32_t's in thread state
+  // struct cpu_thread_state state;
+} thread_command;
+
+typedef struct nlist_64 {
+    union {
+        uint32_t  n_strx; /* index into the string table */
+    } n_un;
+    uint8_t n_type;        /* type flag, see below */
+    uint8_t n_sect;        /* section number or NO_SECT */
+    uint16_t n_desc;       /* see <mach-o/stab.h> */
+    uint64_t n_value;      /* value of this symbol (or stab offset) */
+} nlist_64;

@@ -75,7 +75,7 @@ $(PROG): $(OBJS)
 
 clean:
 	rm -vf *.o *.out $(PROG) src/*.o lib/*.o out
-	make -C experiments clean
+	# make -C experiments clean
 
 #--
 

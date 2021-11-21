@@ -439,10 +439,6 @@ int main(int argc, char **argv, char **envp) {
   char input[INPUT_SIZE];
   int num_read;
 
-  write_macho_header(10);
-  exit(2);
-  // die("\n");
-
   CC *cc = malloc(sizeof(CC));
   cc->argc = argc;
   cc->argv = argv;
@@ -476,8 +472,9 @@ int main(int argc, char **argv, char **envp) {
   int code_size = cc->code - cc->code_buf;
 
   warnf("Writing %d bytes of machine code\n", code_size);
-  write_elf_header(code_size);
-  write(STDOUT_FILENO, cc->code_buf, code_size);
+  write_macho_header(code_size, cc->code_buf);
+  // write_elf_header(code_size);
+  // write(STDOUT_FILENO, cc->code_buf, code_size);
 
   return EXIT_SUCCESS;
 }
