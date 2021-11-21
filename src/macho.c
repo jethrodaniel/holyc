@@ -13,8 +13,19 @@
 
 // Output a minimal x86_64 mach-o file to stdout.
 //
-int write_macho_header(int program_length, uint8_t *code_buf) {
-  warn("Writing macho header...\n");
+int write_macho(uint8_t *code_buf, int code_size) {
+  warn("Writing macho ...\n");
+  warnf("code_size: %i\n", code_size);
+
+  // warnf("  symtbl->symoff: %d\n",symtbl->symoff);
+  // warnf("  text->offset: %d\n",text->offset);
+  // warnf("  text->size: %d\n",text->size);
+  // warnf("  padsize: %d\n",padsize);
+  // warnf("  padsize+codesize: %d\n",padsize+codesize);
+  // warnf("  size: %d\n",size);
+  // warnf("  bufsize: %d\n",bufsize);
+  // warnf("  text->offset+text->size: %d\n",text->offset+text->size);
+
 
   mach_header_64 *h = malloc(sizeof(mach_header_64));
   h->magic = MH_MAGIC_64;
@@ -24,7 +35,6 @@ int write_macho_header(int program_length, uint8_t *code_buf) {
   h->ncmds = 7;
   h->sizeofcmds = 544;
   h->flags = MH_NOUNDEFS;
-  // h->reserved =
 
   segment_command_64 *p0 = malloc(sizeof(segment_command_64));
   p0->cmd = LC_SEGMENT_64;
@@ -34,7 +44,8 @@ int write_macho_header(int program_length, uint8_t *code_buf) {
 
   segment_command_64 *c = malloc(sizeof(segment_command_64));
   c->cmd = LC_SEGMENT_64;
-  c->cmdsize = 152;
+  c->nsects = 1;
+  c->cmdsize = sizeof(segment_command_64) + sizeof(section_64) * c->nsects;
   memcpy(c->segname, SEG_TEXT, strlen(SEG_TEXT));
   c->vmaddr = 0x100000000;
   c->vmsize = 0x1000;
@@ -42,14 +53,13 @@ int write_macho_header(int program_length, uint8_t *code_buf) {
   c->filesize = 4096;
   c->maxprot = VM_PROT_READ | VM_PROT_EXECUTE;
   c->initprot = VM_PROT_READ | VM_PROT_EXECUTE;
-  c->nsects = 1;
   c->flags = 0;
 
   section_64 *text = malloc(sizeof(section_64));
   memcpy(text->sectname, SECT_TEXT, strlen(SECT_TEXT));
   memcpy(text->segname, SEG_TEXT, strlen(SEG_TEXT));
   text->addr = 0x100000000 + 4000;
-  text->size = 0x53; // TODO actual code size
+  text->size = 0x53; //code_size;
   text->offset = 4000;
   text->align = 1<<2;
   text->reloff = 0;
@@ -113,6 +123,7 @@ int write_macho_header(int program_length, uint8_t *code_buf) {
 
   int64_t codesize = symtbl->symoff - (text-> offset + text->size);
   int64_t *code = malloc(codesize);
+  memcpy(code, code_buf, code_size);
 
   // int64_t padsize = symtbl->symoff - size;
   // int64_t *pad = malloc(padsize);
@@ -128,15 +139,6 @@ int write_macho_header(int program_length, uint8_t *code_buf) {
 
   int64_t bufsize = 4184 - size - padsize - codesize - actual_symtblsize;
   int64_t *buf = malloc(bufsize);
-
-  warnf("symtbl->symoff: %d\n",symtbl->symoff);
-  warnf("text->offset: %d\n",text->offset);
-  warnf("text->size: %d\n",text->size);
-  warnf("padsize: %d\n",padsize);
-  warnf("padsize+codesize: %d\n",padsize+codesize);
-  warnf("size: %d\n",size);
-  warnf("bufsize: %d\n",bufsize);
-  warnf("text->offset+text->size: %d\n",text->offset+text->size);
 
   write(STDOUT_FILENO, h, sizeof(mach_header_64));
   write(STDOUT_FILENO, p0, sizeof(segment_command_64));
