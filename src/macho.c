@@ -3,29 +3,13 @@
 #include <lib/stdlib.c>
 #include "lib/string.c"
 
-#include <lib/elf.h>
-
-#define ELF_START 0x401000 // linux start address for x86_64
-#define ELF_SIZE  120      // minimal elf header size
-
 #include <lib/macho.h>
-//https://medium.com/tokopedia-engineering/a-curious-case-of-mach-o-executable-26d5ecadd995
 
-// Output a minimal x86_64 mach-o file to stdout.
+// Output a x86_64 mach-o file to stdout.
 //
 int write_macho(uint8_t *code_buf, int code_size) {
   warn("Writing macho ...\n");
   warnf("code_size: %i\n", code_size);
-
-  // warnf("  symtbl->symoff: %d\n",symtbl->symoff);
-  // warnf("  text->offset: %d\n",text->offset);
-  // warnf("  text->size: %d\n",text->size);
-  // warnf("  padsize: %d\n",padsize);
-  // warnf("  padsize+codesize: %d\n",padsize+codesize);
-  // warnf("  size: %d\n",size);
-  // warnf("  bufsize: %d\n",bufsize);
-  // warnf("  text->offset+text->size: %d\n",text->offset+text->size);
-
 
   mach_header_64 *h = malloc(sizeof(mach_header_64));
   h->magic = MH_MAGIC_64;
@@ -124,12 +108,8 @@ int write_macho(uint8_t *code_buf, int code_size) {
   int64_t *code = malloc(code_size);
   memcpy(code, code_buf, code_size);
 
-  // int64_t padsize = symtbl->symoff - size;
-  // int64_t *pad = malloc(padsize);
-
   int64_t actual_symtblsize = sizeof(nlist_64) * symtbl->nsyms;
 
-  // array of nlist_64
   nlist_64 actual_symtbl[symtbl->nsyms];
 
   actual_symtbl[0].n_un.n_strx = 1;
@@ -143,7 +123,6 @@ int write_macho(uint8_t *code_buf, int code_size) {
   // memcpy(strtbl, "main", 5);
 
   int64_t offset = 0;
-
   size = 0;
 
   warnf("  | mach_header_64: %i\n", offset);

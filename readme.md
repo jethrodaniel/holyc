@@ -65,3 +65,4 @@ IV: Write basic shell
   - [MacOS](https://opensource.apple.com/source/xnu/xnu-1504.3.12/bsd/kern/syscalls.master)
 - mach-o
   - https://lowlevelbits.org/parsing-mach-o-files/
+  - https://medium.com/tokopedia-engineering/a-curious-case-of-mach-o-executable-26d5ecadd995

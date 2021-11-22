@@ -6,11 +6,11 @@
 #include <lib/elf.h>
 
 #define ELF_START 0x401000 // linux start address for x86_64
-#define ELF_SIZE  120      // minimal elf header size
+#define ELF_SIZE  120      // minimum elf header size
 
-// Output a minimal x86_64 elf header to stdout.
+// Output a x86_64 elf file to stdout.
 //
-int write_elf_header(int program_length) {
+int write_elf(uint8_t *code_buf, int code_size) {
   uint64_t elf_offset = 0;
   uint8_t *elf_output;
 
@@ -49,7 +49,7 @@ int write_elf_header(int program_length) {
   p->p_offset = 0;
   p->p_vaddr  = ELF_START;
   p->p_paddr  = ELF_START;
-  p->p_filesz = program_length + elf_offset;
+  p->p_filesz = code_size + elf_offset;
   p->p_memsz = p->p_filesz;
   p->p_align = 0x1000; // ?
 
@@ -58,4 +58,5 @@ int write_elf_header(int program_length) {
   memcpy(elf_output + sizeof(Elf64_Ehdr), p, sizeof(Elf64_Phdr));
 
   write(STDOUT_FILENO, elf_output, elf_offset);
+  write(STDOUT_FILENO, code_buf, code_size);
 }

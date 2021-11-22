@@ -3,6 +3,7 @@
 
 #include <lib/unistd.c>
 #include <lib/string.c>
+#include <lib/stdlib.c>
 
 // putc()
 
