@@ -79,13 +79,14 @@ clean:
 
 #--
 
-test.out: $(PROG) FORCE test.c clean
-	$(CC) $(CFLAGS) -g test.c -o $@
+test.out: test/main.c
+	$(CC) $(CFLAGS) $< -o $@
+
 ctest: test.out
 	./$< -v
 
 test: FORCE
-	sh test.sh
+	sh test/main.sh
 FORCE:
 
 #--

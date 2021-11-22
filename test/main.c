@@ -1,8 +1,8 @@
-#include <lib/stdio.c>
 #include <lib/stdbool.h>
 #include <lib/stdlib.c>
+#include <lib/stdio.c>
 #include <lib/string.c>
-#include <src/boot.c>
+#include <lib/crt0.c>
 
 #define NUM_TESTS         3  // *Must* be kept up to date
 #define TEST_NAME_MAX_LEN 64
