@@ -67,10 +67,10 @@ CFLAGS += -I .
 
 default: clean $(PROG) test
 
-SRCS = $(wildcard hc.c src/*.c lib/*.c)
+SRCS = $(wildcard src/*.c lib/*.c)
 OBJS = $(SRCS:.c=.o)
 
-$(PROG): $(OBJS)
+$(PROG): src/main.o $(OBJS)
 	$(CC) $(CFLAGS) $< -o $(PROG)
 
 clean:
