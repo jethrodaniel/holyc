@@ -30,6 +30,7 @@
 
 #include "src/boot.c"
 #include "src/elf.c"
+#include "src/macho.c"
 
 // Print to stderr and exit.
 //
@@ -434,8 +435,6 @@ void _factor(CC *cc, Prec prec) {
 //
 
 #define INPUT_SIZE 4096
-
-#include <src/macho.c>
 
 // Read code from stdin, options from argv, output asm or binary to stdout.
 //

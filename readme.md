@@ -66,3 +66,4 @@ IV: Write basic shell
 - mach-o
   - https://lowlevelbits.org/parsing-mach-o-files/
   - https://medium.com/tokopedia-engineering/a-curious-case-of-mach-o-executable-26d5ecadd995
+  - https://developer.apple.com/library/archive/documentation/Performance/Conceptual/CodeFootprint/Articles/MachOOverview.html
