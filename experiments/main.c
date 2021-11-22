@@ -1,6 +1,4 @@
-
-
-#include "../src/boot.c"
+#include "../lib/crt0.c"
 #include "../lib/stdlib.c"
 #include "../lib/stdio.c"
 

@@ -27,8 +27,8 @@
 #include "lib/stdlib.c"
 #include "lib/string.c"
 #include "lib/unistd.c"
+#include "lib/crt0.c"
 
-#include "src/boot.c"
 #include "src/elf.c"
 #include "src/macho.c"
 
