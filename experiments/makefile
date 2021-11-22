@@ -21,7 +21,7 @@ CFLAGS += -Wno-return-type
 CFLAGS += -I ..
 CFLAGS += -mstack-alignment=4
 
-default: bin hello libc main macho clean
+default: bin hello libc main test macho clean
 
 bin:
 	mkdir -p bin
@@ -43,6 +43,9 @@ main: main.c bin
 macho: macho.c bin
 	cc -e _start $(CFLAGS) $< -o bin/$@
 	./bin/$@ || true
+
+test: test.s
+	nasm -f bin $< -o bin/$@ && ndisasm -b64 bin/$@
 
 clean:
 	rm -rfv bin *.o
