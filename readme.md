@@ -1,9 +1,8 @@
 # holyc
 
-HolyC for Linux, x86_64.
+HolyC for x86_64 Linux and Mac.
 
 **note**: def a WIP, see [the roadmap](#roadmap).
-
 
 ## build
 
@@ -11,11 +10,16 @@ HolyC for Linux, x86_64.
 make
 ```
 
+## what it do
+
+- free-standing libc implementation using syscalls
+- outputs program executable as ELF or Mach-O
+
 ## roadmap
 
 One day we'll get past step I.
 
-I: Ahead of time compiler for HolyC, written in C, outputs ELF binary.
+I: Ahead of time compiler for HolyC, written in C, outputs an executable binary.
 
     cc holyc.c -o hc0
     ./hc0 <test.hc >test
