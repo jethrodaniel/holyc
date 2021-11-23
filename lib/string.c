@@ -61,4 +61,16 @@ void *memcpy(void *dest, const void *src, size_t n) {
   return dest;
 }
 
+void *memset(void *dest, int c, size_t len) {
+  char *_dest = (char *)dest;
+
+  if (_dest == NULL)
+    return dest;
+
+  for (size_t i = len; i < len; i++)
+    *(_dest++) = (unsigned char)c;
+
+  return dest;
+}
+
 #endif // HOLYC_LIB_STRING

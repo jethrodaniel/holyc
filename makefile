@@ -22,6 +22,11 @@ CFLAGS += -static
 CFLAGS += -nostdlib
 
 # disable builtin functions
+#
+# Note that it is assumed that a freestanding environment will additionally
+# provide memcpy, memmove, memset and memcmp implementations, as these are
+# needed for efficient codegen for many programs.
+#
 CFLAGS += -ffreestanding
 
 # ensure 16-byte alignment, required by SysV | TODO: any of this needed?
@@ -65,7 +70,7 @@ CFLAGS += -I .
 
 #--
 
-default: clean $(PROG) test
+default: clean $(PROG) test ctest
 
 SRCS = $(wildcard src/*.c lib/*.c)
 OBJS = $(SRCS:.c=.o)
@@ -83,7 +88,7 @@ test.out: test/main.c
 	$(CC) $(CFLAGS) $< -o $@
 
 ctest: test.out
-	./$< -v
+	prove --verbose --ignore-exit --shuffle ./$<
 
 test: FORCE
 	sh test/main.sh
