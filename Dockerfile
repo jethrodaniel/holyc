@@ -1,5 +1,5 @@
 FROM alpine:3.14.0 AS build
-RUN apk add --no-cache make build-base nasm perl-test-harness-utils
+RUN apk add --no-cache make build-base nasm
 
 COPY . /app/holyc
 WORKDIR /app/holyc

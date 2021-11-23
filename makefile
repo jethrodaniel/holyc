@@ -88,7 +88,7 @@ test.out: test/main.c
 	$(CC) $(CFLAGS) $< -o $@
 
 ctest: test.out
-	prove --verbose --ignore-exit --shuffle ./$<
+	./$<
 
 test: FORCE
 	sh test/main.sh
