@@ -79,8 +79,8 @@ $(PROG): src/main.o $(OBJS)
 	$(CC) $(CFLAGS) $< -o $(PROG)
 
 clean:
-	rm -vf *.o *.out $(PROG) src/*.o lib/*.o out
-	# make -C experiments clean
+	rm -vf *.o *.out $(PROG) src/*.o lib/*.o out test/*.o
+	make -C experiments clean
 
 #--
 
@@ -88,7 +88,7 @@ test.out: test/main.c
 	$(CC) $(CFLAGS) $< -o $@
 
 ctest: test.out
-	./$<
+	./$< -v
 
 test: FORCE
 	sh test/main.sh

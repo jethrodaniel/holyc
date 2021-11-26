@@ -1,10 +1,12 @@
+// Small test framework based on Go lang's `testing` pkg: https://pkg.go.dev/testing
+
+//--
+
 #include <lib/stdbool.h>
 #include <lib/stdlib.c>
 #include <lib/stdio.c>
 #include <lib/string.c>
 #include <lib/crt0.c>
-
-// Small test framework/setup
 
 #define TEST_NAME_MAX_LEN 64
 #define TEST_ERR_MAX_LEN  64
@@ -70,12 +72,23 @@ T *test_init(Test *tests, int num_tests, int argc, char **argv) {
 bool run_test(T *t, int i) {
   Test *test = &t->tests[i];
 
-  test->fn(test);
+  if (t->verbose) {
+    printf("==> %s\n", test->name);
 
-  if (test->passed)
-    printf("ok %d - %s\n", i + 1, test->name);
-  else
-    printf("not ok %d - %s\n", i + 1, test->name);
+    test->fn(test);
+
+    if (test->passed)
+      printf("  ok\n", test->name);
+    else
+      printf("  err\n", test->name);
+  } else {
+    test->fn(test);
+
+    if (test->passed)
+      printf(".");
+    else
+      printf("x");
+  }
 
   return test->passed;
 }
@@ -85,11 +98,17 @@ bool run_test(T *t, int i) {
 int run_tests(T *t) {
   bool failed = false;
 
-  printf("1..%d\n", t->num_tests);
-
   for (int i = 0; i < t->num_tests; i++)
     if (!run_test(t, i))
       failed = true;
+
+  if (!t->verbose)
+    printf("\n");
+
+  if (failed)
+    printf("ERR\n");
+  else
+    printf("OK\n");
 
   return failed ? 1 : EXIT_SUCCESS;
 }

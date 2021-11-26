@@ -1,4 +1,4 @@
-#include "setup.c"
+#include "test.c"
 
 void test_pass(Test *t) {
   t->passed = true;
@@ -13,7 +13,7 @@ void test_fail(Test *t) {
 
 static Test tests[] = {
   TEST(test_pass, "this one passes")
-  // TEST(test_fail, "this one fails")
+  TEST(test_fail, "this one fails")
   TEST(test_pass, "this one passes")
 };
 
