@@ -27,7 +27,7 @@ typedef struct Test {
 typedef struct TestRunner {
   int argc;              // argc from main()
   char **argv;           // argv from main()
-  bool verbose;          // show test name, or just '.'
+  bool verbose;          // verbose output?
   int num_tests;         // number of tests
   Test tests[];          // tests to run
 } T;
