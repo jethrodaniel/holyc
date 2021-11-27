@@ -19,6 +19,7 @@
 //
 //  and clobbers rcx, r11, and rax
 
+#include "lib/crt0.c"
 #include "lib/mman.c"
 #include "lib/stdbool.h"
 #include "lib/stddef.h"
@@ -27,7 +28,6 @@
 #include "lib/stdlib.c"
 #include "lib/string.c"
 #include "lib/unistd.c"
-#include "lib/crt0.c"
 
 #include "src/elf.c"
 #include "src/macho.c"
@@ -43,18 +43,18 @@ void error(char *fmt, ...) {
 //
 typedef struct CC {
   // globals from main()
-  int argc;
+  int    argc;
   char **argv;
   char **envp;
-  bool output_asm; // output asm, or binary?
-  char *input_buf; // input source buffer
-  char *input;     // curr position in source buffer
-  int input_size;  // length of input
-  char *code_buf;  // output code buffer
-  char *code;      // curr position in code buffer
-  char *token_pos; // token start index
-  int token;       // token type
-  int int_val;     // if token is int
+  bool   output_asm; // output asm, or binary?
+  char  *input_buf;  // input source buffer
+  char  *input;      // curr position in source buffer
+  int    input_size; // length of input
+  char  *code_buf;   // output code buffer
+  char  *code;       // curr position in code buffer
+  char  *token_pos;  // token start index
+  int    token;      // token type
+  int    int_val;    // if token is int
 
   char *token_table[8][4]; // token names, must match tokens exactly
 } CC;
@@ -65,10 +65,13 @@ void parse_options(CC *cc) {
   for (int i = 0; i < cc->argc; i++) {
     char *arg = cc->argv[i];
 
-    if (*arg == '-') arg++;
-    else             continue;
+    if (*arg == '-')
+      arg++;
+    else
+      continue;
 
-    if (*arg == 'S') cc->output_asm = true;
+    if (*arg == 'S')
+      cc->output_asm = true;
   }
 }
 
@@ -83,7 +86,7 @@ void emit_mov_rax_imm(CC *cc, uint64_t imm) {
   *cc->code++ = 0x48; // REX
   *cc->code++ = 0xB8; // MOV RAX,imm
   for (int i = 0; i < 8; i++)
-    *cc->code++ = imm >> 8*i;
+    *cc->code++ = imm >> 8 * i;
 }
 
 void emit_sub_rax_rdi(CC *cc) {
@@ -142,7 +145,6 @@ void emit_push_rax(CC *cc) {
   *cc->code++ = 0x50; // PUSH RAX
 }
 
-
 void emit_pop_rax(CC *cc) {
   if (cc->output_asm)
     return printf("POP RAX\n");
@@ -167,12 +169,11 @@ void emit_syscall(CC *cc) {
 
 void emit_start(CC *cc) {
   if (cc->output_asm)
-    return printf(
-      "\n_start:\n"
-      "  // CALL main\n"
-      "  MOV RDI,RAX  // arg1, main()\n"
-      "  MOV RAX,60   // exit\n"
-      "  SYSCALL      // exit()\n");
+    return printf("\n_start:\n"
+                  "  // CALL main\n"
+                  "  MOV RDI,RAX  // arg1, main()\n"
+                  "  MOV RAX,60   // exit\n"
+                  "  SYSCALL      // exit()\n");
 
   *cc->code++ = 0x48; // REX
   *cc->code++ = 0x89; // MOV RDI,reg
@@ -223,73 +224,74 @@ void print_token(CC *cc) {
 //
 int Lex(CC *cc) {
   char *c = cc->input;
-  int n;
+  int   n;
 
   while (true) {
     switch (*c) {
-      case '\n':
-      case ' ':
+    case '\n':
+    case ' ':
+      c++;
+      break;
+    case '\0':
+      cc->input = ++c;
+      cc->token = TK_EOF;
+      goto ret;
+    case '+':
+      cc->token_pos = c;
+      cc->input = ++c;
+      cc->token = TK_PLUS;
+      goto ret;
+    case '-':
+      cc->token_pos = c;
+      cc->input = ++c;
+      cc->token = TK_MIN;
+      goto ret;
+    case '*':
+      cc->token_pos = c;
+      cc->input = ++c;
+      cc->token = TK_MUL;
+      goto ret;
+    case '/':
+      cc->token_pos = c;
+      cc->input = ++c;
+      cc->token = TK_DIV;
+      goto ret;
+    case '(':
+      cc->token_pos = c;
+      cc->input = ++c;
+      cc->token = TK_LPAREN;
+      goto ret;
+    case ')':
+      cc->token_pos = c;
+      cc->input = ++c;
+      cc->token = TK_RPAREN;
+      goto ret;
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+      cc->token_pos = c;
+
+      n = 0;
+
+      do {
+        n = n * 10 + *c - '0';
         c++;
-        break;
-      case '\0':
-        cc->input = ++c;
-        cc->token = TK_EOF;
-        goto ret;
-      case '+':
-        cc->token_pos = c;
-        cc->input = ++c;
-        cc->token = TK_PLUS;
-        goto ret;
-      case '-':
-        cc->token_pos = c;
-        cc->input = ++c;
-        cc->token = TK_MIN;
-        goto ret;
-      case '*':
-        cc->token_pos = c;
-        cc->input = ++c;
-        cc->token = TK_MUL;
-        goto ret;
-      case '/':
-        cc->token_pos = c;
-        cc->input = ++c;
-        cc->token = TK_DIV;
-        goto ret;
-      case '(':
-        cc->token_pos = c;
-        cc->input = ++c;
-        cc->token = TK_LPAREN;
-        goto ret;
-      case ')':
-        cc->token_pos = c;
-        cc->input = ++c;
-        cc->token = TK_RPAREN;
-        goto ret;
-      case '0':
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
-        cc->token_pos = c;
+      } while (*c >= '0' && *c <= '9');
 
-        n = 0;
-
-        do {
-          n = n * 10 + *c - '0';
-          c++;
-        } while (*c >= '0' && *c <= '9');
-
-        cc->int_val = n;
-        cc->input = c;
-        cc->token = TK_INT;
-        goto ret;
-      default:
-        error("unexpected character '%c' (%d) at column %d\n", *c, *c, cc->input - cc->input_buf);
+      cc->int_val = n;
+      cc->input = c;
+      cc->token = TK_INT;
+      goto ret;
+    default:
+      error("unexpected character '%c' (%d) at column %d\n", *c, *c,
+            cc->input - cc->input_buf);
     }
   }
 
@@ -322,7 +324,8 @@ typedef enum {
 void expect(CC *cc, TokenType t) {
   Lex(cc);
   if (cc->token != t)
-    error("expected a '%s', got '%s' at column %d\n", cc->token_table[t][1], cc->token_table[cc->token][1], cc->input - cc->input_buf);
+    error("expected a '%s', got '%s' at column %d\n", cc->token_table[t][1],
+          cc->token_table[cc->token][1], cc->input - cc->input_buf);
 }
 
 // == Grammar
@@ -349,7 +352,8 @@ void _term(CC *cc, Prec prec);
 void _root(CC *cc) {
   _expr(cc, PREC_TOP);
   if (cc->token != TK_EOF)
-    error("unexpected character '%s' at column %d\n", cc->token_table[cc->token][1], cc->input - cc->input_buf);
+    error("unexpected character '%s' at column %d\n",
+          cc->token_table[cc->token][1], cc->input - cc->input_buf);
 }
 
 // expr -> term '+' expr
@@ -367,16 +371,21 @@ void _expr(CC *cc, Prec prec) {
     Lex(cc);
     tok = cc->token;
 
-    if (cc->token == TK_EOF) return;
-    if (tok != TK_MIN && tok != TK_PLUS) return Unlex(cc);
-    if (prec <= PREC_ADD)                return Unlex(cc);
+    if (cc->token == TK_EOF)
+      return;
+    if (tok != TK_MIN && tok != TK_PLUS)
+      return Unlex(cc);
+    if (prec <= PREC_ADD)
+      return Unlex(cc);
 
     _expr(cc, PREC_ADD);
     emit_pop_rdi(cc);
     emit_pop_rax(cc);
 
-    if (tok == TK_MIN) emit_sub_rax_rdi(cc);
-    else               emit_add_rax_rdi(cc);
+    if (tok == TK_MIN)
+      emit_sub_rax_rdi(cc);
+    else
+      emit_add_rax_rdi(cc);
 
     emit_push_rax(cc);
   }
@@ -397,18 +406,23 @@ void _term(CC *cc, Prec prec) {
     Lex(cc);
     tok = cc->token;
 
-    if (cc->token == TK_EOF) return;
-    if (tok != TK_MUL && tok != TK_DIV) return Unlex(cc);
-    if (prec <= PREC_MUL)               return Unlex(cc);
+    if (cc->token == TK_EOF)
+      return;
+    if (tok != TK_MUL && tok != TK_DIV)
+      return Unlex(cc);
+    if (prec <= PREC_MUL)
+      return Unlex(cc);
 
-     _expr(cc, PREC_MUL);
-     emit_pop_rdi(cc);
-     emit_pop_rax(cc);
+    _expr(cc, PREC_MUL);
+    emit_pop_rdi(cc);
+    emit_pop_rax(cc);
 
-     if (tok == TK_MUL) emit_imul_rax_rdi(cc);
-     else               emit_cqo_idiv_rdi(cc);
+    if (tok == TK_MUL)
+      emit_imul_rax_rdi(cc);
+    else
+      emit_cqo_idiv_rdi(cc);
 
-     emit_push_rax(cc);
+    emit_push_rax(cc);
   }
 }
 
@@ -422,13 +436,14 @@ void _factor(CC *cc, Prec prec) {
   Lex(cc);
   int tok = cc->token;
 
-  if (tok != TK_INT && tok != TK_LPAREN) return Unlex(cc);
-  if (tok == TK_INT)                     return emit_push(cc, cc->int_val);
+  if (tok != TK_INT && tok != TK_LPAREN)
+    return Unlex(cc);
+  if (tok == TK_INT)
+    return emit_push(cc, cc->int_val);
 
   _expr(cc, PREC_PAREN);
   expect(cc, TK_RPAREN);
 }
-
 
 //
 // main()
@@ -440,7 +455,7 @@ void _factor(CC *cc, Prec prec) {
 //
 int main(int argc, char **argv, char **envp) {
   char input[INPUT_SIZE];
-  int num_read;
+  int  num_read;
 
   CC *cc = malloc(sizeof(CC));
   cc->argc = argc;
@@ -448,18 +463,26 @@ int main(int argc, char **argv, char **envp) {
   cc->envp = envp;
   cc->input_buf = malloc(sizeof(char) * INPUT_SIZE);
   cc->input = cc->input_buf;
-  cc->code_buf= malloc(sizeof(char) * INPUT_SIZE);
+  cc->code_buf = malloc(sizeof(char) * INPUT_SIZE);
   cc->code = cc->code_buf;
   parse_options(cc);
 
-  cc->token_table[0][0] = "EOF";    cc->token_table[0][1] = "\\0";
-  cc->token_table[1][0] = "INT";    cc->token_table[1][1] = "";
-  cc->token_table[2][0] = "MIN";    cc->token_table[2][1] = "-";
-  cc->token_table[3][0] = "PLUS";   cc->token_table[3][1] = "+";
-  cc->token_table[4][0] = "DIV";    cc->token_table[4][1] = "/";
-  cc->token_table[5][0] = "MUL";    cc->token_table[5][1] = "*";
-  cc->token_table[6][0] = "LPAREN"; cc->token_table[6][1] = "(";
-  cc->token_table[7][0] = "RPAREN"; cc->token_table[7][1] = ")";
+  cc->token_table[0][0] = "EOF";
+  cc->token_table[0][1] = "\\0";
+  cc->token_table[1][0] = "INT";
+  cc->token_table[1][1] = "";
+  cc->token_table[2][0] = "MIN";
+  cc->token_table[2][1] = "-";
+  cc->token_table[3][0] = "PLUS";
+  cc->token_table[3][1] = "+";
+  cc->token_table[4][0] = "DIV";
+  cc->token_table[4][1] = "/";
+  cc->token_table[5][0] = "MUL";
+  cc->token_table[5][1] = "*";
+  cc->token_table[6][0] = "LPAREN";
+  cc->token_table[6][1] = "(";
+  cc->token_table[7][0] = "RPAREN";
+  cc->token_table[7][1] = ")";
 
   if ((cc->input_size = read(STDIN_FILENO, cc->input, INPUT_SIZE)) < 0)
     die("read");

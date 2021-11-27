@@ -1,7 +1,7 @@
+#include "lib/string.c"
 #include <lib/stddef.h>
 #include <lib/stdio.c>
 #include <lib/stdlib.c>
-#include "lib/string.c"
 
 #include <lib/macho.h>
 
@@ -45,7 +45,7 @@ int write_macho(uint8_t *code_buf, int code_size) {
   text->addr = 0x100000000 + 4000;
   text->size = code_size;
   text->offset = 4000;
-  text->align = 1<<2;
+  text->align = 1 << 2;
   text->reloff = 0;
   text->nreloc = 0;
   text->flags = S_ATTR_PURE_INSTRUCTIONS | S_ATTR_SOME_INSTRUCTIONS;
@@ -84,25 +84,19 @@ int write_macho(uint8_t *code_buf, int code_size) {
 
   thread_command *t = malloc(sizeof(thread_command));
   t->cmd = LC_UNIXTHREAD;
-  t->cmdsize = sizeof(thread_command)
-    + sizeof(_STRUCT_X86_THREAD_STATE64);
+  t->cmdsize = sizeof(thread_command) + sizeof(_STRUCT_X86_THREAD_STATE64);
   t->flavor = x86_THREAD_STATE64;
   t->count = x86_THREAD_STATE64_COUNT;
 
   _STRUCT_X86_THREAD_STATE64 *reg = malloc(sizeof(_STRUCT_X86_THREAD_STATE64));
   reg->rip = text->addr;
 
- int64_t size =
-      sizeof(mach_header_64) +
-    + sizeof(segment_command_64) * 3
-    + sizeof(section_64)
-    + sizeof(symtab_command)
-    + sizeof(uuid_command)
-    + sizeof(source_version_command)
-    + sizeof(thread_command)
-    + sizeof(_STRUCT_X86_THREAD_STATE64);
+  int64_t size = sizeof(mach_header_64) + +sizeof(segment_command_64) * 3 +
+                 sizeof(section_64) + sizeof(symtab_command) +
+                 sizeof(uuid_command) + sizeof(source_version_command) +
+                 sizeof(thread_command) + sizeof(_STRUCT_X86_THREAD_STATE64);
 
-  int64_t padsize = text->offset - size;
+  int64_t  padsize = text->offset - size;
   int64_t *pad = malloc(padsize);
 
   int64_t *code = malloc(code_size);
@@ -116,7 +110,7 @@ int write_macho(uint8_t *code_buf, int code_size) {
   actual_symtbl[1].n_un.n_strx = 2;
   actual_symtbl[2].n_un.n_strx = 3;
 
-  int64_t bufsize = 4184 - size - padsize - code_size - actual_symtblsize;
+  int64_t  bufsize = 4184 - size - padsize - code_size - actual_symtblsize;
   int64_t *buf = malloc(bufsize);
 
   // uint8_t *strtbl = malloc(symtbl->strsize);

@@ -1,11 +1,12 @@
 #include "../lib/crt0.c"
-#include "../lib/stdlib.c"
 #include "../lib/stdio.c"
+#include "../lib/stdlib.c"
 
 #define PAGE_SIZE 4096
 
 int main(int argc, char **argv, char **envp) {
-  putc('A');putc('\n');
+  putc('A');
+  putc('\n');
 
   int i = 142;
   // dprintf(1, "printf!\n");
@@ -18,8 +19,8 @@ int main(int argc, char **argv, char **envp) {
 
   print("after dprintf\n");
 
-  printf("argc: %d\n",argc);
-  for (int i = 0; i < argc ; i++)
+  printf("argc: %d\n", argc);
+  for (int i = 0; i < argc; i++)
     printf("argv[%i] = %s", i, argv[i]);
   print("\n");
 

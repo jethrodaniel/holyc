@@ -1,9 +1,9 @@
 #ifndef HOLYC_LIB_STDIO
 #define HOLYC_LIB_STDIO
 
-#include <lib/unistd.c>
-#include <lib/string.c>
 #include <lib/stdlib.c>
+#include <lib/string.c>
+#include <lib/unistd.c>
 
 // putc()
 
@@ -68,10 +68,11 @@ int dprintf(int fd, char *fmt, ...) {
   int64_t vargs[] = {varg1, varg2, varg3, varg4};
 
   char *c = fmt;
-  int vars = 0, current = 0;
+  int   vars = 0, current = 0;
 
   while (*c)
-    if (*c++ == '%') vars++;
+    if (*c++ == '%')
+      vars++;
 
   if (vars > 4)
     die("printf with more than 4 args unsupported");
@@ -91,33 +92,35 @@ int dprintf(int fd, char *fmt, ...) {
     }
 
     switch (*++c) { // eat '%'
-      case 'c':
-      case 'd':
-      case 'i':
-      case 'f':
-      case 's':
-        if (*c == 's') {
-          if (fd == 1)
-            print(vargs[current++]);
-          if (fd == 2)
-            warn(vargs[current++]);
-        }
+    case 'c':
+    case 'd':
+    case 'i':
+    case 'f':
+    case 's':
+      if (*c == 's') {
+        if (fd == 1)
+          print(vargs[current++]);
+        if (fd == 2)
+          warn(vargs[current++]);
+      }
 
-        if (*c == 'd' || *c == 'i') {
-          if (fd == 1)
-            _printf_print_itoa(vargs[current++]);
-          if (fd == 2)
-            _warnf_print_itoa(vargs[current++]);
-        }
-        if (*c == 'c') putc(vargs[current++]);
-        if (*c == 'f') die("unsupported printf format '%f'");
+      if (*c == 'd' || *c == 'i') {
+        if (fd == 1)
+          _printf_print_itoa(vargs[current++]);
+        if (fd == 2)
+          _warnf_print_itoa(vargs[current++]);
+      }
+      if (*c == 'c')
+        putc(vargs[current++]);
+      if (*c == 'f')
+        die("unsupported printf format '%f'");
 
-        break;
-      default:
-        warn("[abort] unknown printf format '%");
-        warnc(*c);
-        warn("'\n");
-        exit(2);
+      break;
+    default:
+      warn("[abort] unknown printf format '%");
+      warnc(*c);
+      warn("'\n");
+      exit(2);
     }
     c++;
   }
@@ -130,7 +133,7 @@ void printf(char *fmt, ...) {
   __asm__("mov %rsi, %rdx"); // varg1
   __asm__("mov %rdi, %rsi"); // arg2, fmt
   __asm__("mov $1, %rdi");   // arg1, stdout
-  __asm__("call _dprintf"); // dprintf()
+  __asm__("call _dprintf");  // dprintf()
 }
 
 void warnf(char *fmt, ...) {
@@ -140,7 +143,7 @@ void warnf(char *fmt, ...) {
   __asm__("mov %rsi, %rdx"); // varg1
   __asm__("mov %rdi, %rsi"); // arg2, fmt
   __asm__("mov $2, %rdi");   // arg1, stderr
-  __asm__("call _dprintf"); // dprintf()
+  __asm__("call _dprintf");  // dprintf()
 }
 
 #endif // HOLYC_LIB_STDIO

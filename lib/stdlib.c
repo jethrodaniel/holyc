@@ -27,7 +27,7 @@ int atoi(char *str) {
 }
 
 long strtol(char *str, char **end, int base) {
-  int n = 0, i = 0, sign = 1;
+  int   n = 0, i = 0, sign = 1;
   char *c = str;
 
   if (*c == '-') {
@@ -49,8 +49,7 @@ long strtol(char *str, char **end, int base) {
 //
 void *malloc(int64_t n) {
   return mmap(NULL, // let kernel decide where the mem is
-              n, PROT_READ | PROT_WRITE,
-              MAP_ANONYMOUS | MAP_PRIVATE,
+              n, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE,
               -1, // map anon
               0   // no offset
   );

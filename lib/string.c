@@ -1,19 +1,19 @@
 #ifndef HOLYC_LIB_STRING
 #define HOLYC_LIB_STRING
 
-#include <lib/stdint.h>
 #include <lib/stddef.h>
+#include <lib/stdint.h>
 
 int strlen(char *str) {
   int i = 0;
-  while(str[i])
+  while (str[i])
     i++;
   return i;
 }
 
 void reverse(char *str) {
   char tmp;
-  int len = strlen(str);
+  int  len = strlen(str);
 
   for (int i = 0, j = len - 1; i < j; i++, j--) {
     tmp = str[j];
@@ -23,8 +23,7 @@ void reverse(char *str) {
 }
 
 void itoa(int n, char *str) {
-  int i = 0,
-      orig = n;
+  int i = 0, orig = n;
 
   if (n < 0)
     n *= -1;

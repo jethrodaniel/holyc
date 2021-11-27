@@ -1,15 +1,16 @@
-// Small test framework based on Go lang's `testing` pkg: https://pkg.go.dev/testing
+// Small test framework based on Go lang's `testing` pkg:
+// https://pkg.go.dev/testing
 
 //--
 
-#include <lib/stdbool.h>
-#include <lib/stdlib.c>
-#include <lib/stdio.c>
-#include <lib/string.c>
 #include <lib/crt0.c>
+#include <lib/stdbool.h>
+#include <lib/stdio.c>
+#include <lib/stdlib.c>
+#include <lib/string.c>
 
 #define TEST_NAME_MAX_LEN 64
-#define TEST_ERR_MAX_LEN  64
+#define TEST_ERR_MAX_LEN 64
 
 typedef void (*TestFn)();
 
@@ -17,19 +18,19 @@ typedef void (*TestFn)();
 //
 typedef struct Test {
   TestFn fn;
-  char name[TEST_NAME_MAX_LEN];
-  bool passed;
-  char *err[TEST_ERR_MAX_LEN];
+  char   name[TEST_NAME_MAX_LEN];
+  bool   passed;
+  char  *err[TEST_ERR_MAX_LEN];
 } Test;
 
 // The test suite's context.
 //
 typedef struct TestRunner {
-  int argc;              // argc from main()
-  char **argv;           // argv from main()
-  bool verbose;          // verbose output?
-  int num_tests;         // number of tests
-  Test tests[];          // tests to run
+  int    argc;      // argc from main()
+  char **argv;      // argv from main()
+  bool   verbose;   // verbose output?
+  int    num_tests; // number of tests
+  Test   tests[];   // tests to run
 } T;
 
 // Parse options, update test runner.
@@ -38,8 +39,10 @@ void parse_options(T *t) {
   for (int i = 0; i < t->argc; i++) {
     char *arg = t->argv[i];
 
-    if (*arg == '-') arg++;
-    else             continue;
+    if (*arg == '-')
+      arg++;
+    else
+      continue;
 
     if (*arg != 'v') {
       warnf("unknown option -%c\n", *arg);
@@ -60,7 +63,7 @@ T *test_init(Test *tests, int num_tests, int argc, char **argv) {
   t->num_tests = num_tests;
 
   for (int i = 0; i < t->num_tests; i++)
-    t->tests[i] = tests[i] ;
+    t->tests[i] = tests[i];
 
   parse_options(t);
 

@@ -94,6 +94,9 @@ test: FORCE
 	sh test/main.sh
 FORCE:
 
+lint:
+	find src lib experiments test -name '*.c' -or -name '*.h' -exec clang-format -i {} \;
+
 #--
 
 docker:

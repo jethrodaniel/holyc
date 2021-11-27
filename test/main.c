@@ -9,13 +9,11 @@ void test_fail(Test *t) {
   memcpy(t->err, msg, strlen(msg));
 }
 
-#define TEST(fn) {fn, #fn},
-
 int main(int argc, char **argv) {
   Test tests[] = {
-    TEST(test_pass)
-    // TEST(test_fail)
-    TEST(test_pass)
+    {test_pass, "test_pass"},
+    // {test_fail, "test_fail"},
+    {test_pass, "test_pass"},
   };
 
   T *t = test_init(tests, sizeof(tests) / sizeof(Test), argc, argv);
