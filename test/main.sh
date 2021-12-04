@@ -39,6 +39,7 @@ assert 2 '(1+3-1)*(2*3/2)-7'
 
 # spacing
 assert 5 "  3 +2"
+assert 2 '(  1 +  3 - 1  ) * (2  * 3 / 2 ) - 7  '
 
 # nothing
 assert 1 "\0"
