@@ -100,4 +100,5 @@ lint:
 #--
 
 docker:
-	docker build -t holyc . && docker run -it --rm holyc
+	docker build -t holyc .
+	docker run -it --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined holyc
