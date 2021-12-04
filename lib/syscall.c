@@ -2,11 +2,22 @@
 #define HOLYC_LIB_SYSCALL
 
 #ifdef __APPLE__
-#define SYSCALL_BASE 0x2000000
+#define SYSCALL_MMAP   0x2000000 + 197
+#define SYSCALL_MUNMAP 0x2000000 + 73
+#define SYSCALL_WRITE  0x2000000 + 4
+#define SYSCALL_READ   0x2000000 + 3
+#define SYSCALL_GETPID 0x2000000 + 20
+#define SYSCALL_FORK   0x2000000 + 2
+#define SYSCALL_EXIT   0x2000000 + 1
 #else
-#define SYSCALL_BASE 0x0
+#define SYSCALL_MMAP   9
+#define SYSCALL_MUNMAP 11
+#define SYSCALL_WRITE  1
+#define SYSCALL_READ   0
+#define SYSCALL_GETPID 39
+#define SYSCALL_FORK   57
+#define SYSCALL_EXIT   60
 #endif
-#define SYSCALL_GET(num) SYSCALL_BASE + num
 
 #include <lib/stdint.h>
 

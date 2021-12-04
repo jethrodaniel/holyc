@@ -54,15 +54,15 @@ typedef struct {
 #define EI_MAG3 3
 #define ELFMAG3 'F'
 
-#define EI_CLASS 4
+#define EI_CLASS   4
 #define ELFCLASS64 2
 
-#define EI_DATA 5
+#define EI_DATA     5
 #define ELFDATA2LSB 1
 
 #define EI_VERSION 6
 
-#define EI_OSABI 7
+#define EI_OSABI      7
 #define ELFOSABI_SYSV 0
 
 #define EI_ABIVERSION 8

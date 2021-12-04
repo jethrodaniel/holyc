@@ -5,11 +5,7 @@
 #include <lib/stddef.h>
 
 int exit(int code) {
-#ifdef __APPLE__
-  return syscall(code, 0, 0, 0, 0, 0, SYSCALL_GET(1));
-#else
-  return syscall(code, 0, 0, 0, 0, 0, SYSCALL_GET(60));
-#endif
+  return syscall(code, 0, 0, 0, 0, 0, SYSCALL_EXIT);
 }
 
 int atoi(char *str) {

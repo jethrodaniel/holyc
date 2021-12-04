@@ -3,25 +3,25 @@
 
 // https://opensource.apple.com/source/xnu/xnu-2050.18.24/EXTERNAL_HEADERS/mach-o/loader.h
 
-#define cpu_type_t int32_t
+#define cpu_type_t    int32_t
 #define cpu_subtype_t int32_t
 typedef int vm_prot_t;
 
 #define MH_MAGIC_64 0xfeedfacf // 64-bit mach magic number
 
-#define CPU_ARCH_ABI64 0x01000000 // 64 bit ABI
-#define CPU_TYPE_X86 ((cpu_type_t)7)
+#define CPU_ARCH_ABI64  0x01000000 // 64 bit ABI
+#define CPU_TYPE_X86    ((cpu_type_t)7)
 #define CPU_TYPE_X86_64 (CPU_TYPE_X86 | CPU_ARCH_ABI64)
 
 #define CPU_SUBTYPE_X86_64_ALL ((cpu_subtype_t)3)
-#define MH_EXECUTE 0x2 // demand paged executable file
+#define MH_EXECUTE             0x2 // demand paged executable file
 
 #define MH_NOUNDEFS 0x1 // the object file has no undefined references
 
 #define LC_SEGMENT_64 0x19 // 64-bit segment of this file to be mapped
 
-#define VM_PROT_READ ((vm_prot_t)0x01)    // read permission
-#define VM_PROT_WRITE ((vm_prot_t)0x02)   // write permission
+#define VM_PROT_READ    ((vm_prot_t)0x01) // read permission
+#define VM_PROT_WRITE   ((vm_prot_t)0x02) // write permission
 #define VM_PROT_EXECUTE ((vm_prot_t)0x04) // execute permission
 
 typedef struct mach_header_64 {
