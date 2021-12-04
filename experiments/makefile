@@ -40,6 +40,10 @@ main: main.c bin
 	cc -e _start $(CFLAGS) $< -o bin/$@
 	./bin/$@
 
+fork: fork.c bin
+	cc -e _start $(CFLAGS) $< -o bin/$@
+	./bin/$@
+
 macho: macho.c bin
 	cc -e _start $(CFLAGS) $< -o bin/$@
 	./bin/$@ || true
