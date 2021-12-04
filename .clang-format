@@ -1,0 +1,6 @@
+---
+Language:     Cpp
+
+PointerAlignment: Right
+AllowShortFunctionsOnASingleLine: false
+AlignConsecutiveDeclarations: true
