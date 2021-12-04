@@ -46,17 +46,16 @@ typedef struct CC {
   int    argc;
   char **argv;
   char **envp;
-  bool   output_asm; // output asm, or binary?
-  char  *input_buf;  // input source buffer
-  char  *input;      // curr position in source buffer
-  int    input_size; // length of input
-  char  *code_buf;   // output code buffer
-  char  *code;       // curr position in code buffer
-  char  *token_pos;  // token start index
-  int    token;      // token type
-  int    int_val;    // if token is int
-
-  char *token_table[8][4]; // token names, must match tokens exactly
+  bool   output_asm;       // output asm, or binary?
+  char  *input_buf;        // input source buffer
+  char  *input;            // curr position in source buffer
+  int    input_size;       // length of input
+  char  *code_buf;         // output code buffer
+  char  *code;             // curr position in code buffer
+  char  *token_pos;        // token start index
+  int    token;            // token type
+  int    int_val;          // if token is int
+  char  *token_table[][2]; // token names
 } CC;
 
 // Set defaults, update cc options from argv values.
@@ -474,22 +473,21 @@ int main(int argc, char **argv, char **envp) {
   cc->code = cc->code_buf;
   parse_options(cc);
 
-  cc->token_table[0][0] = "EOF";
-  cc->token_table[0][1] = "\\0";
-  cc->token_table[1][0] = "INT";
-  cc->token_table[1][1] = "";
-  cc->token_table[2][0] = "MIN";
-  cc->token_table[2][1] = "-";
-  cc->token_table[3][0] = "PLUS";
-  cc->token_table[3][1] = "+";
-  cc->token_table[4][0] = "DIV";
-  cc->token_table[4][1] = "/";
-  cc->token_table[5][0] = "MUL";
-  cc->token_table[5][1] = "*";
-  cc->token_table[6][0] = "LPAREN";
-  cc->token_table[6][1] = "(";
-  cc->token_table[7][0] = "RPAREN";
-  cc->token_table[7][1] = ")";
+  char *token_table[][2] = {
+      {"EOF",    "\\0"},
+      {"INT",    ""   },
+      {"MIN",    "-"  },
+      {"PLUS",   "+"  },
+      {"DIV",    "/"  },
+      {"MUL",    "*"  },
+      {"LPAREN", "("  },
+      {"RPAREN", ")"  },
+  };
+
+  for (int i = 0; i < sizeof(token_table); i++) {
+    cc->token_table[i][0] = token_table[i][0];
+    cc->token_table[i][1] = token_table[i][1];
+  }
 
   if ((cc->input_size = read(STDIN_FILENO, cc->input, INPUT_SIZE)) < 0)
     die("read");
