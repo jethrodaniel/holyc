@@ -3,6 +3,9 @@
 
 #include <lib/stddef.h>
 
+// Adapted from musl-libc (MIT-licensed):
+// https://git.musl-libc.org/cgit/musl/tree/include/elf.h
+
 typedef uint16_t Elf64_Half;
 typedef uint32_t Elf64_Word;
 typedef uint64_t Elf64_Off;
