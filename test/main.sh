@@ -4,7 +4,7 @@ assert() {
  expected="$1"
  input="$2"
 
- echo "$input" | ./holyc 2>/dev/null > a.out
+ printf "$input" | ./holyc 2>/dev/null > a.out
  chmod u+x a.out
  ./a.out
  actual="$?"
@@ -17,6 +17,7 @@ assert() {
  fi
 }
 
+assert 1 "\0"
 assert 0 0
 assert 42 42
 assert 255 255

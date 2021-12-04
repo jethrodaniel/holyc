@@ -10,9 +10,9 @@
 
 // Output a x86_64 elf file to stdout.
 //
-int write_elf(uint8_t *code_buf, int code_size) {
+int write_elf(char *code_buf, int code_size) {
   uint64_t elf_offset = 0;
-  uint8_t *elf_output;
+  char *elf_output;
 
   warn("Writing elf header...\n");
 

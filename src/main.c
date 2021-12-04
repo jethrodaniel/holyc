@@ -220,6 +220,16 @@ void print_token(CC *cc) {
   warnf("]\n", tokname);
 }
 
+void debug(CC *cc) {
+  warnf("\n=== cc ===\n");
+  warnf("\tinput_buf: %s (%d)\n", cc->input_buf, cc->input_buf);
+  warnf("\tinput_size: %d\n", cc->input_size);
+  warnf("\tcode: %d\n", cc->code);
+  warnf("\ttoken: %d | ", cc->token);
+  print_token(cc);
+  warnf("==========\n");
+}
+
 // Fetches next token.
 //
 int Lex(CC *cc) {
@@ -233,6 +243,7 @@ int Lex(CC *cc) {
       c++;
       break;
     case '\0':
+      cc->token_pos = c;
       cc->input = ++c;
       cc->token = TK_EOF;
       goto ret;
@@ -330,7 +341,7 @@ void expect(CC *cc, TokenType t) {
 
 // == Grammar
 //
-// root -> expr
+// root -> expr EOF
 // expr -> term '+' expr
 //       | term '-' expr
 //       | term
@@ -486,6 +497,8 @@ int main(int argc, char **argv, char **envp) {
 
   if ((cc->input_size = read(STDIN_FILENO, cc->input, INPUT_SIZE)) < 0)
     die("read");
+
+  warnf("read %d bytes\n", cc->input_size);
 
   _root(cc);
 
