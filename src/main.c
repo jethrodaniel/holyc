@@ -179,11 +179,7 @@ void emit_start(CC *cc) {
   *cc->code++ = 0x89; // MOV RDI,reg
   *cc->code++ = 0xC7; //   RAX
 
-#ifdef __APPLE__
-  emit_mov_rax_imm(cc, 0x2000001);
-#else
-  emit_mov_rax_imm(cc, 60);
-#endif
+  emit_mov_rax_imm(cc, SYSCALL_EXIT);
   emit_syscall(cc);
 }
 
