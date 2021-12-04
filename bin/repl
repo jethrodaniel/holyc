@@ -1,0 +1,6 @@
+printf 'holyc> '
+while IFS='$\n' read -r line; do
+  make -B holyc >/dev/null 2>&1
+  echo "$line" | ./holyc >a.out && chmod u+x a.out && ./a.out; echo $?
+  printf 'holyc> '
+done
