@@ -10,4 +10,4 @@ WORKDIR /app/holyc
 # COPY --from=build /app/holyc/holyc /bin/holyc
 
 # CMD ["/bin/holyc"]
-# CMD ["make"]
+CMD ["make"]

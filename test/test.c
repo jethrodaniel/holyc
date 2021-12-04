@@ -76,14 +76,13 @@ bool run_test(T *t, int i) {
   Test *test = &t->tests[i];
 
   if (t->verbose) {
-    printf("==> %s\n", test->name);
-
     test->fn(test);
 
+    // todo: printing the name segfaults on linux
     if (test->passed)
-      printf("  ok\n", test->name);
+      printf("  ok  %s\n", test->name);
     else
-      printf("  err\n", test->name);
+      printf("  err %s\n", test->name);
   } else {
     test->fn(test);
 

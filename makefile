@@ -90,7 +90,7 @@ test.out: test/main.c
 	$(CC) $(CFLAGS) $< -o $@
 
 ctest: test.out
-	./$< -v
+	./$<
 
 test: FORCE
 	sh test/main.sh
