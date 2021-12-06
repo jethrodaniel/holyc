@@ -43,9 +43,6 @@
 // stdout.
 //
 int main(int argc, char **argv, char **envp) {
-  char input[INPUT_SIZE];
-  int  num_read;
-
   CC *cc = malloc(sizeof(CC));
   cc->argc = argc;
   cc->argv = argv;
@@ -67,7 +64,7 @@ int main(int argc, char **argv, char **envp) {
       {"RPAREN", ")"  },
   };
 
-  for (int i = 0; i < sizeof(token_table); i++) {
+  for (int i = 0; i < (sizeof(token_table) / 16); i++) {
     cc->token_table[i][0] = token_table[i][0];
     cc->token_table[i][1] = token_table[i][1];
   }

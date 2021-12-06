@@ -57,7 +57,9 @@ void _warnf_print_itoa(int n) {
   warn(buf);
 }
 
-int dprintf(int fd, char *fmt, ...) {
+// TODO: return same result as dprintf()
+// int dprintf(int fd, char *fmt, ...) {
+void dprintf(int fd, char *fmt, ...) {
   int64_t varg1 = 1, varg2 = 2, varg3 = 3, varg4 = 4;
 
   __asm__("mov %rdx, 0x58(%rsp)"); // varg1
@@ -99,9 +101,9 @@ int dprintf(int fd, char *fmt, ...) {
     case 's':
       if (*c == 's') {
         if (fd == 1)
-          print(vargs[current++]);
+          print((char *)vargs[current++]);
         if (fd == 2)
-          warn(vargs[current++]);
+          warn((char *)vargs[current++]);
       }
 
       if (*c == 'd' || *c == 'i') {

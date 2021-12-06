@@ -14,9 +14,6 @@ CFLAGS += -O0
 # entry-point
 CFLAGS += -e _start
 
-# clang yells at us for using `-e` with `-c`...
-CFLAGS += -Wno-unused-command-line-argument
-
 # output standalone executable
 CFLAGS += -static
 
@@ -57,11 +54,17 @@ endif
 # 128-byte redzone, required by SysV (kernel code can't use it)
 CFLAGS += -mno-red-zone
 
-# asm stubs return via `rax`, not `return`
-CFLAGS += -Wno-return-type
+#-- warnings
 
-# don't yell at me
-CFLAGS += -Wno-int-conversion
+CFLAGS += -Wall
+CFLAGS += -Werror
+# CFLAGS += -Wpedantic
+# CFLAGS += -Weverything
+
+# clang yells at us for using `-e` with `-c`...
+CFLAGS += -Wno-unused-command-line-argument
+
+
 
 # .eh_frame stuff?, required by SysV
 # TODO: is this needed?

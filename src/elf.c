@@ -6,13 +6,13 @@
 #include <lib/elf.h>
 
 #define ELF_START 0x401000 // linux start address for x86_64
-#define ELF_SIZE 120       // minimum elf header size
+#define ELF_SIZE  120      // minimum elf header size
 
 // Output a x86_64 elf file to stdout.
 //
-int write_elf(char *code_buf, int code_size) {
+void write_elf(char *code_buf, int code_size) {
   uint64_t elf_offset = 0;
-  char *elf_output;
+  char    *elf_output;
 
   warn("Writing elf header...\n");
 

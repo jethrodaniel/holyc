@@ -7,7 +7,7 @@
 
 // Output a x86_64 mach-o file to stdout.
 //
-int write_macho(char *code_buf, int code_size) {
+void write_macho(char *code_buf, int code_size) {
   warn("Writing macho ...\n");
   warnf("code_size: %i\n", code_size);
 

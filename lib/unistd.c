@@ -12,11 +12,11 @@
 #include <lib/syscall.c>
 
 int64_t write(int fd, void *buf, size_t length) {
-  return syscall(fd, buf, length, 0, 0, 0, SYSCALL_WRITE);
+  return syscall(fd, (int64_t)buf, length, 0, 0, 0, SYSCALL_WRITE);
 }
 
 int64_t read(int fd, char *buf, size_t length) {
-  return syscall(fd, buf, length, 0, 0, 0, SYSCALL_READ);
+  return syscall(fd, (int64_t)buf, length, 0, 0, 0, SYSCALL_READ);
 }
 
 typedef int pid_t;

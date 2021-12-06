@@ -32,6 +32,5 @@ __asm__("pushq %rbx");         // alignment
 __asm__("syscall");
 __asm__("popq %rbx");
 __asm__("retq");
-__asm__("nopl (%rax)");
 
 #endif // HOLYC_LIB_SYSCALL

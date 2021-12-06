@@ -23,7 +23,7 @@ int atoi(char *str) {
 }
 
 long strtol(char *str, char **end, int base) {
-  int   n = 0, i = 0, sign = 1;
+  int   n = 0, sign = 1;
   char *c = str;
 
   if (*c == '-') {
