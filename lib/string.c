@@ -46,7 +46,7 @@ char lower(char c) {
 }
 
 void *memcpy(void *dest, const void *src, size_t n) {
-  char *_dest = (char *)dest;
+  char       *_dest = (char *)dest;
   const char *_src = (const char *)src;
 
   if (_dest == NULL || _src == NULL)

@@ -4,8 +4,8 @@
 #include "lib/stdio.c"
 
 #include "src/cc.c"
-#include "src/lex.c"
 #include "src/codegen.c"
+#include "src/lex.c"
 
 // Operator precedence
 //

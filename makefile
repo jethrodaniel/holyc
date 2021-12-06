@@ -73,8 +73,6 @@ endif
 # clang yells at us for using `-e` with `-c`...
 CFLAGS += -Wno-unused-command-line-argument
 
-
-
 # .eh_frame stuff?, required by SysV
 # TODO: is this needed?
 # CFLAGS += -fno-asynchronous-unwind-tables
@@ -93,7 +91,7 @@ $(PROG): src/main.o $(OBJS)
 	$(CC) $(CFLAGS) $< -o $(PROG)
 
 clean:
-	rm -vf *.o *.out $(PROG) src/*.o lib/*.o out test/*.o
+	rm -f *.o *.out $(PROG) src/*.o lib/*.o out test/*.o
 	make -C experiments clean
 
 #--
@@ -108,8 +106,8 @@ test: FORCE
 	sh test/main.sh
 FORCE:
 
-lint:
-	find src lib experiments test -name '*.c' -or -name '*.h' -exec clang-format -i {} \;
+lint: $(SRCS)
+	clang-format -i $^
 
 #--
 
