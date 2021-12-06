@@ -53,6 +53,7 @@ int main(int argc, char **argv, char **envp) {
   cc->code = cc->code_buf;
   parse_options(cc);
 
+  // todo: static, put it in lex?
   char *token_table[][2] = {
       {"EOF",    "\\0"},
       {"INT",    ""   },
@@ -62,6 +63,7 @@ int main(int argc, char **argv, char **envp) {
       {"MUL",    "*"  },
       {"LPAREN", "("  },
       {"RPAREN", ")"  },
+      {"SEMI", ";"  },
   };
 
   for (int i = 0; i < (sizeof(token_table) / 16); i++) {
@@ -76,11 +78,11 @@ int main(int argc, char **argv, char **envp) {
 
   _root(cc);
 
-  if (cc->output_asm)
-    return EXIT_SUCCESS;
-
   emit_pop_rax(cc);
   emit_start(cc);
+
+  if (cc->output_asm)
+    return EXIT_SUCCESS;
 
   int code_size = cc->code - cc->code_buf;
 

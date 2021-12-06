@@ -30,7 +30,7 @@ CFLAGS += -ffreestanding
 
 # ensure 16-byte alignment, required by SysV | TODO: any of this needed?
 ifeq ($(UNAME), Linux)
-  # CFLAGS += -mincoming-stack-boundary=4
+  CFLAGS += -mincoming-stack-boundary=4
 
   # Ensure we can still `call` without having to check if `__APPLE__`
   CFLAGS += -fleading-underscore

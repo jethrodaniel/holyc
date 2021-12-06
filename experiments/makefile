@@ -21,22 +21,26 @@ CFLAGS += -Wno-return-type
 CFLAGS += -I ..
 CFLAGS += -mstack-alignment=4
 
-default: bin hello libc main test macho clean
+default: bin hello libc main test macho stdio.test clean
 
 bin:
 	mkdir -p bin
 
-hello: hello.s
+hello: hello.s bin
 	nasm $(NASM_FLAGS) $<
 	ld $(LDFLAGS) -o bin/$@ $@.o
 	./bin/$@
 
-libc: libc.s
+libc: libc.s bin
 	nasm $(NASM_FLAGS) $<
 	ld $(LIBC_LDFLAGS) -o bin/$@ $@.o
 	./bin/$@
 
 main: main.c bin
+	cc -e _start $(CFLAGS) $< -o bin/$@
+	./bin/$@
+
+stdio.test: stdio.test.c bin
 	cc -e _start $(CFLAGS) $< -o bin/$@
 	./bin/$@
 
@@ -48,7 +52,7 @@ macho: macho.c bin
 	cc -e _start $(CFLAGS) $< -o bin/$@
 	./bin/$@ || true
 
-test: test.s
+test: test.s bin
 	nasm -f bin $< -o bin/$@ && ndisasm -b64 bin/$@
 
 clean:

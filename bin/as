@@ -1,1 +1,1 @@
-make; echo "$@" | ./holyc -S > out.s && cat out.s && rm out.s
+echo "$@" | ./holyc -S > out.s && cat out.s && rm out.s

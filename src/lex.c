@@ -14,6 +14,7 @@ typedef enum {
   TK_MUL,
   TK_LPAREN,
   TK_RPAREN,
+  TK_SEMI,
 } TokenType;
 
 // Print a token for debugging.
@@ -40,15 +41,6 @@ int Lex(CC *cc) {
   char *c = cc->input;
   int   n;
 
-  // if (c > cc->input_size) {
-  //   cc->token = TK_EOF;
-  //   warnf("too big: ");
-  //   goto ret;
-  // }
-
-  // if (cc->token == TK_EOF)
-  // goto ret;
-
   while (true) {
     switch (*c) {
     case '\n':
@@ -60,6 +52,10 @@ int Lex(CC *cc) {
       cc->input = ++c;
       cc->token = TK_EOF;
       goto ret;
+    case ';':
+      cc->token_pos = c;
+      cc->input = ++c;
+      cc->token = TK_SEMI;
     case '+':
       cc->token_pos = c;
       cc->input = ++c;
@@ -114,6 +110,7 @@ int Lex(CC *cc) {
       cc->token = TK_INT;
       goto ret;
     default:
+      warn(c);
       error("unexpected character '%c' (%d) at column %d\n", *c, *c,
             cc->input - cc->input_buf);
     }
@@ -129,6 +126,5 @@ ret:
 void Unlex(CC *cc) {
   cc->input = cc->token_pos;
 }
-
 
 #endif // HOLYC_SRC_LEX

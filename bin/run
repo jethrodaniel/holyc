@@ -1,1 +1,1 @@
-make; echo "$@" | ./holyc >a.out && chmod u+x a.out && ./a.out; echo $?
+echo "$@" | ./holyc >a.out && chmod u+x a.out && ./a.out; echo $?

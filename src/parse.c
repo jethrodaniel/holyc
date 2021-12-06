@@ -27,17 +27,16 @@ void expect(CC *cc, TokenType t) {
 
 // == Grammar
 //
-// root -> expr EOF
+// root -> {expr}+ EOF
 // expr -> term '+' expr
 //       | term '-' expr
 //       | term
 // term -> factor '*' factor
 //       | factor '/' factor
 //       | factor
-// factor -> num
+// factor -> 0..9+
 //         #| var
 //         #| '(' expr ')'
-// int -> 0..9+
 // #var -> [a-zA-Z_]\w+
 
 void _expr(CC *cc, Prec prec);
@@ -48,10 +47,10 @@ void _term(CC *cc, Prec prec);
 //
 void _root(CC *cc) {
   warnf("%s\n", __func__);
+
+  emit_main_label(cc);
   _expr(cc, PREC_TOP);
-  if (cc->token != TK_EOF)
-    error("unexpected character '%s' at column %d\n",
-          cc->token_table[cc->token][1], cc->input - cc->input_buf);
+  expect(cc, TK_EOF);
 }
 
 // expr -> term '+' expr
