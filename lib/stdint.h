@@ -1,8 +1,8 @@
 #ifndef HOLYC_LIB_STDINT
 #define HOLYC_LIB_STDINT
 
-#define int64_t  long long int
-#define int32_t  int
+#define int64_t long long int
+#define int32_t int
 
 #define uint64_t unsigned int64_t
 #define uint32_t unsigned int32_t
