@@ -19,8 +19,8 @@ typedef void (*TestFn)();
 typedef struct Test {
   TestFn fn;
   char   name[TEST_NAME_MAX_LEN];
-  bool   passed;
   char  *err[TEST_ERR_MAX_LEN];
+  bool   passed;
 } Test;
 
 // The test suite's context.

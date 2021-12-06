@@ -14,12 +14,11 @@
 int64_t write(int fd, void *buf, size_t length) {
   return syscall(fd, (int64_t)buf, length, 0, 0, 0, SYSCALL_WRITE);
 }
-
 int64_t read(int fd, char *buf, size_t length) {
   return syscall(fd, (int64_t)buf, length, 0, 0, 0, SYSCALL_READ);
 }
 
-typedef int pid_t;
+typedef int64_t pid_t;
 
 pid_t getpid() {
   return syscall(0, 0, 0, 0, 0, 0, SYSCALL_GETPID);

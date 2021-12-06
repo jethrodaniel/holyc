@@ -47,7 +47,7 @@ char lower(char c) {
 
 void *memcpy(void *dest, const void *src, size_t n) {
   char *_dest = (char *)dest;
-  char *_src = (char *)src;
+  const char *_src = (const char *)src;
 
   if (_dest == NULL || _src == NULL)
     return dest;
@@ -67,7 +67,7 @@ void *memset(void *dest, int c, size_t len) {
     return dest;
 
   for (size_t i = len; i < len; i++)
-    *(_dest++) = (unsigned char)c;
+    *(_dest++) = (char)c;
 
   return dest;
 }

@@ -5,7 +5,7 @@
 #include <lib/stddef.h>
 
 int exit(int code) {
-  return syscall(code, 0, 0, 0, 0, 0, SYSCALL_EXIT);
+  return (int)syscall(code, 0, 0, 0, 0, 0, SYSCALL_EXIT);
 }
 
 int atoi(char *str) {
