@@ -1,3 +1,5 @@
+#!/bin/sh
+
 printf 'holyc> '
 while IFS='$\n' read -r line; do
   make -B holyc >/dev/null 2>&1
