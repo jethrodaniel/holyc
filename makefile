@@ -58,17 +58,6 @@ CFLAGS += -mno-red-zone
 
 CFLAGS += -Wall
 CFLAGS += -Werror
-# CFLAGS += -Wpedantic
-
-ifeq ($(UNAME), Darwin)
-  # CFLAGS += -Weverything
-endif
-# CFLAGS += -Wno-missing-prototypes
-# CFLAGS += -Wno-strict-prototypes
-# CFLAGS += -Wno-missing-field-initializers
-# CFLAGS += -Wno-unused-parameter
-# CFLAGS += -Wno-padded
-# CFLAGS += -Wno-unused-macros
 
 # clang yells at us for using `-e` with `-c`...
 CFLAGS += -Wno-unused-command-line-argument
