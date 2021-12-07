@@ -46,7 +46,8 @@ void _term(CC *cc, Prec prec);
 // root -> expr
 //
 void _root(CC *cc) {
-  warnf("%s\n", __func__);
+  if (cc->opts->debug_parser)
+    warnf("%s\n", __func__);
 
   emit_main_label(cc);
   _expr(cc, PREC_TOP);
@@ -58,7 +59,8 @@ void _root(CC *cc) {
 //       | term
 //
 void _expr(CC *cc, Prec prec) {
-  warnf("%s: %d\n", __func__, prec);
+  if (cc->opts->debug_parser)
+    warnf("%s: %d\n", __func__, prec);
 
   int tok;
 
@@ -93,7 +95,8 @@ void _expr(CC *cc, Prec prec) {
 //       | factor
 //
 void _term(CC *cc, Prec prec) {
-  warnf("%s: %d\n", __func__, prec);
+  if (cc->opts->debug_parser)
+    warnf("%s: %d\n", __func__, prec);
 
   int tok;
 
@@ -128,7 +131,8 @@ void _term(CC *cc, Prec prec) {
 //         #| var
 //
 void _factor(CC *cc, Prec prec) {
-  warnf("%s: %d\n", __func__, prec);
+  if (cc->opts->debug_parser)
+    warnf("%s: %d\n", __func__, prec);
 
   Lex(cc);
   int tok = cc->token;

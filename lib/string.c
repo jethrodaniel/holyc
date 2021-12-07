@@ -45,6 +45,21 @@ char lower(char c) {
   return c;
 }
 
+int strcmp(const char *s1, const char *s2) {
+  const char *_s1 = s1, *_s2 = s2;
+
+  while (*_s1 && *_s2) {
+    if (*_s1 < *_s2)
+      return -1;
+    if (*_s1 > *_s2)
+      return 1;
+    _s1++;
+    _s2++;
+  }
+
+  return 0;
+}
+
 void *memcpy(void *dest, const void *src, size_t n) {
   char       *_dest = (char *)dest;
   const char *_src = (const char *)src;
