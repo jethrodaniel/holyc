@@ -1,18 +1,19 @@
-#include "lib/string.c"
-#include <lib/stddef.h>
-#include <lib/stdio.c>
-#include <lib/stdlib.c>
+#ifndef HOLYC_SRC_ELF
+#define HOLYC_SRC_ELF
 
 #include <lib/elf.h>
+#include <src/cc.c>
+#include <src/obj.c>
 
 #define ELF_START 0x401000 // linux start address for x86_64
 #define ELF_SIZE  120      // minimum elf header size
 
 // Output a x86_64 elf file to stdout.
 //
-void write_elf(char *code_buf, int code_size) {
+void write_elf(CC *cc) {
   uint64_t elf_offset = 0;
   char    *elf_output;
+  int code_size = cc->code - cc->code_buf;
 
   warn("Writing elf header...\n");
 
@@ -58,5 +59,7 @@ void write_elf(char *code_buf, int code_size) {
   memcpy(elf_output + sizeof(Elf64_Ehdr), p, sizeof(Elf64_Phdr));
 
   write(STDOUT_FILENO, elf_output, elf_offset);
-  write(STDOUT_FILENO, code_buf, code_size);
+  write(STDOUT_FILENO, cc->code_buf, code_size);
 }
+
+#endif // HOLYC_SRC_ELF

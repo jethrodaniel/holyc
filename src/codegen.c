@@ -2,10 +2,7 @@
 #define HOLYC_SRC_CODEGEN
 
 #include "lib/stdio.c"
-
 #include "src/cc.c"
-#include "src/elf.c"
-#include "src/macho.c"
 
 void emit_mov_rax_imm(CC *cc, uint64_t imm) {
   if (cc->opts->output_asm)
@@ -116,16 +113,6 @@ void emit_start(CC *cc) {
 void emit_main_label(CC *cc) {
   if (cc->opts->output_asm)
     printf("\nmain:\n");
-}
-
-void write_executable(CC *cc) {
-  int code_size = cc->code - cc->code_buf;
-  warnf("Writing %d bytes of machine code\n", code_size);
-#ifdef __APPLE__
-  write_macho(cc->code_buf, code_size);
-#else
-  write_elf(cc->code_buf, code_size);
-#endif
 }
 
 #endif // HOLYC_SRC_CODEGEN

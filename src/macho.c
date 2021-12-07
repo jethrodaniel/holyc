@@ -1,14 +1,18 @@
-#include "lib/string.c"
-#include <lib/stddef.h>
-#include <lib/stdio.c>
-#include <lib/stdlib.c>
+#ifndef HOLYC_SRC_MACHO
+#define HOLYC_SRC_MACHO
 
 #include <lib/macho.h>
 
+#include <src/cc.c>
+#include <src/obj.c>
+
 // Output a x86_64 mach-o file to stdout.
 //
-void write_macho(char *code_buf, int code_size) {
+void write_macho(CC *cc) {
+  int code_size = cc->code - cc->code_buf;
+
   warn("Writing macho ...\n");
+  warnf("Writing %d bytes of machine code\n", code_size);
   warnf("code_size: %i\n", code_size);
 
   mach_header_64 *h = malloc(sizeof(mach_header_64));
@@ -100,7 +104,7 @@ void write_macho(char *code_buf, int code_size) {
   int64_t *pad = malloc(padsize);
 
   int64_t *code = malloc(code_size);
-  memcpy(code, code_buf, code_size);
+  memcpy(code, cc->code_buf, code_size);
 
   int64_t actual_symtblsize = sizeof(nlist_64) * symtbl->nsyms;
 
@@ -119,65 +123,69 @@ void write_macho(char *code_buf, int code_size) {
   int64_t offset = 0;
   size = 0;
 
-  warnf("  | mach_header_64: %i\n", offset);
+  log(cc, "--> Outputing Mach-O executable\n", offset);
+
+  log(cc, "\tmach_header_64: %i\n", offset);
   write(STDOUT_FILENO, h, size = sizeof(mach_header_64));
   offset += size;
 
-  warnf("  | pagezero: %i\n", offset);
+  log(cc, "\tpagezero: %i\n", offset);
   write(STDOUT_FILENO, p0, size = sizeof(segment_command_64));
   offset += size;
 
-  warnf("  | __TEXT: %i\n", offset);
+  log(cc, "\t__TEXT: %i\n", offset);
   write(STDOUT_FILENO, c, size = sizeof(segment_command_64));
   offset += size;
 
-  warnf("  | __text: %i\n", offset);
+  log(cc, "\t__text: %i\n", offset);
   write(STDOUT_FILENO, text, size = sizeof(section_64));
   offset += size;
 
-  warnf("  | __LINKEDIT: %i\n", offset);
+  log(cc, "\t__LINKEDIT: %i\n", offset);
   write(STDOUT_FILENO, linkedit, size = sizeof(segment_command_64));
   offset += size;
 
-  warnf("  | LC_SYMTAB: %i\n", offset);
+  log(cc, "\tLC_SYMTAB: %i\n", offset);
   write(STDOUT_FILENO, symtbl, size = sizeof(symtab_command));
   offset += size;
 
-  warnf("  | LC_UUID: %i\n", offset);
+  log(cc, "\tLC_UUID: %i\n", offset);
   write(STDOUT_FILENO, uuid, size = sizeof(uuid_command));
   offset += size;
 
-  warnf("  | LC_SOURCE_VERSION: %i\n", offset);
+  log(cc, "\tLC_SOURCE_VERSION: %i\n", offset);
   write(STDOUT_FILENO, v, size = sizeof(source_version_command));
   offset += size;
 
-  warnf("  | LC_UNIXTHREAD: %i\n", offset);
+  log(cc, "\tLC_UNIXTHREAD: %i\n", offset);
   write(STDOUT_FILENO, t, size = sizeof(thread_command));
   offset += size;
 
-  warnf("  | LC_UNIXTHREAD.state: %i\n", offset);
+  log(cc, "\tLC_UNIXTHREAD.state: %i\n", offset);
   write(STDOUT_FILENO, reg, size = sizeof(_STRUCT_X86_THREAD_STATE64));
   offset += size;
 
-  warnf("  | padding: %i\n", offset);
+  log(cc, "\tpadding: %i\n", offset);
   write(STDOUT_FILENO, pad, size = padsize);
   offset += size;
 
-  warnf("  | text: %i\n", offset);
+  log(cc, "\ttext: %i\n", offset);
   write(STDOUT_FILENO, code, size = code_size);
   offset += size;
 
-  warnf("  | symtbl: %i\n", offset);
+  log(cc, "\tsymtbl: %i\n", offset);
   write(STDOUT_FILENO, actual_symtbl, size = actual_symtblsize);
   offset += size;
 
-  warnf("  | buf: %i\n", offset);
+  log(cc, "\tbuf: %i\n", offset);
   write(STDOUT_FILENO, buf, size = bufsize);
   offset += size;
 
-  // warnf("  | strtbl: %i\n", offset);
+  // log(cc, "\tstrtbl: %i\n", offset);
   // write(STDOUT_FILENO, strtbl, size = symtbl->strsize);
   // offset += size;
 
-  warnf("  | final offset: %i\n", offset);
+  log(cc, "\tfinal offset: %i\n", offset);
 }
+
+#endif // HOLYC_SRC_MACHO

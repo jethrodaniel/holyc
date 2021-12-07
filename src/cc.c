@@ -1,5 +1,4 @@
 #ifndef HOLYC_SRC_CC
-
 #define HOLYC_SRC_CC
 
 #include "lib/stdbool.h"
@@ -37,9 +36,7 @@ static void parse_options(CC *cc) {
   for (int i = 0; i < cc->argc; i++) {
     char *arg = cc->argv[i];
 
-    if (*arg == '-')
-      arg++;
-    else
+    if (*arg != '-')
       continue;
 
     if (strcmp(arg, "-S") == 0)
