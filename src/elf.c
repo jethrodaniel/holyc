@@ -13,7 +13,7 @@
 void write_elf(CC *cc) {
   uint64_t elf_offset = 0;
   char    *elf_output;
-  int code_size = cc->code - cc->code_buf;
+  int      code_size = cc->code - cc->code_buf;
 
   warn("Writing elf header...\n");
 

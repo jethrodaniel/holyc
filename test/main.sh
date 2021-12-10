@@ -44,4 +44,10 @@ assert 2 '(  1 +  3 - 1  ) * (2  * 3 / 2 ) - 7  '
 # nothing
 assert 1 "\0"
 
+# semi
+assert 1 ";"
+# assert 2 "1;2"
+# assert 2 "1;2;"
+# assert 4 "1;1;4;;;;;;"
+
 echo OK

@@ -2,8 +2,23 @@
 #define HOLYC_SRC_LEX
 
 #include "lib/stdio.c"
+#include "lib/stdlib.c"
 
 #include "src/cc.c"
+
+void error_at(CC *cc) {
+  char c = *cc->input;
+  int  col = cc->input - cc->input_buf + 1;
+
+  warnf("-- error: unexpected character '%c' (%d) at column %d\n%s", c, c, col,
+        cc->input_buf);
+
+  for (char *c = cc->input_buf; c < cc->input; c++)
+    warnc(' ');
+  warnf("^\n");
+
+  exit(1);
+}
 
 typedef enum {
   TK_EOF,
@@ -110,9 +125,7 @@ int Lex(CC *cc) {
       cc->token = TK_INT;
       goto ret;
     default:
-      warn(c);
-      error("unexpected character '%c' (%d) at column %d\n", *c, *c,
-            cc->input - cc->input_buf);
+      error_at(cc);
     }
   }
 

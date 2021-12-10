@@ -112,8 +112,12 @@ void dprintf(int fd, char *fmt, ...) {
         if (fd == 2)
           _warnf_print_itoa((int)vargs[current++]);
       }
-      if (*c == 'c')
-        putc((char)vargs[current++]);
+      if (*c == 'c') {
+        if (fd == 1)
+          putc((char)vargs[current++]);
+        if (fd == 2)
+          warnc((char)vargs[current++]);
+      }
       if (*c == 'f')
         die("unsupported printf format '%f'");
 

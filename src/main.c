@@ -25,8 +25,8 @@
 #include "src/cc.c"
 #include "src/codegen.c"
 #include "src/lex.c"
-#include "src/parse.c"
 #include "src/obj.c"
+#include "src/parse.c"
 
 #define INPUT_SIZE 4096
 
