@@ -71,6 +71,7 @@ int Lex(CC *cc) {
       cc->token_pos = c;
       cc->input = ++c;
       cc->token = TK_SEMI;
+      goto ret;
     case '+':
       cc->token_pos = c;
       cc->input = ++c;
