@@ -1,7 +1,7 @@
 #ifndef HOLYC_SRC_MACHO
 #define HOLYC_SRC_MACHO
 
-#include <third_party/macho.h>
+#include <lib/mach-o/loader.h>
 
 #include <src/cc.c>
 #include <src/obj.c>
