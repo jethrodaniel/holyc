@@ -2,45 +2,24 @@
 
 HolyC for x86_64 Linux and Mac.
 
-**note**: def a WIP, see [the roadmap](#roadmap).
-
-## build
-
-```
-make
-```
+**note**: def a WIP, more of a teaching project for now.
 
 ## what it do
 
 - free-standing libc implementation using syscalls
-- outputs program executable as ELF or Mach-O
+- outputs program executables directly (ELF or Mach-O)
 
-## roadmap
+## philosophy
 
-One day we'll get past step I.
+- nothing external, unless necessary (elf.h, mach-o/loader.h, etc)
 
-I: Ahead of time compiler for HolyC, written in C, outputs an executable binary.
+## build
 
-    cc holyc.c -o hc0
-    ./hc0 <test.hc >test
-
-II: Bootstrap AOT in HolyC
-
-    ./hc0 <hc.hc >hc1 && chmod u+x hc1
-    ./hc1 <test.hc >test
-
-III: Add JIT support
-
-    hc1 <jit.hc <main.hc >holyc
-
-After:
-
-    holyc --aot <jit.hc <main.hc >holyc
-    holyc --jit
-
-IV: Write basic shell
-
-    holyc --jit <shell.hc
+```
+git clone https://github.com/jethrodaniel/holyc
+cd holyc
+make
+```
 
 ## references
 
@@ -67,3 +46,33 @@ IV: Write basic shell
   - https://lowlevelbits.org/parsing-mach-o-files/
   - https://medium.com/tokopedia-engineering/a-curious-case-of-mach-o-executable-26d5ecadd995
   - https://developer.apple.com/library/archive/documentation/Performance/Conceptual/CodeFootprint/Articles/MachOOverview.html
+
+## license
+
+holyc as a whole is licensed under the following standard MIT license:
+
+```
+Copyright (c) 2021 Mark Delk
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+```
+
+The following files have their own license information, see the file for details:
+
+- [lib/mach-o/loader.h](lib/mach-o/loader.h) (APSL)
