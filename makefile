@@ -80,8 +80,7 @@ $(PROG): src/main.o $(OBJS)
 	$(CC) $(CFLAGS) $< -o $(PROG)
 
 clean:
-	rm -f *.o *.out $(PROG) src/*.o lib/*.o out test/*.o
-	make -C experiments clean
+	rm -f $(OBJS) $(PROG)
 
 #--
 
