@@ -1,8 +1,8 @@
 #ifndef HOLYC_LIB_ELF
 #define HOLYC_LIB_ELF
 
-#include <lib/c/stddef.h>
-#include <lib/c/stdint.h>
+#include <stddef.h>
+#include <stdint.h>
 
 // Adapted from musl-libc (MIT-licensed):
 // https://git.musl-libc.org/cgit/musl/tree/include/elf.h

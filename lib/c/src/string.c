@@ -1,8 +1,4 @@
-#ifndef HOLYC_LIB_STRING
-#define HOLYC_LIB_STRING
-
-#include <lib/c/stddef.h>
-#include <lib/c/stdint.h>
+#include <string.h>
 
 int strlen(char *str) {
   int i = 0;
@@ -86,5 +82,3 @@ void *memset(void *dest, int c, size_t len) {
 
   return dest;
 }
-
-#endif // HOLYC_LIB_STRING

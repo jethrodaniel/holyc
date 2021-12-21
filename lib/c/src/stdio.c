@@ -1,9 +1,7 @@
-#ifndef HOLYC_LIB_STDIO
-#define HOLYC_LIB_STDIO
-
-#include <lib/c/stdlib.c>
-#include <lib/c/string.c>
-#include <lib/c/unistd.c>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // putc()
 
@@ -151,5 +149,3 @@ void warnf(char *fmt, ...) {
   __asm__("mov $2, %rdi");   // arg1, stderr
   __asm__("call _dprintf");  // dprintf()
 }
-
-#endif // HOLYC_LIB_STDIO

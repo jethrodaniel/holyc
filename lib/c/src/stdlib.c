@@ -1,8 +1,4 @@
-#ifndef HOLYC_LIB_STDLIB
-#define HOLYC_LIB_STDLIB
-
-#include <lib/c/mman.c>
-#include <lib/c/stddef.h>
+#include <stdlib.h>
 
 int exit(int code) {
   return (int)syscall(code, 0, 0, 0, 0, 0, SYSCALL_EXIT);
@@ -50,5 +46,3 @@ void *malloc(int64_t n) {
               0   // no offset
   );
 }
-
-#endif // HOLYC_LIB_STDLIB
