@@ -1,8 +1,8 @@
 #ifndef HOLYC_LIB_STRING
 #define HOLYC_LIB_STRING
 
-#include <lib/stddef.h>
-#include <lib/stdint.h>
+#include <lib/c/stddef.h>
+#include <lib/c/stdint.h>
 
 int strlen(char *str) {
   int i = 0;

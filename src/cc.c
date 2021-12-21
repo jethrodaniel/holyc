@@ -1,9 +1,9 @@
 #ifndef HOLYC_SRC_CC
 #define HOLYC_SRC_CC
 
-#include "lib/stdbool.h"
-#include "lib/stdio.c"
-#include "lib/stdlib.c"
+#include <lib/c/stdbool.h>
+#include <lib/c/stdio.c>
+#include <lib/c/stdlib.c>
 
 typedef struct CompilerOpts {
   bool output_asm;   // output asm, or binary?

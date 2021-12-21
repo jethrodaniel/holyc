@@ -80,7 +80,7 @@ $(PROG): src/main.o $(OBJS)
 	$(CC) $(CFLAGS) $< -o $(PROG)
 
 clean:
-	rm -f $(OBJS) $(PROG)
+	rm -f $(OBJS) $(PROG) *.out
 
 #--
 

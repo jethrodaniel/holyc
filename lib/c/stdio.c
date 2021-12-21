@@ -1,9 +1,9 @@
 #ifndef HOLYC_LIB_STDIO
 #define HOLYC_LIB_STDIO
 
-#include <lib/stdlib.c>
-#include <lib/string.c>
-#include <lib/unistd.c>
+#include <lib/c/stdlib.c>
+#include <lib/c/string.c>
+#include <lib/c/unistd.c>
 
 // putc()
 

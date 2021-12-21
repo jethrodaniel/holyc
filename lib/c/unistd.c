@@ -8,8 +8,8 @@
 #define STDERR_FILENO 2
 #define EXIT_SUCCESS  0
 
-#include <lib/stdint.h>
-#include <lib/syscall.c>
+#include <lib/c/stdint.h>
+#include <lib/c/syscall.c>
 
 int64_t write(int fd, void *buf, size_t length) {
   return syscall(fd, (int64_t)buf, length, 0, 0, 0, SYSCALL_WRITE);

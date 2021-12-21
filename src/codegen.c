@@ -1,7 +1,8 @@
 #ifndef HOLYC_SRC_CODEGEN
 #define HOLYC_SRC_CODEGEN
 
-#include "lib/stdio.c"
+#include <lib/c/stdio.c>
+
 #include "src/cc.c"
 
 void emit_mov_rax_imm(CC *cc, uint64_t imm) {

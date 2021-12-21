@@ -1,8 +1,8 @@
 #ifndef HOLYC_LIB_STDLIB
 #define HOLYC_LIB_STDLIB
 
-#include <lib/mman.c>
-#include <lib/stddef.h>
+#include <lib/c/mman.c>
+#include <lib/c/stddef.h>
 
 int exit(int code) {
   return (int)syscall(code, 0, 0, 0, 0, 0, SYSCALL_EXIT);

@@ -19,7 +19,7 @@
 #define SYSCALL_EXIT   60
 #endif
 
-#include <lib/stdint.h>
+#include <lib/c/stdint.h>
 
 int64_t syscall(int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4,
                 int64_t arg5, int64_t arg6, int64_t n);

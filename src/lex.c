@@ -1,8 +1,8 @@
 #ifndef HOLYC_SRC_LEX
 #define HOLYC_SRC_LEX
 
-#include "lib/stdio.c"
-#include "lib/stdlib.c"
+#include <lib/c/stdio.c>
+#include <lib/c/stdlib.c>
 
 #include "src/cc.c"
 

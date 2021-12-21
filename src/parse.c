@@ -1,7 +1,7 @@
 #ifndef HOLYC_SRC_PARSE
 #define HOLYC_SRC_PARSE
 
-#include "lib/stdio.c"
+#include <lib/c/stdio.c>
 
 #include "src/cc.c"
 #include "src/codegen.c"

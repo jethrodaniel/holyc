@@ -1,7 +1,7 @@
 #ifndef HOLYC_LIB_MMAN
 #define HOLYC_LIB_MMAN
 
-#include <lib/stdint.h>
+#include <lib/c/stdint.h>
 
 #define PROT_READ  0x1
 #define PROT_WRITE 0x2
@@ -16,7 +16,7 @@
 #define MAP_PRIVATE 0x02
 #define MAP_FAILED  ((void *)-1)
 
-#include <lib/syscall.c>
+#include <lib/c/syscall.c>
 
 void *mmap(void *addr, int64_t length, int prot, int flags, int fd,
            off_t offset) {

@@ -3,11 +3,11 @@
 
 //--
 
-#include <lib/crt0.c>
-#include <lib/stdbool.h>
-#include <lib/stdio.c>
-#include <lib/stdlib.c>
-#include <lib/string.c>
+#include <lib/c/crt0.c>
+#include <lib/c/stdbool.h>
+#include <lib/c/stdio.c>
+#include <lib/c/stdlib.c>
+#include <lib/c/string.c>
 
 #define TEST_NAME_MAX_LEN 64
 #define TEST_ERR_MAX_LEN 64

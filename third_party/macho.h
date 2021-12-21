@@ -1,4 +1,4 @@
-#include <lib/stdint.h>
+#include <lib/c/stdint.h>
 
 // https://opensource.apple.com/source/xnu/xnu-2050.18.24/EXTERNAL_HEADERS/mach-o/loader.h
 

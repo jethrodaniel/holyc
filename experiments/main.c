@@ -1,6 +1,6 @@
-#include "../lib/crt0.c"
-#include "../lib/stdio.c"
-#include "../lib/stdlib.c"
+#include <lib/c/crt0.c>
+#include <lib/c/stdio.c>
+#include <lib/c/stdlib.c>
 
 #define PAGE_SIZE 4096
 

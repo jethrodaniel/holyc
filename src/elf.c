@@ -1,7 +1,7 @@
 #ifndef HOLYC_SRC_ELF
 #define HOLYC_SRC_ELF
 
-#include <lib/elf.h>
+#include <lib/c/elf.h>
 #include <src/cc.c>
 #include <src/obj.c>
 

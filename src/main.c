@@ -19,8 +19,8 @@
 //
 //  and clobbers rcx, r11, and rax
 
-#include "lib/crt0.c"
-#include "lib/unistd.c"
+#include <lib/c/crt0.c>
+#include <lib/c/unistd.c>
 
 #include "src/cc.c"
 #include "src/codegen.c"
