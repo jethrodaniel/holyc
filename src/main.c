@@ -39,11 +39,9 @@ int main(int argc, char **argv, char **envp) {
   if ((cc->input_size = read(STDIN_FILENO, cc->input, INPUT_SIZE)) < 0)
     die("read");
 
-  warnf("read %d bytes\n", cc->input_size);
+  // warnf("read %d bytes\n", cc->input_size);
 
   _root(cc);
-
-  emit_pop_rax(cc);
   emit_start(cc);
 
   if (cc->opts->output_asm)

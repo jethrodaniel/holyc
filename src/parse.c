@@ -50,8 +50,15 @@ void _root(CC *cc) {
     warnf("%s\n", __func__);
 
   emit_main_label(cc);
+
+  if (cc->token != TK_EOF)
+    return;
+
   _expr(cc, PREC_TOP);
+  expect(cc, TK_SEMI);
+
   expect(cc, TK_EOF);
+  emit_pop_rax(cc);
 }
 
 // expr -> term '+' expr
