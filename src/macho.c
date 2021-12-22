@@ -1,13 +1,5 @@
-#ifndef HOLYC_SRC_MACHO
-#define HOLYC_SRC_MACHO
+#include <holyc/mach-o.h>
 
-#include <lib/mach-o/loader.h>
-
-#include <src/cc.c>
-#include <src/obj.c>
-
-// Output a x86_64 mach-o file to stdout.
-//
 void write_macho(CC *cc) {
   int code_size = cc->code - cc->code_buf;
 
@@ -187,5 +179,3 @@ void write_macho(CC *cc) {
 
   log(cc, "\tfinal offset: %i\n", offset);
 }
-
-#endif // HOLYC_SRC_MACHO

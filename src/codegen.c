@@ -1,9 +1,4 @@
-#ifndef HOLYC_SRC_CODEGEN
-#define HOLYC_SRC_CODEGEN
-
-#include <lib/c/stdio.c>
-
-#include "src/cc.c"
+#include <holyc/codegen.h>
 
 void emit_mov_rax_imm(CC *cc, uint64_t imm) {
   if (cc->opts->output_asm)
@@ -115,5 +110,3 @@ void emit_main_label(CC *cc) {
   if (cc->opts->output_asm)
     printf("\nmain:\n");
 }
-
-#endif // HOLYC_SRC_CODEGEN

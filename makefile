@@ -67,25 +67,27 @@ CFLAGS += -Wno-unused-command-line-argument
 # CFLAGS += -fno-asynchronous-unwind-tables
 
 # Allow for #include </lib/...> instead of relative paths
-CFLAGS += -I .
+CFLAGS += -I . -I lib/c/include -I include
 
 #--
 
 default: clean $(PROG) test ctest
 
-SRCS = $(wildcard src/*.c lib/*.c)
+SRCS = $(wildcard src/*.c lib/c/src/*.c)
 OBJS = $(SRCS:.c=.o)
 
-$(PROG): src/main.o $(OBJS)
-	$(CC) $(CFLAGS) $< -o $(PROG)
+$(PROG): $(OBJS)
+	$(CC) $(CFLAGS) $^ -o $(PROG)
 
 clean:
 	rm -f $(OBJS) $(PROG) *.out
 
 #--
+LIBC_OBJS := $(wildcard lib/c/*.o)
+LIBC_OBJS := $(filter-out src/main.o, $(OBJS))
 
-test.out: test/main.c
-	$(CC) $(CFLAGS) $< -o $@
+test.out: test/main.o $(LIBC_OBJS)
+	$(CC) $(CFLAGS) $^ -o $@
 
 ctest: test.out
 	./$<
@@ -99,6 +101,8 @@ lint: $(SRCS)
 
 #--
 
-docker:
+docker: docker-build docker-run
+docker-build:
 	docker build -t holyc .
+docker-run:
 	docker run -it --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined holyc

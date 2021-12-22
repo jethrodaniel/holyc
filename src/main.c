@@ -19,14 +19,16 @@
 //
 //  and clobbers rcx, r11, and rax
 
-#include <lib/c/crt0.c>
-#include <lib/c/unistd.c>
+#include <crt0.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-#include "src/cc.c"
-#include "src/codegen.c"
-#include "src/lex.c"
-#include "src/obj.c"
-#include "src/parse.c"
+#include <holyc/cc.h>
+#include <holyc/codegen.h>
+#include <holyc/lex.h>
+#include <holyc/obj.h>
+#include <holyc/parse.h>
 
 #define INPUT_SIZE 4096
 

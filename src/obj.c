@@ -1,7 +1,4 @@
-#ifndef HOLYC_SRC_OBJ
-#define HOLYC_SRC_OBJ
-
-#include <src/cc.c>
+#include <holyc/obj.h>
 
 // rdi: cc
 // rsi: fmt
@@ -22,9 +19,6 @@ void log(CC *cc, char *fmt, ...) {
   __asm__("call _warnf");
 }
 
-#include <src/elf.c>
-#include <src/macho.c>
-
 void write_macho(CC *cc);
 void write_elf(CC *cc);
 
@@ -35,5 +29,3 @@ void write_executable(CC *cc) {
   write_elf(cc);
 #endif
 }
-
-#endif // HOLYC_SRC_OBJ

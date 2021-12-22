@@ -1,10 +1,4 @@
-#ifndef HOLYC_SRC_LEX
-#define HOLYC_SRC_LEX
-
-#include <lib/c/stdio.c>
-#include <lib/c/stdlib.c>
-
-#include "src/cc.c"
+#include <holyc/lex.h>
 
 void error_at(CC *cc) {
   char c = *cc->input;
@@ -20,20 +14,6 @@ void error_at(CC *cc) {
   exit(1);
 }
 
-typedef enum {
-  TK_EOF,
-  TK_INT,
-  TK_MIN,
-  TK_PLUS,
-  TK_DIV,
-  TK_MUL,
-  TK_LPAREN,
-  TK_RPAREN,
-  TK_SEMI,
-} TokenType;
-
-// Print a token for debugging.
-//
 void print_token(CC *cc) {
   char *tokname = cc->token_table[cc->token][0];
 
@@ -140,5 +120,3 @@ ret:
 void Unlex(CC *cc) {
   cc->input = cc->token_pos;
 }
-
-#endif // HOLYC_SRC_LEX

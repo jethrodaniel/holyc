@@ -1,5 +1,5 @@
-#ifndef HOLYC_LIB_BOOT
-#define HOLYC_LIB_BOOT
+#ifndef HOLYC_LIB_C_BOOT
+#define HOLYC_LIB_C_BOOT
 
 __asm__(".globl _start");
 __asm__(".extern _main, _exit");
@@ -14,4 +14,4 @@ __asm__("call  _main");                 // main(argc, argv, envp)
 __asm__("mov   %rax, %rdi"); // status
 __asm__("call  _exit");      // exit(status)
 
-#endif // HOLYC_LIB_BOOT
+#endif // HOLYC_LIB_C_BOOT

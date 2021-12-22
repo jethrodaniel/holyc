@@ -1,47 +1,11 @@
-#ifndef HOLYC_SRC_PARSE
-#define HOLYC_SRC_PARSE
+#include <holyc/parse.h>
 
-#include <lib/c/stdio.c>
-
-#include "src/cc.c"
-#include "src/codegen.c"
-#include "src/lex.c"
-
-// Operator precedence
-//
-typedef enum {
-  PREC_MUL,
-  PREC_ADD,
-  PREC_PAREN,
-  PREC_TOP,
-} Prec;
-
-// Get next token, error if it's not what we expect.
-//
 void expect(CC *cc, TokenType t) {
   Lex(cc);
   if (cc->token != t)
     error("expected a '%s', got '%s' at column %d\n", cc->token_table[t][1],
           cc->token_table[cc->token][1], cc->input - cc->input_buf);
 }
-
-// == Grammar
-//
-// root -> {expr}+ EOF
-// expr -> term '+' expr
-//       | term '-' expr
-//       | term
-// term -> factor '*' factor
-//       | factor '/' factor
-//       | factor
-// factor -> 0..9+
-//         #| var
-//         #| '(' expr ')'
-// #var -> [a-zA-Z_]\w+
-
-void _expr(CC *cc, Prec prec);
-void _factor(CC *cc, Prec prec);
-void _term(CC *cc, Prec prec);
 
 // root -> expr
 //
@@ -152,5 +116,3 @@ void _factor(CC *cc, Prec prec) {
   _expr(cc, PREC_PAREN);
   expect(cc, TK_RPAREN);
 }
-
-#endif // HOLYC_SRC_PARSE
