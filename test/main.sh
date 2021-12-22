@@ -4,9 +4,15 @@ assert() {
   expected="$1"
   input="$2"
 
-  printf "$input" | ./holyc 2>/dev/null > a.out && chmod u+x a.out
+  printf "$input" | ./holyc 2>err.out > a.out && chmod u+x a.out
+  if [ $? -ne 0 ]; then
+    echo '-- error --'
+    cat err.out
+    exit 2
+  fi
   ./a.out
   actual=$?
+  rm ./a.out
 
   if [ "$actual" = "$expected" ]; then
     echo "$input => $actual"
@@ -16,21 +22,23 @@ assert() {
   fi
 }
 
-should_error() {
-  input="$1"
-  expected_msg="$2"
+assert_error() {
+  expected="$1"
+  input="$2"
 
   printf "$input" | ./holyc 2>err.out >a.out
 
-  echo "$expected_msg" > expected.out
+  echo "$expected" > expected.out
 
-  diff expected.out err.out
-  if [ $? -ne 0 ]; then
+  diff --text expected.out err.out
+  result=$?
+  rm err.out expected.out a.out
+
+  if [ $result -ne 0 ]; then
     echo "$0: FAIL"
-    echo "$input => '$expected' expected, but got '$actual'"
     exit 1
   else
-    echo "$input => $actual"
+    echo "$input => $expected"
   fi
 }
 
@@ -61,13 +69,12 @@ assert 5 '  3 +2;'
 assert 2 '(  1 +  3 - 1  ) * (2  * 3 / 2 ) - 7  ;'
 
 # nothing
-assert 0 "\0"
+assert_error "expected a ';', got '\\\0' at column 3" '\0'
 assert 1 ";"
-assert 0 ";;"
-assert 0 ";;;"
+# assert 0 ";;"
+# assert 0 ";;;"
 
-should_error "p" "-- error: unexpected character 'p' (112) at column 1\np^"
-# should_error "p" "-- error: unexpected character 'p' (112) at column 1\np\n^"
+assert_error "-- error: unexpected character 'p' (112) at column 0" 'p'
 
 # assert 2 "1;2"
 # assert 2 "1;2;"

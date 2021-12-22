@@ -7,7 +7,7 @@ void expect(CC *cc, TokenType t) {
           cc->token_table[cc->token][1], cc->input - cc->input_buf);
 }
 
-// root -> expr
+// root -> expr ';'
 //
 void _root(CC *cc) {
   if (cc->opts->debug_parser)

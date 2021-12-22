@@ -1,19 +1,5 @@
 #include <holyc/lex.h>
 
-void error_at(CC *cc) {
-  char c = *cc->input;
-  int  col = cc->input - cc->input_buf + 1;
-
-  warnf("-- error: unexpected character '%c' (%d) at column %d\n%s", c, c, col,
-        cc->input_buf);
-
-  for (char *c = cc->input_buf; c < cc->input; c++)
-    warnc(' ');
-  warnf("^\n");
-
-  exit(1);
-}
-
 void print_token(CC *cc) {
   char *tokname = cc->token_table[cc->token][0];
 
@@ -106,12 +92,13 @@ int Lex(CC *cc) {
       cc->token = TK_INT;
       goto ret;
     default:
-      error_at(cc);
+      error("-- error: unexpected character '%c' (%d) at column %d\n", *c, *c,
+            cc->input - cc->input_buf);
     }
   }
 
 ret:
-  print_token(cc);
+  // print_token(cc);
   return cc->token;
 }
 
