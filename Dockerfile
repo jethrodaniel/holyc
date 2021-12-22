@@ -1,5 +1,5 @@
 FROM alpine:3.14.0 AS build
-RUN apk add --no-cache make build-base nasm lldb
+RUN apk add --no-cache make build-base nasm lldb mandoc man-pages
 
 COPY . /app/holyc
 WORKDIR /app/holyc
@@ -10,4 +10,4 @@ WORKDIR /app/holyc
 # COPY --from=build /app/holyc/holyc /bin/holyc
 
 # CMD ["/bin/holyc"]
-CMD ["make"]
+# CMD ["make"]
