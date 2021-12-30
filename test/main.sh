@@ -12,10 +12,10 @@ assert() {
   fi
   ./a.out
   actual=$?
-  rm ./a.out
 
   if [ "$actual" = "$expected" ]; then
     echo "$input => $actual"
+    rm ./a.out
   else
     echo "$input => $expected expected, but got $actual"
     exit 1
@@ -32,13 +32,13 @@ assert_error() {
 
   diff --text expected.out err.out
   result=$?
-  rm err.out expected.out a.out
 
   if [ $result -ne 0 ]; then
     echo "$0: FAIL"
     exit 1
   else
     echo "$input => $expected"
+    rm err.out expected.out a.out
   fi
 }
 
