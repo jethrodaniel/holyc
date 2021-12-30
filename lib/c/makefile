@@ -40,7 +40,7 @@ test: $(TEST_BINS)
 	# ./test/bin/unistd
 
 $(SHARED_LIB): $(SRC_OBJS)
-	libtool -static -o $@ $^
+	ar rcs $@ $^
 	file $@
 
 clean:

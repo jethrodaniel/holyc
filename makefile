@@ -81,8 +81,8 @@ LIBC_FLAGS := -Llib/c -lc
 $(LIBC):
 	$(MAKE) -C lib/c
 
-$(PROG): $(OBJS)
-	$(CC) $(CFLAGS) $(LIBC_FLAGS) $^ -o $(PROG)
+$(PROG): $(OBJS) | $(LIBC)
+	$(CC) $(CFLAGS) $(LIBC_FLAGS) $^ $(LIBC) -o $(PROG)
 
 clean:
 	rm -f $(OBJS) $(PROG) *.out
