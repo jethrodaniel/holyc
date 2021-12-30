@@ -73,21 +73,25 @@ CFLAGS += -I . -I lib/c/include -I include
 
 default: clean $(PROG) test ctest
 
-SRCS = $(wildcard src/*.c lib/c/src/*.c)
-OBJS = $(SRCS:.c=.o)
+SRCS       := $(wildcard src/*.c)
+OBJS       := $(SRCS:.c=.o)
+LIBC       := lib/c/libc.a
+LIBC_FLAGS := -Llib/c -lc
+
+$(LIBC):
+	$(MAKE) -C lib/c
 
 $(PROG): $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $(PROG)
+	$(CC) $(CFLAGS) $(LIBC_FLAGS) $^ -o $(PROG)
 
 clean:
 	rm -f $(OBJS) $(PROG) *.out
+	$(MAKE) -C lib/c clean
 
 #--
-LIBC_OBJS := $(wildcard lib/c/*.o)
-LIBC_OBJS := $(filter-out src/main.o, $(OBJS))
 
-test.out: test/main.o $(LIBC_OBJS)
-	$(CC) $(CFLAGS) $^ -o $@
+test.out: test/main.o $(LIBC)
+	$(CC) $(CFLAGS) $(LIBC_FLAGS) $^ -o $@
 
 ctest: test.out
 	./$<
