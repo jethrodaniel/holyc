@@ -60,10 +60,10 @@ void _warnf_print_itoa(int n) {
 void dprintf(int fd, char *fmt, ...) {
   int64_t varg1 = 1, varg2 = 2, varg3 = 3, varg4 = 4;
 
-  __asm__("mov %rdx, 0x58(%rsp)"); // varg1
-  __asm__("mov %rcx, 0x50(%rsp)"); // varg2
-  __asm__("mov %r8,  0x48(%rsp)"); // varg3
-  __asm__("mov %r9,  0x40(%rsp)"); // varg4
+  __asm__("mov %%rdx,%0" : "=r"(varg1));
+  __asm__("mov %%rcx,%0" : "=r"(varg2));
+  __asm__("mov %%r8,%0" : "=r"(varg3));
+  __asm__("mov %%r9,%0" : "=r"(varg4));
 
   int64_t vargs[] = {varg1, varg2, varg3, varg4};
 

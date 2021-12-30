@@ -3,7 +3,7 @@ RUN apk add --no-cache make build-base nasm lldb mandoc man-pages
 
 COPY . /app/holyc
 WORKDIR /app/holyc
-# RUN make
+RUN make
 
 # # FROM scratch
 # FROM alpine:3.14.0

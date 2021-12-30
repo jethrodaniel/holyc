@@ -85,7 +85,7 @@ $(PROG): $(OBJS) | $(LIBC)
 	$(CC) $(CFLAGS) $(LIBC_FLAGS) $^ $(LIBC) -o $(PROG)
 
 clean:
-	rm -f $(OBJS) $(PROG) *.out
+	rm -f $(OBJS) $(PROG) *.out test/main.o
 	$(MAKE) -C lib/c clean
 
 #--
