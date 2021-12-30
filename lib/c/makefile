@@ -7,6 +7,8 @@ CFLAGS += -fPIC
 CFLAGS += -nostdlib -ffreestanding
 CFLAGS += -I include
 
+CFLAGS += -g -O0
+
 CFLAGS += -Wall
 CFLAGS += -Werror
 
