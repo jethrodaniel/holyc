@@ -10,6 +10,7 @@ endif
 
 LDFLAGS := -static
 LDFLAGS += -e _start
+LDFLAGS += -L ../lib/c -lc
 
 # CFLAGS := -g
 CFLAGS += -O0
@@ -21,7 +22,12 @@ CFLAGS += -Wno-return-type
 CFLAGS += -I ..
 CFLAGS += -mstack-alignment=4
 
-default: bin hello libc main test macho stdio.test clean
+LIBC   := lib/c/libc.a
+
+default: bin hello libc main test clean $(LIBC)
+
+$(LIBC):
+	$(MAKE) -C ../lib/c
 
 bin:
 	mkdir -p bin
@@ -37,20 +43,8 @@ libc: libc.s bin
 	./bin/$@
 
 main: main.c bin
-	cc -e _start $(CFLAGS) $< -o bin/$@
-	./bin/$@
-
-stdio.test: stdio.test.c bin
-	cc -e _start $(CFLAGS) $< -o bin/$@
-	./bin/$@
-
-fork: fork.c bin
-	cc -e _start $(CFLAGS) $< -o bin/$@
-	./bin/$@
-
-macho: macho.c bin
-	cc -e _start $(CFLAGS) $< -o bin/$@
-	./bin/$@ || true
+	cc -e _start $(CFLAGS) $(LDFLAGS) $< -o bin/$@
+	./bin/$@ || exit 0
 
 test: test.s bin
 	nasm -f bin $< -o bin/$@ && ndisasm -b64 bin/$@

@@ -26,7 +26,7 @@ SRC_OBJS   := $(SRCS:.c=.o)
 TESTS      := $(wildcard test/*.c)
 TEST_BINS  := $(patsubst test/%.c,test/bin/%,$(TESTS))
 
-default: lint $(SHARED_LIB) test
+default: $(SHARED_LIB)
 
 test/bin:
 	mkdir -p test/bin
