@@ -1,50 +1,50 @@
-PROG = holyc
-
-# CC := gcc
-#
 UNAME := $(shell uname)
 
 #--
 
-CFLAGS += -e _start
 CFLAGS += -static
-CFLAGS += -nostdlib
-CFLAGS += -ffreestanding
+CFLAGS += -fPIC
+CFLAGS += -nostdlib -ffreestanding
+CFLAGS += -I include
+
+CFLAGS += -Wall
+CFLAGS += -Werror
 
 ifeq ($(UNAME), Linux)
-  CFLAGS += -mincoming-stack-boundary=4
   CFLAGS += -fleading-underscore
 endif
 ifeq ($(UNAME), Darwin)
   CFLAGS += -fno-stack-protector
-  SO_FLAGES := -shared
-  SO_FLAGES += -L$(shell xcode-select -p)/SDKs/MacOSX.sdk/usr/lib -lSystem
 endif
-
-CFLAGS += -mno-red-zone
-CFLAGS += -fPIC
-CFLAGS += -undefined dynamic_lookup
-CFLAGS += -I include
-
-#-- warnings
-
-CFLAGS += -Wall
-CFLAGS += -Werror
-CFLAGS += -Wno-unused-command-line-argument
 
 #--
 
-default: lib-c.so
+SHARED_LIB := libc.a
+HEADERS    := $(wildcard include/*.h)
+SRCS       := $(wildcard src/*.c)
+SRC_OBJS   := $(SRCS:.c=.o)
+TESTS      := $(wildcard test/*.c)
+TEST_BINS  := $(patsubst test/%.c,test/bin/%,$(TESTS))
 
-SRCS = $(wildcard src/*.c)
-HEADERS = $(wildcard include/*.h)
-OBJS = $(SRCS:.c=.o)
+default: lint $(SHARED_LIB) test
 
-lib-c.so: $(OBJS)
-	$(CC) $(SO_FLAGES) $(CFLAGS) -o $@ $^
+test/bin:
+	mkdir -p test/bin
+
+test/bin/%: test/%.c $(SHARED_LIB) test/bin
+	$(CC) $(CFLAGS) -L. -lc -e _start -o $@ $<
+
+test: $(TEST_BINS)
+	./test/bin/crt0
+	./test/bin/stdio; code=$$?; [ $$code -eq 42 ] || echo "error -- should exit 42, got $$code";
+	# ./test/bin/unistd
+
+$(SHARED_LIB): $(SRC_OBJS)
+	libtool -static -o $@ $^
+	file $@
 
 clean:
-	rm -f $(OBJS) $(PROG) *.out *.so
+	rm -rf $(SRC_OBJS) $(TEST_BINS) $(SHARED_LIB) test/bin
 
-lint: $(SRCS) $(HEADERS)
+lint: $(SRCS) $(HEADERS) $(TESTS)
 	clang-format -i $^

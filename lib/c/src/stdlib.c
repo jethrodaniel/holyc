@@ -18,9 +18,9 @@ int atoi(char *str) {
   return n * sign;
 }
 
-long strtol(char *str, char **end, int base) {
-  int   n = 0, sign = 1;
-  char *c = str;
+long strtol(const char *str, char **end, int base) {
+  int         n = 0, sign = 1;
+  const char *c = str;
 
   if (*c == '-') {
     c++;
@@ -30,7 +30,7 @@ long strtol(char *str, char **end, int base) {
   for (; *c >= '0' && *c <= '9'; c++)
     n = n * 10 + *c - '0';
 
-  *end = c;
+  *end = (char *)c;
 
   return n * sign;
 }

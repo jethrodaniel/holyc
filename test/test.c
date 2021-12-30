@@ -3,14 +3,13 @@
 
 //--
 
-#include <crt0.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define TEST_NAME_MAX_LEN 64
-#define TEST_ERR_MAX_LEN 64
+#define TEST_ERR_MAX_LEN  64
 
 typedef void (*TestFn)();
 

@@ -19,7 +19,6 @@
 //
 //  and clobbers rcx, r11, and rax
 
-#include <crt0.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
