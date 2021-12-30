@@ -1,5 +1,5 @@
-FROM alpine:3.14.0 AS build
-RUN apk add --no-cache make build-base nasm lldb mandoc man-pages
+FROM ubuntu:20.04 AS build
+RUN apt-get update -y && apt-get install -y make nasm lldb mandoc build-essential
 
 COPY . /app/holyc
 WORKDIR /app/holyc
