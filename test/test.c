@@ -9,7 +9,6 @@
 #include <string.h>
 
 #define TEST_NAME_MAX_LEN 64
-#define TEST_MSG_MAX_LEN  64
 
 typedef void (*TestFn)();
 
@@ -18,7 +17,6 @@ typedef void (*TestFn)();
 typedef struct Test {
   TestFn fn;
   char   name[TEST_NAME_MAX_LEN];
-  char   msg[TEST_MSG_MAX_LEN];
   bool   passed;
 } Test;
 
@@ -32,7 +30,7 @@ typedef struct TestRunner {
 } T;
 
 void assert(Test *t, bool expr, char *msg) {
-  memcpy(t->msg, msg, strlen(msg));
+  printf("  %s  %s\n", expr ? "." : "x", msg);
   if (expr)
     return;
   t->passed = false;
@@ -61,8 +59,6 @@ bool run_test(T *t, int i) {
   printf("== RUN %s\n", test->name);
 
   test->fn(test);
-
-  printf("  %s  %s\n", test->passed ? "." : "x", test->msg);
 
   printf("-- %s: %s\n", test->passed ? "PASS" : "FAIL", test->name);
 

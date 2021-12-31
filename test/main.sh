@@ -71,13 +71,14 @@ assert 2 '(  1 +  3 - 1  ) * (2  * 3 / 2 ) - 7  ;'
 # nothing
 assert_error "expected a ';', got '\\\0' at column 3" '\0'
 assert 1 ";"
-# assert 0 ";;"
-# assert 0 ";;;"
+# assert_error "expected a '\\\0', got ';' at column 2" ';;'
+# assert_error "expected a '\\\0', got ';' at column 2" ';;;'
+# assert_error "expected a '\\\0', got ';' at column 2" ';;;;'
 
+# unexpected
 assert_error "-- error: unexpected character 'p' (112) at column 0" 'p'
 
-# assert 2 "1;2"
-# assert 2 "1;2;"
-# assert 4 "1;1;4;;;;;;"
+# multiple statements
+# assert 42 "40;2;"
 
 echo 'OK'
