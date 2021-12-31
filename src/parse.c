@@ -1,5 +1,9 @@
 #include <holyc/parse.h>
 
+// void accept(CC *cc, TokenType t) {
+//   Lex(cc);
+//   if (cc->token != t)
+
 void expect(CC *cc, TokenType t) {
   Lex(cc);
   if (cc->token != t)
