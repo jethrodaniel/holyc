@@ -4,6 +4,7 @@ assert() {
   expected="$1"
   input="$2"
 
+  echo "$input => $expected"
   printf "$input" | ./holyc 2>err.out > a.out && chmod u+x a.out
   if [ $? -ne 0 ]; then
     echo '-- error --'
@@ -14,10 +15,9 @@ assert() {
   actual=$?
 
   if [ "$actual" = "$expected" ]; then
-    echo "$input => $actual"
     rm ./a.out
   else
-    echo "$input => $expected expected, but got $actual"
+    echo "expected $expected, but got $actual"
     exit 1
   fi
 }
