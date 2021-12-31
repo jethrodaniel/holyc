@@ -77,6 +77,7 @@ SRCS       := $(wildcard src/*.c)
 OBJS       := $(SRCS:.c=.o)
 LIBC       := lib/c/libc.a
 LIBC_FLAGS := -Llib/c -lc
+TEST_MAIN  := ctest
 
 $(LIBC):
 	$(MAKE) -C lib/c
@@ -85,16 +86,14 @@ $(PROG): $(OBJS) | $(LIBC)
 	$(CC) $(CFLAGS) $(LIBC_FLAGS) $^ $(LIBC) -o $(PROG)
 
 clean:
-	rm -f $(OBJS) $(PROG) *.out test/main.o
+	rm -f $(OBJS) $(PROG) *.out test/*.o $(TEST_MAIN)
 	$(MAKE) -C lib/c clean
 
 #--
 
-test.out: test/main.o $(LIBC)
+$(TEST_MAIN): test/main.o $(filter-out src/main.o, $(OBJS)) $(LIBC) | test/main.c test/test.c
 	$(CC) $(CFLAGS) $(LIBC_FLAGS) $^ -o $@
-
-ctest: test.out
-	./$<
+	./$@
 
 test: FORCE
 	sh test/main.sh
