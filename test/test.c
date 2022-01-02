@@ -56,11 +56,9 @@ T *test_init(Test *tests, int num_tests, int argc, char **argv) {
 //
 bool run_test(T *t, int i) {
   Test *test = &t->tests[i];
-  printf("== RUN %s\n", test->name);
+  printf("-- %s\n", test->name);
 
   test->fn(test);
-
-  printf("-- %s: %s\n", test->passed ? "PASS" : "FAIL", test->name);
 
   return test->passed;
 }

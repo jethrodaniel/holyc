@@ -9,6 +9,7 @@
 void error_at(CC *cc);
 
 typedef enum {
+  // TK_ERROR,
   TK_EOF,
   TK_INT,
   TK_MIN,
