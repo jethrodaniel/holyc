@@ -1,11 +1,30 @@
 #!/bin/bash
 
+
+it_lexes() {
+  input="$1"
+  expected="$2"
+  printf "[lex] \"$input\""
+  printf "$input" | ./holyc --debug-lexer >/dev/null 2>actual.out
+  echo "$expected" > expected.out
+
+  diff --text expected.out actual.out
+  result=$?
+
+  if [ $result -ne 0 ]; then
+    echo "$0: FAIL"
+    exit 1
+  else
+    echo "\tok"
+    rm actual.out expected.out
+  fi
+}
 assert() {
   expected="$1"
   input="$2"
 
   echo "$input => $expected"
-  printf "$input" | ./holyc 2>err.out > a.out && chmod u+x a.out
+  printf "$input" | ./holyc --debug-parser --debug-lexer 2>err.out > a.out && chmod u+x a.out
   if [ $? -ne 0 ]; then
     echo '-- error --'
     cat err.out
@@ -43,6 +62,15 @@ assert_error() {
 }
 
 #--
+it_lexes "42;" \
+"Lex: [INT, '42']
+Lex: [SEMI, ';']
+Unlex
+Lex: [SEMI, ';']
+Unlex
+Lex: [SEMI, ';']
+Lex: [EOF, '\\\0']"
+
 
 # basics
 assert 0 '0;'
@@ -66,14 +94,14 @@ assert 2 '(1+3-1)*(2*3/2)-7;'
 
 # spacing
 assert 5 '  3 +2;'
-assert 2 '(  1 +  3 - 1  ) * (2  * 3 / 2 ) - 7  ;'
+assert 2 '(  1 +  3 - 1  ) * (2  * 3 / 2 ) - 7  ;\n'
 
 # nothing
 assert_error "expected a ';', got '\\\0' at column 3" '\0'
 assert 1 ";"
-# assert_error "expected a '\\\0', got ';' at column 2" ';;'
-# assert_error "expected a '\\\0', got ';' at column 2" ';;;'
-# assert_error "expected a '\\\0', got ';' at column 2" ';;;;'
+assert_error "expected a '\\\0', got ';' at column 2" ';;'
+assert_error "expected a '\\\0', got ';' at column 2" ';;;'
+assert_error "expected a '\\\0', got ';' at column 2" ';;;;'
 
 # unexpected
 assert_error "-- error: unexpected character 'p' (112) at column 0" 'p'

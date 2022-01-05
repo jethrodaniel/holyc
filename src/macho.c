@@ -3,9 +3,11 @@
 void write_macho(CC *cc) {
   int code_size = cc->code - cc->code_buf;
 
-  warn("Writing macho ...\n");
-  warnf("Writing %d bytes of machine code\n", code_size);
-  warnf("code_size: %i\n", code_size);
+  if (cc->opts->debug_obj) {
+    warn("Writing macho ...\n");
+    warnf("Writing %d bytes of machine code\n", code_size);
+    warnf("code_size: %i\n", code_size);
+  }
 
   mach_header_64 *h = malloc(sizeof(mach_header_64));
   h->magic = MH_MAGIC_64;

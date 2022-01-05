@@ -9,6 +9,7 @@ typedef struct CompilerOpts {
   bool output_asm;   // output asm, or binary?
   bool debug_obj;    // print verbose object file info
   bool debug_parser; // print verbose parser info
+  bool debug_lexer;
 } CompilerOpts;
 
 // Global compiler state.

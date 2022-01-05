@@ -29,6 +29,8 @@ static void parse_options(CC *cc) {
       cc->opts->debug_obj = true;
     else if (strcmp(arg, "--debug-parser") == 0)
       cc->opts->debug_parser = true;
+    else if (strcmp(arg, "--debug-lexer") == 0)
+      cc->opts->debug_lexer = true;
     else {
       warnf("unknown option '%s'\n", arg);
       exit(1);
