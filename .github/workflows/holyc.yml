@@ -1,0 +1,33 @@
+---
+name: holyc
+
+on: push
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: \[build\] lib/c
+        run: make -C lib/c
+
+      - name: \[test\] lib/c
+        run: make -C lib/c test
+
+
+      - name: \[build\] lib/testing
+        run: make -C lib/c
+
+      - name: \[test\] lib/testing
+        run: make -C lib/testing test
+
+
+      - name: \[build\] holyc
+        run: make holyc
+
+      - name: \[test\] holyc
+        run: make test

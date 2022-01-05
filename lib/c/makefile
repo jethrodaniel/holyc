@@ -26,6 +26,7 @@ HEADERS    := $(wildcard include/*.h)
 SRCS       := $(wildcard src/*.c)
 SRC_OBJS   := $(SRCS:.c=.o)
 TESTS      := $(wildcard test/*.c)
+TEST_OBJS  := $(TESTS:.c=.o)
 TEST_BINS  := $(patsubst test/%.c,test/bin/%,$(TESTS))
 
 default: $(SHARED_LIB)
@@ -33,8 +34,8 @@ default: $(SHARED_LIB)
 test/bin:
 	mkdir -p test/bin
 
-test/bin/%: test/%.c $(SHARED_LIB) test/bin
-	$(CC) $(CFLAGS) -L. -lc -e _start -o $@ $<
+test/bin/%: test/%.o $(SHARED_LIB) | test/bin
+	$(CC) $(CFLAGS) -L. -lc -e _start -o $@ $^
 
 test: $(TEST_BINS)
 	./test/bin/crt0
