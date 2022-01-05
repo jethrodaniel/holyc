@@ -1,33 +1,4 @@
-// Small test framework based on Go lang's `testing` pkg:
-// https://pkg.go.dev/testing
-
-//--
-
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define TEST_NAME_MAX_LEN 64
-
-typedef void (*TestFn)();
-
-// A single test.
-//
-typedef struct Test {
-  TestFn fn;
-  char   name[TEST_NAME_MAX_LEN];
-  bool   passed;
-} Test;
-
-// The test suite's context.
-//
-typedef struct TestRunner {
-  int    argc;      // argc from main()
-  char **argv;      // argv from main()
-  int    num_tests; // number of tests
-  Test   tests[];   // tests to run
-} T;
+#include <testing.h>
 
 void assert(Test *t, bool expr, char *msg) {
   printf("  %s  %s\n", expr ? "." : "x", msg);

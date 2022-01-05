@@ -1,6 +1,7 @@
-#include "test.c"
 #include <holyc/cc.h>
 #include <holyc/lex.h>
+
+#include <testing.h>
 
 typedef struct Token {
   int       line;

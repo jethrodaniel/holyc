@@ -12,6 +12,7 @@ void expect(CC *cc, TokenType t) {
 }
 
 // root -> expr ';'
+//       | 'if' '(' expr ')'
 //
 void _root(CC *cc) {
   if (cc->opts->debug_parser)

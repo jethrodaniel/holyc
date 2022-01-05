@@ -6,7 +6,7 @@ UNAME := $(shell uname)
 
 #--
 
-CFLAGS += -g
+# CFLAGS += -g
 
 # simple code output
 CFLAGS += -O0
@@ -77,11 +77,15 @@ SRCS       := $(wildcard src/*.c)
 OBJS       := $(SRCS:.c=.o)
 LIBC       := lib/c/libc.a
 LIBC_FLAGS := -Llib/c -lc
-TEST_MAIN  := ctest.out
-TESTS      := $(wildcard src/*.c)
+
+LIBTESTING       := lib/testing/libtesting.a
+LIBTESTING_FLAGS := -I lib/testing/include -Llib/testing -ltesting
+TEST_EXE         := ctest.out
 
 $(LIBC):
 	$(MAKE) -C lib/c
+$(LIBTESTING):
+	$(MAKE) -C lib/testing
 
 $(PROG): $(OBJS) | $(LIBC)
 	$(CC) $(CFLAGS) $(LIBC_FLAGS) $^ $(LIBC) -o $(PROG)
@@ -89,13 +93,14 @@ $(PROG): $(OBJS) | $(LIBC)
 clean:
 	rm -f $(OBJS) $(PROG) *.out test/*.o $(TEST_MAIN)
 	$(MAKE) -C lib/c clean
+	$(MAKE) -C lib/testing clean
 
 #--
 
-$(TEST_MAIN): test/main.o $(filter-out src/main.o, $(OBJS)) $(LIBC) | test/main.c test/test.c
-	$(CC) $(CFLAGS) $(LIBC_FLAGS) $^ -o $@
+$(TEST_EXE): test/main.c $(LIBC) $(LIBTESTING) $(filter-out src/main.o, $(OBJS))
+	$(CC) $(CFLAGS) $(LIBC_FLAGS) $(LIBTESTING_FLAGS) $^ -o $@
 
-ctest: $(TEST_MAIN)
+ctest: $(TEST_EXE)
 	./$<
 
 test: FORCE
