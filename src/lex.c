@@ -20,7 +20,7 @@ void print_token(CC *cc) {
 //
 int Lex(CC *cc) {
   if (cc->opts->debug_lexer)
-    warnf("Lex: ");
+    warnf("[lexer] Lex(): ");
 
   char *c = cc->input;
   int   n;
@@ -110,6 +110,6 @@ ret:
 //
 void Unlex(CC *cc) {
   if (cc->opts->debug_lexer)
-    warnf("Unlex\n");
+    warnf("[lexer] Unlex()\n");
   cc->input = cc->token_pos;
 }

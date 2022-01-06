@@ -63,13 +63,13 @@ assert_error() {
 
 #--
 it_lexes "42;" \
-"Lex: [INT, '42']
-Lex: [SEMI, ';']
-Unlex
-Lex: [SEMI, ';']
-Unlex
-Lex: [SEMI, ';']
-Lex: [EOF, '\\\0']"
+"[lexer] Lex(): [INT, '42']
+[lexer] Lex(): [SEMI, ';']
+[lexer] Unlex()
+[lexer] Lex(): [SEMI, ';']
+[lexer] Unlex()
+[lexer] Lex(): [SEMI, ';']
+[lexer] Lex(): [EOF, '\\\0']"
 
 
 # basics

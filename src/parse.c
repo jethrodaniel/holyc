@@ -16,7 +16,7 @@ void expect(CC *cc, TokenType t) {
 //
 void _root(CC *cc) {
   if (cc->opts->debug_parser)
-    warnf("%s\n", __func__);
+    warnf("[parser] %s()\n", __func__);
 
   emit_main_label(cc);
 
@@ -36,7 +36,7 @@ void _root(CC *cc) {
 //
 void _expr(CC *cc, Prec prec) {
   if (cc->opts->debug_parser)
-    warnf("%s: %d\n", __func__, prec);
+    warnf("[parser] %s(%d)\n", __func__, prec);
 
   int tok;
 
@@ -72,7 +72,7 @@ void _expr(CC *cc, Prec prec) {
 //
 void _term(CC *cc, Prec prec) {
   if (cc->opts->debug_parser)
-    warnf("%s: %d\n", __func__, prec);
+    warnf("[parser] %s(%d)\n", __func__, prec);
 
   int tok;
 
@@ -108,7 +108,7 @@ void _term(CC *cc, Prec prec) {
 //
 void _factor(CC *cc, Prec prec) {
   if (cc->opts->debug_parser)
-    warnf("%s: %d\n", __func__, prec);
+    warnf("[parser] %s(%d)\n", __func__, prec);
 
   Lex(cc);
   int tok = cc->token;
