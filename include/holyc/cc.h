@@ -63,15 +63,19 @@ typedef struct Token {
   int       col;
 } Token;
 
+typedef struct Parser {
+  Token current;
+} Parser;
+
 // Global compiler state.
 //
 typedef struct CC {
+  CompilerOpts *opts;
   MainArgs      main_args;
   Buffer        input;
   Buffer        code;
-  Token         curr_token;
-  CompilerOpts *opts;             // compiler options
-  char         *token_table[][2]; // token names
+  Parser        parser;
+  char         *token_table[][2];
 } CC;
 
 void debug(CC *cc);

@@ -62,14 +62,14 @@ assert_error() {
 }
 
 #--
-it_lexes "42;" \
-"[lexer] Lex(): [INT, '42']
-[lexer] Lex(): [SEMI, ';']
-[lexer] Unlex()
-[lexer] Lex(): [SEMI, ';']
-[lexer] Unlex()
-[lexer] Lex(): [SEMI, ';']
-[lexer] Lex(): [EOF, '\\\0']"
+# it_lexes "42;" \
+# "[lexer] Lex(): [INT, '42']
+# [lexer] Lex(): [SEMI, ';']
+# [lexer] Unlex()
+# [lexer] Lex(): [SEMI, ';']
+# [lexer] Unlex()
+# [lexer] Lex(): [SEMI, ';']
+# [lexer] Lex(): [EOF, '\\\0']"
 
 
 # basics

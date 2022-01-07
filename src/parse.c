@@ -2,13 +2,14 @@
 
 // void accept(CC *cc, TokenType t) {
 //   Lex(cc);
-//   if (cc->curr_token.type != t)
+//   if (cc->parser.current.type != t)
 
 void expect(CC *cc, TokenType t) {
   Lex(cc);
-  if (cc->curr_token.type != t)
+  if (cc->parser.current.type != t)
     error("expected a '%s', got '%s' at column %d\n", cc->token_table[t][1],
-          cc->token_table[cc->curr_token.type][1], cc->input.curr - cc->input.start);
+          cc->token_table[cc->parser.current.type][1],
+          cc->input.curr - cc->input.start);
 }
 
 // root -> expr ';'
@@ -19,8 +20,9 @@ void _root(CC *cc) {
     warnf("[parser] %s()\n", __func__);
 
   emit_main_label(cc);
+  // Lex(cc);
 
-  if (cc->curr_token.type != TK_EOF)
+  if (cc->parser.current.type != TK_EOF)
     return;
 
   _expr(cc, PREC_TOP);
@@ -44,9 +46,9 @@ void _expr(CC *cc, Prec prec) {
 
   while (true) {
     Lex(cc);
-    tok = cc->curr_token.type;
+    tok = cc->parser.current.type;
 
-    if (cc->curr_token.type == TK_EOF)
+    if (cc->parser.current.type == TK_EOF)
       return;
     if (tok != TK_MIN && tok != TK_PLUS)
       return Unlex(cc);
@@ -80,9 +82,9 @@ void _term(CC *cc, Prec prec) {
 
   while (true) {
     Lex(cc);
-    tok = cc->curr_token.type;
+    tok = cc->parser.current.type;
 
-    if (cc->curr_token.type == TK_EOF)
+    if (cc->parser.current.type == TK_EOF)
       return;
     if (tok != TK_MUL && tok != TK_DIV)
       return Unlex(cc);
@@ -111,12 +113,12 @@ void _factor(CC *cc, Prec prec) {
     warnf("[parser] %s(%d)\n", __func__, prec);
 
   Lex(cc);
-  int tok = cc->curr_token.type;
+  int tok = cc->parser.current.type;
 
   if (tok != TK_INT && tok != TK_LPAREN)
     return Unlex(cc);
   if (tok == TK_INT)
-    return emit_push(cc, cc->curr_token.value);
+    return emit_push(cc, cc->parser.current.value);
 
   _expr(cc, PREC_PAREN);
   expect(cc, TK_RPAREN);

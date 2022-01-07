@@ -7,16 +7,6 @@
 #include <holyc/codegen.h>
 #include <holyc/lex.h>
 
-typedef struct Parser {
-  char  *input;     // current location in the input
-  char  *input_buf; // input source code
-  int    line;      // 1-based line number
-  int    col;       // 1-based column number
-  Token *prev;
-  Token *curr;
-  Token *next;
-} Parser;
-
 // Operator precedence
 //
 typedef enum {

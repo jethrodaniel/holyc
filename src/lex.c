@@ -1,17 +1,17 @@
 #include <holyc/lex.h>
 
 void print_token(CC *cc) {
-  char *tokname = cc->token_table[cc->curr_token.type][0];
+  char *tokname = cc->token_table[cc->parser.current.type][0];
 
   if (!tokname)
-    error("%s: not sure how to print token %d\n", __func__, cc->curr_token.type);
+    error("%s: not sure how to print token %d\n", __func__, cc->parser.current.type);
 
   warnf("[%s, ", tokname);
 
-  if (cc->curr_token.type == TK_INT)
-    warnf("'%d'", cc->curr_token.value);
+  if (cc->parser.current.type == TK_INT)
+    warnf("'%d'", cc->parser.current.value);
   else
-    warnf("'%s'", cc->token_table[cc->curr_token.type][1]);
+    warnf("'%s'", cc->token_table[cc->parser.current.type][1]);
 
   warnf("]\n", tokname);
 }
@@ -32,44 +32,44 @@ int Lex(CC *cc) {
       c++;
       break;
     case '\0':
-      cc->curr_token.start = c;
+      cc->parser.current.start = c;
       cc->input.curr = ++c;
-      cc->curr_token.type = TK_EOF;
+      cc->parser.current.type = TK_EOF;
       goto ret;
     case ';':
-      cc->curr_token.start = c;
+      cc->parser.current.start = c;
       cc->input.curr = ++c;
-      cc->curr_token.type = TK_SEMI;
+      cc->parser.current.type = TK_SEMI;
       goto ret;
     case '+':
-      cc->curr_token.start = c;
+      cc->parser.current.start = c;
       cc->input.curr = ++c;
-      cc->curr_token.type = TK_PLUS;
+      cc->parser.current.type = TK_PLUS;
       goto ret;
     case '-':
-      cc->curr_token.start = c;
+      cc->parser.current.start = c;
       cc->input.curr = ++c;
-      cc->curr_token.type = TK_MIN;
+      cc->parser.current.type = TK_MIN;
       goto ret;
     case '*':
-      cc->curr_token.start = c;
+      cc->parser.current.start = c;
       cc->input.curr = ++c;
-      cc->curr_token.type = TK_MUL;
+      cc->parser.current.type = TK_MUL;
       goto ret;
     case '/':
-      cc->curr_token.start = c;
+      cc->parser.current.start = c;
       cc->input.curr = ++c;
-      cc->curr_token.type = TK_DIV;
+      cc->parser.current.type = TK_DIV;
       goto ret;
     case '(':
-      cc->curr_token.start = c;
+      cc->parser.current.start = c;
       cc->input.curr = ++c;
-      cc->curr_token.type = TK_LPAREN;
+      cc->parser.current.type = TK_LPAREN;
       goto ret;
     case ')':
-      cc->curr_token.start = c;
+      cc->parser.current.start = c;
       cc->input.curr = ++c;
-      cc->curr_token.type = TK_RPAREN;
+      cc->parser.current.type = TK_RPAREN;
       goto ret;
     case '0':
     case '1':
@@ -81,7 +81,7 @@ int Lex(CC *cc) {
     case '7':
     case '8':
     case '9':
-      cc->curr_token.start = c;
+      cc->parser.current.start = c;
 
       n = 0;
 
@@ -90,9 +90,9 @@ int Lex(CC *cc) {
         c++;
       } while (*c >= '0' && *c <= '9');
 
-      cc->curr_token.value = n;
+      cc->parser.current.value = n;
       cc->input.curr = c;
-      cc->curr_token.type = TK_INT;
+      cc->parser.current.type = TK_INT;
       goto ret;
     default:
       error("-- error: unexpected character '%c' (%d) at column %d\n", *c, *c,
@@ -103,7 +103,7 @@ int Lex(CC *cc) {
 ret:
   if (cc->opts->debug & DEBUG_LEX)
     print_token(cc);
-  return cc->curr_token.type;
+  return cc->parser.current.type;
 }
 
 // Unfetches next token. HACKY
@@ -111,5 +111,5 @@ ret:
 void Unlex(CC *cc) {
   if (cc->opts->debug & DEBUG_LEX)
     warnf("[lexer] Unlex()\n");
-  cc->input.curr = cc->curr_token.start;
+  cc->input.curr = cc->parser.current.start;
 }
