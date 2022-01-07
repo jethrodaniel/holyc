@@ -19,7 +19,7 @@ void print_token(CC *cc) {
 // Fetches next token.
 //
 int Lex(CC *cc) {
-  if (cc->opts->debug_lex)
+  if (cc->opts->debug & DEBUG_LEX)
     warnf("[lexer] Lex(): ");
 
   char *c = cc->input;
@@ -101,7 +101,7 @@ int Lex(CC *cc) {
   }
 
 ret:
-  if (cc->opts->debug_lex)
+  if (cc->opts->debug & DEBUG_LEX)
     print_token(cc);
   return cc->token;
 }
@@ -109,7 +109,7 @@ ret:
 // Unfetches next token. HACKY
 //
 void Unlex(CC *cc) {
-  if (cc->opts->debug_lex)
+  if (cc->opts->debug & DEBUG_LEX)
     warnf("[lexer] Unlex()\n");
   cc->input = cc->token_pos;
 }

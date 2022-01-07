@@ -5,7 +5,7 @@
 void write_macho(CC *cc) {
   int code_size = cc->code - cc->code_buf;
 
-  if (cc->opts->debug_obj) {
+  if (cc->opts->debug & DEBUG_OBJ) {
     warn("Writing macho ...\n");
     warnf("Writing %d bytes of machine code\n", code_size);
     warnf("code_size: %i\n", code_size);

@@ -28,11 +28,11 @@ typedef struct MainArgs {
   char **envp;
 } MainArgs;
 
+typedef int Flag;
+
 typedef struct CompilerOpts {
   bool output_asm;
-  bool debug_obj;
-  bool debug_parse;
-  bool debug_lex;
+  Flag debug;
 } CompilerOpts;
 
 // Global compiler state.

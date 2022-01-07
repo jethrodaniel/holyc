@@ -29,11 +29,11 @@ static void parse_options(CC *cc) {
     if (strcmp(arg, "-S") == 0)
       cc->opts->output_asm = true;
     else if (strcmp(arg, "--debug-obj") == 0)
-      cc->opts->debug_obj = true;
+      cc->opts->debug |= DEBUG_OBJ;
     else if (strcmp(arg, "--debug-parser") == 0)
-      cc->opts->debug_parse = true;
+      cc->opts->debug |= DEBUG_PARSE;
     else if (strcmp(arg, "--debug-lexer") == 0)
-      cc->opts->debug_lex = true;
+      cc->opts->debug |= DEBUG_LEX;
     else {
       warnf("unknown option '%s'\n", arg);
       exit(1);
