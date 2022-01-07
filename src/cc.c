@@ -31,9 +31,9 @@ static void parse_options(CC *cc) {
     else if (strcmp(arg, "--debug-obj") == 0)
       cc->opts->debug_obj = true;
     else if (strcmp(arg, "--debug-parser") == 0)
-      cc->opts->debug_parser = true;
+      cc->opts->debug_parse = true;
     else if (strcmp(arg, "--debug-lexer") == 0)
-      cc->opts->debug_lexer = true;
+      cc->opts->debug_lex = true;
     else {
       warnf("unknown option '%s'\n", arg);
       exit(1);

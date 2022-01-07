@@ -16,6 +16,12 @@
 //     parser
 //     compiler
 
+enum DebugFlags {
+  DEBUG_LEX = (1 << 0),
+  DEBUG_PARSE = (1 << 1),
+  DEBUG_OBJ = (1 << 2),
+};
+
 typedef struct MainArgs {
   int    argc;
   char **argv;
@@ -23,10 +29,10 @@ typedef struct MainArgs {
 } MainArgs;
 
 typedef struct CompilerOpts {
-  bool output_asm;   // output asm, or binary?
-  bool debug_obj;    // print verbose object file info
-  bool debug_parser; // print verbose parser info
-  bool debug_lexer;
+  bool output_asm;
+  bool debug_obj;
+  bool debug_parse;
+  bool debug_lex;
 } CompilerOpts;
 
 // Global compiler state.
