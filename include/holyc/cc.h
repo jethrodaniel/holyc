@@ -70,7 +70,7 @@ typedef struct CC {
   MainArgs      main_args;
   Buffer        input;
   Buffer        code;
-  Token         curr;
+  Token         curr_token;
   char         *token_pos;        // token start index
   int           token;            // token type
   int           int_val;          // if token is int

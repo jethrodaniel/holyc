@@ -10,7 +10,7 @@ void test_cc_setup(Test *t) {
   };
   CC *cc = cc_init(2, argv, argv, 1024);
 
-  assert(t, cc->curr.type == 0, "initial token should be EOF");
+  assert(t, cc->curr_token.type == 0, "initial token should be EOF");
 }
 
 void test_fail(Test *t) {
