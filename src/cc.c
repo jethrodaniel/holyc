@@ -8,7 +8,7 @@ void debug(CC *cc) {
   warnf("\tinput_buf: %s (%d)\n", cc->input.start, cc->input.start);
   warnf("\tinput_size: %d\n", cc->input.size);
   warnf("\tcode: %d\n", cc->code.curr);
-  warnf("\ttoken: %d | ", cc->token);
+  warnf("\ttoken: %d | ", cc->curr_token.type);
   warnf("==========\n");
 }
 

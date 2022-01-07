@@ -1,17 +1,17 @@
 #include <holyc/lex.h>
 
 void print_token(CC *cc) {
-  char *tokname = cc->token_table[cc->token][0];
+  char *tokname = cc->token_table[cc->curr_token.type][0];
 
   if (!tokname)
-    error("%s: not sure how to print token %d\n", __func__, cc->token);
+    error("%s: not sure how to print token %d\n", __func__, cc->curr_token.type);
 
   warnf("[%s, ", tokname);
 
-  if (cc->token == TK_INT)
+  if (cc->curr_token.type == TK_INT)
     warnf("'%d'", cc->int_val);
   else
-    warnf("'%s'", cc->token_table[cc->token][1]);
+    warnf("'%s'", cc->token_table[cc->curr_token.type][1]);
 
   warnf("]\n", tokname);
 }
@@ -32,44 +32,44 @@ int Lex(CC *cc) {
       c++;
       break;
     case '\0':
-      cc->token_pos = c;
+      cc->curr_token.start = c;
       cc->input.curr = ++c;
-      cc->token = TK_EOF;
+      cc->curr_token.type = TK_EOF;
       goto ret;
     case ';':
-      cc->token_pos = c;
+      cc->curr_token.start = c;
       cc->input.curr = ++c;
-      cc->token = TK_SEMI;
+      cc->curr_token.type = TK_SEMI;
       goto ret;
     case '+':
-      cc->token_pos = c;
+      cc->curr_token.start = c;
       cc->input.curr = ++c;
-      cc->token = TK_PLUS;
+      cc->curr_token.type = TK_PLUS;
       goto ret;
     case '-':
-      cc->token_pos = c;
+      cc->curr_token.start = c;
       cc->input.curr = ++c;
-      cc->token = TK_MIN;
+      cc->curr_token.type = TK_MIN;
       goto ret;
     case '*':
-      cc->token_pos = c;
+      cc->curr_token.start = c;
       cc->input.curr = ++c;
-      cc->token = TK_MUL;
+      cc->curr_token.type = TK_MUL;
       goto ret;
     case '/':
-      cc->token_pos = c;
+      cc->curr_token.start = c;
       cc->input.curr = ++c;
-      cc->token = TK_DIV;
+      cc->curr_token.type = TK_DIV;
       goto ret;
     case '(':
-      cc->token_pos = c;
+      cc->curr_token.start = c;
       cc->input.curr = ++c;
-      cc->token = TK_LPAREN;
+      cc->curr_token.type = TK_LPAREN;
       goto ret;
     case ')':
-      cc->token_pos = c;
+      cc->curr_token.start = c;
       cc->input.curr = ++c;
-      cc->token = TK_RPAREN;
+      cc->curr_token.type = TK_RPAREN;
       goto ret;
     case '0':
     case '1':
@@ -81,7 +81,7 @@ int Lex(CC *cc) {
     case '7':
     case '8':
     case '9':
-      cc->token_pos = c;
+      cc->curr_token.start = c;
 
       n = 0;
 
@@ -92,7 +92,7 @@ int Lex(CC *cc) {
 
       cc->int_val = n;
       cc->input.curr = c;
-      cc->token = TK_INT;
+      cc->curr_token.type = TK_INT;
       goto ret;
     default:
       error("-- error: unexpected character '%c' (%d) at column %d\n", *c, *c,
@@ -103,7 +103,7 @@ int Lex(CC *cc) {
 ret:
   if (cc->opts->debug & DEBUG_LEX)
     print_token(cc);
-  return cc->token;
+  return cc->curr_token.type;
 }
 
 // Unfetches next token. HACKY
@@ -111,5 +111,5 @@ ret:
 void Unlex(CC *cc) {
   if (cc->opts->debug & DEBUG_LEX)
     warnf("[lexer] Unlex()\n");
-  cc->input.curr = cc->token_pos;
+  cc->input.curr = cc->curr_token.start;
 }

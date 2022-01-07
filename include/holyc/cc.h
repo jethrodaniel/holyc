@@ -55,13 +55,12 @@ typedef enum {
 } TokenType;
 
 typedef struct Token {
+  TokenType type;
   char     *start;
   int       size;
   int       value;
-  TokenType type;
-
-  // int line;
-  // int col;
+  int       line;
+  int       col;
 } Token;
 
 // Global compiler state.

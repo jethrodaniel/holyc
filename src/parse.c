@@ -2,13 +2,13 @@
 
 // void accept(CC *cc, TokenType t) {
 //   Lex(cc);
-//   if (cc->token != t)
+//   if (cc->curr_token.type != t)
 
 void expect(CC *cc, TokenType t) {
   Lex(cc);
-  if (cc->token != t)
+  if (cc->curr_token.type != t)
     error("expected a '%s', got '%s' at column %d\n", cc->token_table[t][1],
-          cc->token_table[cc->token][1], cc->input.curr - cc->input.start);
+          cc->token_table[cc->curr_token.type][1], cc->input.curr - cc->input.start);
 }
 
 // root -> expr ';'
@@ -20,7 +20,7 @@ void _root(CC *cc) {
 
   emit_main_label(cc);
 
-  if (cc->token != TK_EOF)
+  if (cc->curr_token.type != TK_EOF)
     return;
 
   _expr(cc, PREC_TOP);
@@ -44,9 +44,9 @@ void _expr(CC *cc, Prec prec) {
 
   while (true) {
     Lex(cc);
-    tok = cc->token;
+    tok = cc->curr_token.type;
 
-    if (cc->token == TK_EOF)
+    if (cc->curr_token.type == TK_EOF)
       return;
     if (tok != TK_MIN && tok != TK_PLUS)
       return Unlex(cc);
@@ -80,9 +80,9 @@ void _term(CC *cc, Prec prec) {
 
   while (true) {
     Lex(cc);
-    tok = cc->token;
+    tok = cc->curr_token.type;
 
-    if (cc->token == TK_EOF)
+    if (cc->curr_token.type == TK_EOF)
       return;
     if (tok != TK_MUL && tok != TK_DIV)
       return Unlex(cc);
@@ -111,7 +111,7 @@ void _factor(CC *cc, Prec prec) {
     warnf("[parser] %s(%d)\n", __func__, prec);
 
   Lex(cc);
-  int tok = cc->token;
+  int tok = cc->curr_token.type;
 
   if (tok != TK_INT && tok != TK_LPAREN)
     return Unlex(cc);
