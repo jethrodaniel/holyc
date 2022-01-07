@@ -46,8 +46,7 @@ typedef struct Buffer {
 typedef struct CC {
   MainArgs      main_args;
   Buffer        input;
-  char         *code_buf;         // output code buffer
-  char         *code;             // curr position in code buffer
+  Buffer        code;
   char         *token_pos;        // token start index
   int           token;            // token type
   int           int_val;          // if token is int

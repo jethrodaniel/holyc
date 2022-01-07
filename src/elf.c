@@ -7,7 +7,7 @@
 void write_elf(CC *cc) {
   uint64_t elf_offset = 0;
   char    *elf_output;
-  int      code_size = cc->code - cc->code_buf;
+  int      code_size = cc->code.curr - cc->code.start;
 
   warn("Writing elf header...\n");
 
@@ -53,5 +53,5 @@ void write_elf(CC *cc) {
   memcpy(elf_output + sizeof(Elf64_Ehdr), p, sizeof(Elf64_Phdr));
 
   write(STDOUT_FILENO, elf_output, elf_offset);
-  write(STDOUT_FILENO, cc->code_buf, code_size);
+  write(STDOUT_FILENO, cc->code.start, code_size);
 }

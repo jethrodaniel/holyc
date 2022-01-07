@@ -3,7 +3,7 @@
 #include <holyc/mach-o.h>
 
 void write_macho(CC *cc) {
-  int code_size = cc->code - cc->code_buf;
+  int code_size = cc->code.curr - cc->code.start;
 
   if (cc->opts->debug & DEBUG_OBJ) {
     warn("Writing macho ...\n");
@@ -100,7 +100,7 @@ void write_macho(CC *cc) {
   int64_t *pad = malloc(padsize);
 
   int64_t *code = malloc(code_size);
-  memcpy(code, cc->code_buf, code_size);
+  memcpy(code, cc->code.start, code_size);
 
   int64_t actual_symtblsize = sizeof(nlist_64) * symtbl->nsyms;
 

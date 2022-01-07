@@ -7,7 +7,7 @@ void debug(CC *cc) {
   warnf("\n=== cc ===\n");
   warnf("\tinput_buf: %s (%d)\n", cc->input.start, cc->input.start);
   warnf("\tinput_size: %d\n", cc->input.size);
-  warnf("\tcode: %d\n", cc->code);
+  warnf("\tcode: %d\n", cc->code.curr);
   warnf("\ttoken: %d | ", cc->token);
   warnf("==========\n");
 }
@@ -48,8 +48,8 @@ CC *cc_init(int argc, char **argv, char **envp, int input_size) {
   cc->main_args.envp = envp;
   cc->input.start = malloc(sizeof(char) * input_size);
   cc->input.curr = cc->input.start;
-  cc->code_buf = malloc(sizeof(char) * input_size);
-  cc->code = cc->code_buf;
+  cc->code.start = malloc(sizeof(char) * input_size);
+  cc->code.curr = cc->code.start;
 
   CompilerOpts *opts = malloc(sizeof(CompilerOpts));
   cc->opts = opts;
