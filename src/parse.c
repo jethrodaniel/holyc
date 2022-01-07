@@ -116,7 +116,7 @@ void _factor(CC *cc, Prec prec) {
   if (tok != TK_INT && tok != TK_LPAREN)
     return Unlex(cc);
   if (tok == TK_INT)
-    return emit_push(cc, cc->int_val);
+    return emit_push(cc, cc->curr_token.value);
 
   _expr(cc, PREC_PAREN);
   expect(cc, TK_RPAREN);

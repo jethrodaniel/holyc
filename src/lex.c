@@ -9,7 +9,7 @@ void print_token(CC *cc) {
   warnf("[%s, ", tokname);
 
   if (cc->curr_token.type == TK_INT)
-    warnf("'%d'", cc->int_val);
+    warnf("'%d'", cc->curr_token.value);
   else
     warnf("'%s'", cc->token_table[cc->curr_token.type][1]);
 
@@ -90,7 +90,7 @@ int Lex(CC *cc) {
         c++;
       } while (*c >= '0' && *c <= '9');
 
-      cc->int_val = n;
+      cc->curr_token.value = n;
       cc->input.curr = c;
       cc->curr_token.type = TK_INT;
       goto ret;
