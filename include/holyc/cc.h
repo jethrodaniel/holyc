@@ -70,7 +70,6 @@ typedef struct CC {
   Buffer        input;
   Buffer        code;
   Token         curr_token;
-  int           int_val;          // if token is int
   CompilerOpts *opts;             // compiler options
   char         *token_table[][2]; // token names
 } CC;
