@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include <holyc/mach-o.h>
 
 void write_macho(CC *cc) {

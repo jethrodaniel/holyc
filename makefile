@@ -11,9 +11,6 @@ UNAME := $(shell uname)
 # simple code output
 CFLAGS += -O0
 
-# entry-point
-CFLAGS += -e _start
-
 # output standalone executable
 CFLAGS += -static
 
@@ -60,7 +57,7 @@ CFLAGS += -Wall
 CFLAGS += -Werror
 
 # clang yells at us for using `-e` with `-c`...
-CFLAGS += -Wno-unused-command-line-argument
+# CFLAGS += -Wno-unused-command-line-argument
 
 # .eh_frame stuff?, required by SysV
 # TODO: is this needed?
@@ -88,7 +85,7 @@ $(LIBTESTING):
 	$(MAKE) -C lib/testing
 
 $(PROG): $(OBJS) | $(LIBC)
-	$(CC) $(CFLAGS) $(LIBC_FLAGS) $^ $(LIBC) -o $(PROG)
+	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $^ $(LIBC) -o $(PROG)
 
 clean:
 	rm -f $(OBJS) $(PROG) *.out test/*.o $(TEST_MAIN)
@@ -98,7 +95,7 @@ clean:
 #--
 
 $(TEST_EXE): test/main.c $(LIBC) $(LIBTESTING) $(filter-out src/main.o, $(OBJS))
-	$(CC) $(CFLAGS) $(LIBC_FLAGS) $(LIBTESTING_FLAGS) $^ -o $@
+	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $(LIBTESTING_FLAGS) $^ -o $@
 
 ctest: $(TEST_EXE)
 	./$<

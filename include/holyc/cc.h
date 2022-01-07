@@ -2,8 +2,25 @@
 #define HOLYC_CC
 
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
+
+// headers:
+//   tokens
+//   parser
+//   codegen
+//   obj
+//   compiler
+// src:
+//   main
+//     setup
+//     tokens
+//     parser
+//     compiler
+
+typedef struct MainArgs {
+  int    argc;
+  char **argv;
+  char **envp;
+} MainArgs;
 
 typedef struct CompilerOpts {
   bool output_asm;   // output asm, or binary?
@@ -15,10 +32,7 @@ typedef struct CompilerOpts {
 // Global compiler state.
 //
 typedef struct CC {
-  // globals from main()
-  int           argc;
-  char        **argv;
-  char        **envp;
+  MainArgs      main_args;
   char         *input_buf;        // input source buffer
   char         *input;            // curr position in source buffer
   int           input_size;       // length of input

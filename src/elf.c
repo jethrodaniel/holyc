@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdint.h>
+
+#include <holyc/cc.h>
 #include <holyc/elf.h>
 
 void write_elf(CC *cc) {

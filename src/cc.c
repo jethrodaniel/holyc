@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <holyc/cc.h>
 
 void debug(CC *cc) {
@@ -17,8 +20,8 @@ void error(char *fmt, ...) {
 }
 
 static void parse_options(CC *cc) {
-  for (int i = 0; i < cc->argc; i++) {
-    char *arg = cc->argv[i];
+  for (int i = 0; i < cc->main_args.argc; i++) {
+    char *arg = cc->main_args.argv[i];
 
     if (*arg != '-')
       continue;
@@ -40,9 +43,9 @@ static void parse_options(CC *cc) {
 
 CC *cc_init(int argc, char **argv, char **envp, int input_size) {
   CC *cc = malloc(sizeof(CC));
-  cc->argc = argc;
-  cc->argv = argv;
-  cc->envp = envp;
+  cc->main_args.argc = argc;
+  cc->main_args.argv = argv;
+  cc->main_args.envp = envp;
   cc->input_buf = malloc(sizeof(char) * input_size);
   cc->input = cc->input_buf;
   cc->code_buf = malloc(sizeof(char) * input_size);

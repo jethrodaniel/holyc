@@ -1,11 +1,30 @@
 #ifndef HOLYC_SRC_PARSE
 #define HOLYC_SRC_PARSE
 
+#include <stdio.h>
+
 #include <holyc/cc.h>
 #include <holyc/codegen.h>
 #include <holyc/lex.h>
 
-#include <stdio.h>
+typedef struct Token {
+  int       line;
+  int       col;
+  TokenType type;
+  union {
+    int int_v;
+  } value;
+} Token;
+
+typedef struct Parser {
+  char  *input;     // current location in the input
+  char  *input_buf; // input source code
+  int    line;      // 1-based line number
+  int    col;       // 1-based column number
+  Token *prev;
+  Token *curr;
+  Token *next;
+} Parser;
 
 // Operator precedence
 //
