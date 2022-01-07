@@ -37,10 +37,10 @@
 int main(int argc, char **argv, char **envp) {
   CC *cc = cc_init(argc, argv, envp, INPUT_SIZE);
 
-  if ((cc->input_size = read(STDIN_FILENO, cc->input, INPUT_SIZE)) < 0)
+  if ((cc->input.size = read(STDIN_FILENO, cc->input.curr, INPUT_SIZE)) < 0)
     die("read");
 
-  // warnf("read %d bytes\n", cc->input_size);
+  // warnf("read %d bytes\n", cc->input.size);
 
   _root(cc);
   emit_start(cc);

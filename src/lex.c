@@ -22,7 +22,7 @@ int Lex(CC *cc) {
   if (cc->opts->debug & DEBUG_LEX)
     warnf("[lexer] Lex(): ");
 
-  char *c = cc->input;
+  char *c = cc->input.curr;
   int   n;
 
   while (true) {
@@ -33,42 +33,42 @@ int Lex(CC *cc) {
       break;
     case '\0':
       cc->token_pos = c;
-      cc->input = ++c;
+      cc->input.curr = ++c;
       cc->token = TK_EOF;
       goto ret;
     case ';':
       cc->token_pos = c;
-      cc->input = ++c;
+      cc->input.curr = ++c;
       cc->token = TK_SEMI;
       goto ret;
     case '+':
       cc->token_pos = c;
-      cc->input = ++c;
+      cc->input.curr = ++c;
       cc->token = TK_PLUS;
       goto ret;
     case '-':
       cc->token_pos = c;
-      cc->input = ++c;
+      cc->input.curr = ++c;
       cc->token = TK_MIN;
       goto ret;
     case '*':
       cc->token_pos = c;
-      cc->input = ++c;
+      cc->input.curr = ++c;
       cc->token = TK_MUL;
       goto ret;
     case '/':
       cc->token_pos = c;
-      cc->input = ++c;
+      cc->input.curr = ++c;
       cc->token = TK_DIV;
       goto ret;
     case '(':
       cc->token_pos = c;
-      cc->input = ++c;
+      cc->input.curr = ++c;
       cc->token = TK_LPAREN;
       goto ret;
     case ')':
       cc->token_pos = c;
-      cc->input = ++c;
+      cc->input.curr = ++c;
       cc->token = TK_RPAREN;
       goto ret;
     case '0':
@@ -91,12 +91,12 @@ int Lex(CC *cc) {
       } while (*c >= '0' && *c <= '9');
 
       cc->int_val = n;
-      cc->input = c;
+      cc->input.curr = c;
       cc->token = TK_INT;
       goto ret;
     default:
       error("-- error: unexpected character '%c' (%d) at column %d\n", *c, *c,
-            cc->input - cc->input_buf);
+            cc->input.curr - cc->input.start);
     }
   }
 
@@ -111,5 +111,5 @@ ret:
 void Unlex(CC *cc) {
   if (cc->opts->debug & DEBUG_LEX)
     warnf("[lexer] Unlex()\n");
-  cc->input = cc->token_pos;
+  cc->input.curr = cc->token_pos;
 }

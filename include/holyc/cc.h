@@ -35,13 +35,22 @@ typedef struct CompilerOpts {
   Flag debug;
 } CompilerOpts;
 
+typedef struct Input {
+  char *start;
+  char *curr;
+  int   size;
+} Input;
+
+typedef struct Output {
+  char *start;
+  char *curr;
+  int   size;
+} Input;
+
 // Global compiler state.
 //
 typedef struct CC {
   MainArgs      main_args;
-  char         *input_buf;        // input source buffer
-  char         *input;            // curr position in source buffer
-  int           input_size;       // length of input
   char         *code_buf;         // output code buffer
   char         *code;             // curr position in code buffer
   char         *token_pos;        // token start index

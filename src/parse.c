@@ -8,7 +8,7 @@ void expect(CC *cc, TokenType t) {
   Lex(cc);
   if (cc->token != t)
     error("expected a '%s', got '%s' at column %d\n", cc->token_table[t][1],
-          cc->token_table[cc->token][1], cc->input - cc->input_buf);
+          cc->token_table[cc->token][1], cc->input.curr - cc->input.start);
 }
 
 // root -> expr ';'
