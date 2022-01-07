@@ -41,12 +41,36 @@ typedef struct Buffer {
   int   size;
 } Buffer;
 
+typedef enum {
+  // TK_ERROR,
+  TK_EOF,
+  TK_INT,
+  TK_MIN,
+  TK_PLUS,
+  TK_DIV,
+  TK_MUL,
+  TK_LPAREN,
+  TK_RPAREN,
+  TK_SEMI,
+} TokenType;
+
+typedef struct Token {
+  char     *start;
+  int       size;
+  int       value;
+  TokenType type;
+
+  // int line;
+  // int col;
+} Token;
+
 // Global compiler state.
 //
 typedef struct CC {
   MainArgs      main_args;
   Buffer        input;
   Buffer        code;
+  Token         curr;
   char         *token_pos;        // token start index
   int           token;            // token type
   int           int_val;          // if token is int

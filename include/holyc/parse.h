@@ -7,15 +7,6 @@
 #include <holyc/codegen.h>
 #include <holyc/lex.h>
 
-typedef struct Token {
-  int       line;
-  int       col;
-  TokenType type;
-  union {
-    int int_v;
-  } value;
-} Token;
-
 typedef struct Parser {
   char  *input;     // current location in the input
   char  *input_buf; // input source code
