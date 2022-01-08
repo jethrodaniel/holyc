@@ -20,12 +20,9 @@ void _root(CC *cc) {
     warnf("[parser] %s()\n", __func__);
 
   emit_main_label(cc);
-  // Lex(cc);
+  Lex(cc);
 
-  if (cc->parser.current.type != TK_EOF)
-    return;
-
-  _expr(cc, PREC_TOP);
+  _factor(cc, PREC_TOP);
   expect(cc, TK_SEMI);
 
   expect(cc, TK_EOF);
@@ -112,11 +109,10 @@ void _factor(CC *cc, Prec prec) {
   if (cc->opts->debug & DEBUG_PARSE)
     warnf("[parser] %s(%d)\n", __func__, prec);
 
-  Lex(cc);
   int tok = cc->parser.current.type;
 
-  if (tok != TK_INT && tok != TK_LPAREN)
-    return Unlex(cc);
+  // if (tok != TK_INT && tok != TK_LPAREN)
+  // return Unlex(cc);
   if (tok == TK_INT)
     return emit_push(cc, cc->parser.current.value);
 

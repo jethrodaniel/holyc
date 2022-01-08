@@ -6,7 +6,7 @@ UNAME := $(shell uname)
 
 #--
 
-# CFLAGS += -g
+CFLAGS += -g
 
 # simple code output
 CFLAGS += -O0

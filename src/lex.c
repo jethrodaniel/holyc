@@ -4,7 +4,8 @@ void print_token(CC *cc) {
   char *tokname = cc->token_table[cc->parser.current.type][0];
 
   if (!tokname)
-    error("%s: not sure how to print token %d\n", __func__, cc->parser.current.type);
+    error("%s: not sure how to print token %d\n", __func__,
+          cc->parser.current.type);
 
   warnf("[%s, ", tokname);
 
@@ -103,6 +104,7 @@ int Lex(CC *cc) {
 ret:
   if (cc->opts->debug & DEBUG_LEX)
     print_token(cc);
+  cc->parser.current.size = c - cc->parser.current.start;
   return cc->parser.current.type;
 }
 
