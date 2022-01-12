@@ -95,8 +95,9 @@ clean:
 #--
 test/bin:
 	mkdir -p $@
-test/bin/lex: test/lex.c $(filter-out src/main.o, $(OBJS)) | test/bin
+test/bin/lex: test/lex.o src/lex.o $(LIBC) | test/bin
 	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $^ -o $@
+	./$@
 
 $(TEST_EXE): test/main.c $(LIBC) $(LIBTESTING) $(filter-out src/main.o, $(OBJS))
 	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $(LIBTESTING_FLAGS) $^ -o $@

@@ -1,27 +1,48 @@
 #include <holyc/lex.h>
 
-#define LEX_NUM_TOKENS 9
+#include <stdio.h>
+#include <stdlib.h>
 
-// {"NAME", "LITERAL"}
-typedef char *TokenTable[LEX_NUM_TOKENS][2];
+void lex_error(char *fmt, ...) {
+  __asm__("call _warnf");
+  exit(1);
+}
 
-typedef struct Lexer {
-  int         line;
-  int         col;
-  Buffer      input;
-  Token       current;
-  TokenTable *token_table;
-} Lexer;
+Lexer *lex_new(char *input, int size) {
+  Lexer *lex = malloc(sizeof(Lexer));
 
-Token lex_next_token(Lexer *lex) {
-  return lex->current;
+  lex->line = 1;
+  lex->col = 1;
+  lex->input.start = input;
+  lex->input.curr = input;
+  lex->input.size = size;
+
+  TokenTable token_table = {
+      {"UNINITIALIZED", "???"},
+      {"EOF",           "\\0"},
+      {"INT",           ""   },
+      {"MIN",           "-"  },
+      {"PLUS",          "+"  },
+      {"DIV",           "/"  },
+      {"MUL",           "*"  },
+      {"LPAREN",        "("  },
+      {"RPAREN",        ")"  },
+      {"SEMI",          ";"  },
+  };
+
+  for (int i = 0; i < (sizeof(token_table) / 16); i++) {
+    lex->token_table[i][0] = token_table[i][0];
+    lex->token_table[i][1] = token_table[i][1];
+  }
+
+  return lex;
 }
 
 void lex_print_token(Lexer *lex, Token tok) {
-  char *tokname = lex->token_table[tok.type][0][0];
+  char *tokname = lex->token_table[tok.type][0];
 
   if (!tokname)
-    error("%s: not sure how to print token %d\n", __func__, tok.type);
+    lex_error("%s: not sure how to print token %d\n", __func__, tok.type);
 
   warnf("[%d:%d][%s, ", tok.line + 1, tok.col + 1, tokname);
 
@@ -33,92 +54,77 @@ void lex_print_token(Lexer *lex, Token tok) {
   warnf("]\n", tokname);
 }
 
-//
-
-void print_token(CC *cc) {
-  Token t = cc->parser.current;
-
-  char *tokname = cc->token_table[t.type][0];
-
-  if (!tokname)
-    error("%s: not sure how to print token %d\n", __func__, t.type);
-
-  warnf("[%d:%d][%s, ", t.line + 1, t.col + 1, tokname);
-
-  if (t.type == TK_INT)
-    warnf("'%d'", t.value);
-  else
-    warnf("'%s'", cc->token_table[t.type][1]);
-
-  warnf("]\n", tokname);
+bool lex_is_eof(Lexer *lex) {
+  return lex->current.type == TK_EOF;
 }
 
-void lexer_init(CC *cc) {
-  Lex(cc);
-  cc->parser.previous = cc->parser.current;
-}
+// char *lex_next_char(Lexer *lex) {
+//   char *c = lex.input.curr++;
 
-// Fetches next token.
-//
-int Lex(CC *cc) {
-  if (cc->opts->debug & DEBUG_LEX)
-    warnf("[lexer] Lex(): ");
+//   if (c == '\n') {
+//     lex->line++;
+//     lex->col = 1;
+//   } else
+//     lex->col++;
 
-  char *c = cc->input.curr;
+//   return c;
+// }
+
+Token lex_next_token(Lexer *lex) {
+  // if (lex_is_eof(lex))
+  // return lex->current;
+
+  char *c = lex->input.curr;
   int   n;
 
   while (true) {
+    // printf("c: '%s'\n", c);
     switch (*c) {
     case '\n':
-      c++;
-      cc->parser.line++;
-      cc->parser.col = 0;
-      break;
+      // lex->
     case ' ':
       c++;
-      cc->parser.line++;
       break;
     case '\0':
-      cc->parser.current.start = c;
-      cc->input.curr = c;
-      cc->input.curr++;
-      cc->parser.current.type = TK_EOF;
+      lex->current.start = c;
+      lex->current.type = TK_EOF;
+      lex->input.curr = ++c;
       goto ret;
     case ';':
-      cc->parser.current.start = c;
-      cc->input.curr = ++c;
-      cc->parser.current.type = TK_SEMI;
+      lex->current.start = c;
+      lex->current.type = TK_SEMI;
+      lex->input.curr = ++c;
       goto ret;
-    case '+':
-      cc->parser.current.start = c;
-      cc->input.curr = ++c;
-      cc->parser.current.type = TK_PLUS;
-      goto ret;
-    case '-':
-      cc->parser.current.start = c;
-      cc->input.curr = ++c;
-      cc->parser.current.type = TK_MIN;
-      goto ret;
-    case '*':
-      cc->parser.current.start = c;
-      cc->input.curr = ++c;
-      cc->parser.current.type = TK_MUL;
-      goto ret;
-    case '/':
-      cc->parser.current.start = c;
-      cc->input.curr = ++c;
-      cc->parser.current.type = TK_DIV;
-      goto ret;
-    case '(':
-      cc->parser.current.start = c;
-      cc->input.curr = ++c;
-      cc->parser.current.type = TK_LPAREN;
-      goto ret;
-    case ')':
-      cc->parser.current.start = c;
-      cc->input.curr = ++c;
-      cc->parser.current.type = TK_RPAREN;
-      goto ret;
+    // case '+':
+    //   cc->parser.current.start = c;
+    //   cc->input.curr = ++c;
+    //   cc->parser.current.type = TK_PLUS;
+    //   goto ret;
+    // case '-':
+    //   cc->parser.current.start = c;
+    //   cc->input.curr = ++c;
+    //   cc->parser.current.type = TK_MIN;
+    //   goto ret;
+    // case '*':
+    //   cc->parser.current.start = c;
+    //   cc->input.curr = ++c;
+    //   cc->parser.current.type = TK_MUL;
+    //   goto ret;
+    // case '/':
+    //   cc->parser.current.start = c;
+    //   cc->input.curr = ++c;
+    //   cc->parser.current.type = TK_DIV;
+    //   goto ret;
+    // case '(':
+    //   cc->parser.current.start = c;
+    //   cc->input.curr = ++c;
+    //   cc->parser.current.type = TK_LPAREN;
+    //   goto ret;
+    // case ')':
+    //   cc->parser.current.start = c;
+    //   cc->input.curr = ++c;
+    //   cc->parser.current.type = TK_RPAREN;
+    //   goto ret;
     case '0':
     case '1':
     case '2':
@@ -129,7 +135,7 @@ int Lex(CC *cc) {
     case '7':
     case '8':
     case '9':
-      cc->parser.current.start = c;
+      lex->current.start = c;
 
       n = 0;
 
@@ -138,33 +144,27 @@ int Lex(CC *cc) {
         c++;
       } while (*c >= '0' && *c <= '9');
 
-      cc->parser.current.value = n;
-      cc->input.curr = c;
-      cc->parser.current.type = TK_INT;
+      lex->current.value = n;
+      lex->current.type = TK_INT;
+      lex->input.curr = c;
       goto ret;
     default:
-      error("-- error: unexpected character '%c' (%d) at column %d\n", *c, *c,
-            cc->input.curr - cc->input.start);
+      lex_error("-- error: unexpected character '%c' (%d) at column %d\n", *c,
+                *c, lex->col); // todo: col, lin
     }
   }
-
 ret:
-  cc->parser.current.size = c - cc->parser.current.start;
-  cc->parser.col += cc->parser.current.size;
+  // if (cc->opts->debug & DEBUG_LEX)
+  //   print_token(cc);
+  lex->current.size = c - lex->current.start;
 
-  cc->parser.current.line = cc->parser.line;
-  cc->parser.current.col = cc->parser.col - cc->parser.current.size;
-
-  if (cc->opts->debug & DEBUG_LEX)
-    print_token(cc);
-
-  return cc->parser.current.type;
+  return lex->current;
 }
 
-// Unfetches next token. HACKY
-//
-void Unlex(CC *cc) {
-  if (cc->opts->debug & DEBUG_LEX)
-    warnf("[lexer] Unlex()\n");
-  cc->input.curr = cc->parser.current.start;
-}
+//// Unfetches next token. HACKY
+////
+// void Unlex(CC *cc) {
+//   if (cc->opts->debug & DEBUG_LEX)
+//     warnf("[lexer] Unlex()\n");
+//   cc->input.curr = cc->parser.current.start;
+// }

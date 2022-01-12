@@ -1,25 +1,33 @@
 #include <holyc/lex.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void lex(char *input) {
+  printf("'%s'\n", input);
+
+  Lexer *lex = lex_new(input, strlen(input));
+
+  Token tok;
+
+  while (!lex_is_eof(lex)) {
+    tok = lex_next_token(lex);
+    lex_print_token(lex, tok);
+  }
+
+  printf("\n");
+}
+
 int main(int argc, char **argv) {
-  Lexer *lex = malloc(sizeof(Lexer));
-  lex->token_table = {
-      {"EOF",    "\\0"},
-      {"INT",    ""   },
-      {"MIN",    "-"  },
-      {"PLUS",   "+"  },
-      {"DIV",    "/"  },
-      {"MUL",    "*"  },
-      {"LPAREN", "("  },
-      {"RPAREN", ")"  },
-      {"SEMI",   ";"  },
-  };
+  printf("== lexer tests ===\n\n");
 
-  lex->line = 1;
-  lex->col = 1;
-  lex->input.start = "123;";
+  lex(";");
+  lex("   ");
+  lex("1");
+  lex("123;");
 
-  Token tok = lex_next_token(lex);
-  (void)tok;
+  printf("OK\n");
 
-  lex_print_token(lex, tok);
+  return 0;
 }

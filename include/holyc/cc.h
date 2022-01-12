@@ -35,11 +35,7 @@ typedef struct CompilerOpts {
   Flag debug;
 } CompilerOpts;
 
-typedef struct Buffer {
-  char *start;
-  char *curr;
-  int   size;
-} Buffer;
+#include <holyc/buffer.h>
 
 typedef enum {
   // TK_ERROR,
