@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# echo docker run $@ && echo $@
+make docker && docker run -it --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined holyc $@

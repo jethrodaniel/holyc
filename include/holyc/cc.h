@@ -66,7 +66,6 @@ typedef struct Token {
 typedef struct Parser {
   Token current;
   Token previous;
-  Token next;
   int   line;
   int   col;
 } Parser;

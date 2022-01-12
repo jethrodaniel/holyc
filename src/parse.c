@@ -4,12 +4,24 @@
 //   Lex(cc);
 //   if (cc->parser.current.type != t)
 
+bool consume(CC *cc, TokenType tokens[]) {
+  int tok = Lex(cc);
+
+  for (TokenType t = tokens[0]; true; t++)
+    if (tok == t)
+      return true;
+
+  error("expected a '%s', got '%s' at column %d\n", cc->token_table[tok][1],
+        cc->token_table[cc->parser.current.type][1],
+        cc->parser.current.start - cc->input.start);
+}
+
 void expect(CC *cc, TokenType t) {
   Lex(cc);
   if (cc->parser.current.type != t)
     error("expected a '%s', got '%s' at column %d\n", cc->token_table[t][1],
           cc->token_table[cc->parser.current.type][1],
-          cc->input.curr - cc->input.start);
+          cc->parser.current.start - cc->input.start);
 }
 
 // root -> expr ';'
@@ -20,9 +32,8 @@ void _root(CC *cc) {
     warnf("[parser] %s()\n", __func__);
 
   emit_main_label(cc);
-  Lex(cc);
 
-  _factor(cc, PREC_TOP);
+  _expr(cc, PREC_TOP);
   expect(cc, TK_SEMI);
 
   expect(cc, TK_EOF);
@@ -73,22 +84,32 @@ void _term(CC *cc, Prec prec) {
   if (cc->opts->debug & DEBUG_PARSE)
     warnf("[parser] %s(%d)\n", __func__, prec);
 
-  int tok;
-
   _factor(cc, prec);
 
-  while (true) {
-    Lex(cc);
-    tok = cc->parser.current.type;
+  // if (cc->parser.current.type != TK_MUL) {
+  //   print_token(cc);
+  //   printf("shit\n");
+  //   Unlex(cc);
+  //   return;
+  // }
 
-    if (cc->parser.current.type == TK_EOF)
-      return;
+  // expect(cc, TK_MUL);
+
+  while (true) {
+    int tok = Lex(cc);
+    // if (cc->parser.current.type == TK_EOF)
+    //   return;
     if (tok != TK_MUL && tok != TK_DIV)
       return Unlex(cc);
+
+    // // if (tok != TK_MUL || tok != TK_DIV)
+    // TokenType tokens[] = {TK_MUL, TK_DIV};
+    // consume(cc, tokens);
+
     if (prec <= PREC_MUL)
       return Unlex(cc);
 
-    _expr(cc, PREC_MUL);
+    _factor(cc, PREC_MUL);
     emit_pop_rdi(cc);
     emit_pop_rax(cc);
 
@@ -109,11 +130,11 @@ void _factor(CC *cc, Prec prec) {
   if (cc->opts->debug & DEBUG_PARSE)
     warnf("[parser] %s(%d)\n", __func__, prec);
 
-  int tok = cc->parser.current.type;
+  Lex(cc);
 
-  // if (tok != TK_INT && tok != TK_LPAREN)
-  // return Unlex(cc);
-  if (tok == TK_INT)
+  if (cc->parser.current.type != TK_INT && cc->parser.current.type != TK_LPAREN)
+    return Unlex(cc);
+  if (cc->parser.current.type == TK_INT)
     return emit_push(cc, cc->parser.current.value);
 
   _expr(cc, PREC_PAREN);
