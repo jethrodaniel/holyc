@@ -3,9 +3,7 @@
 
 #include <stdio.h>
 
-#include <holyc/cc.h>
-#include <holyc/codegen.h>
-#include <holyc/lex.h>
+#include <holyc/_parse.h>
 
 // Operator precedence
 //
@@ -15,6 +13,8 @@ typedef enum {
   PREC_PAREN,
   PREC_TOP,
 } Prec;
+
+#include <holyc/cc.h>
 
 // Get next token, error if it's not what we expect.
 //

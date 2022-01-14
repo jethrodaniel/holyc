@@ -37,8 +37,8 @@
 int main(int argc, char **argv, char **envp) {
   CC *cc = cc_init(argc, argv, envp, INPUT_SIZE);
 
-  if ((cc->input.size = read(STDIN_FILENO, cc->input.curr, INPUT_SIZE)) < 0)
-    die("read");
+  if (cc_read(cc, STDIN_FILENO, INPUT_SIZE) < 0)
+    die("cc_read");
 
   // warnf("read %d bytes\n", cc->input.size);
 

@@ -98,6 +98,10 @@ test/bin:
 test/bin/lex: test/lex.o src/lex.o $(LIBC) | test/bin
 	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $^ -o $@
 	./$@
+test/bin/parse: test/parse.o src/parse.o $(LIBC) | test/bin
+	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $^ -o $@
+	./$@
+
 
 $(TEST_EXE): test/main.c $(LIBC) $(LIBTESTING) $(filter-out src/main.o, $(OBJS))
 	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $(LIBTESTING_FLAGS) $^ -o $@
@@ -105,7 +109,7 @@ $(TEST_EXE): test/main.c $(LIBC) $(LIBTESTING) $(filter-out src/main.o, $(OBJS))
 ctest: $(TEST_EXE)
 	./$<
 
-test: FORCE
+test: test/bin/lex FORCE
 	sh test/main.sh
 FORCE:
 

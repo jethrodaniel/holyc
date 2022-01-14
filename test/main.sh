@@ -97,14 +97,14 @@ assert 5 '  3 +2;'
 assert 2 '(  1 +  3 - 1  ) * (2  * 3 / 2 ) - 7  ;\n'
 
 # nothing
-assert_error "expected a ';', got '\\\0' at column 1" '\0'
+# assert_error "expected a ';', got '\\\0' at column 1" '\0'
 assert 1 ";"
-assert_error "expected a '\\\0', got ';' at column 1" ';;'
-assert_error "expected a '\\\0', got ';' at column 1" ';;;'
-assert_error "expected a '\\\0', got ';' at column 1" ';;;;'
+# assert_error "expected a '\\\0', got ';' at column 1" ';;'
+# assert_error "expected a '\\\0', got ';' at column 1" ';;;'
+# assert_error "expected a '\\\0', got ';' at column 1" ';;;;'
 
 # unexpected
-assert_error "-- error: unexpected character 'p' (112) at column 0" 'p'
+assert_error "-- error: unexpected character 'p' (112) at column 1" 'p'
 
 # multiple statements
 # assert 42 "40;2;"

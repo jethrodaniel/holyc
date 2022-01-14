@@ -8,9 +8,7 @@ void lex_error(char *fmt, ...) {
   exit(1);
 }
 
-Lexer *lex_new(char *input, int size) {
-  Lexer *lex = malloc(sizeof(Lexer));
-
+Lexer *lex_new(Lexer *lex, char *input, int size) {
   lex->line        = 1;
   lex->col         = 1;
   lex->input.start = input;
@@ -135,10 +133,9 @@ Token lex_next_token(Lexer *lex) {
   return lex->current;
 }
 
-//// Unfetches next token. HACKY
-////
-// void Unlex(CC *cc) {
-//   if (cc->opts->debug & DEBUG_LEX)
-//     warnf("[lexer] Unlex()\n");
-//   cc->input.curr = cc->parser.current.start;
-// }
+void lex_backup(Lexer *lex) {
+  // if (cc->opts->debug & DEBUG_LEX)
+  //   warnf("[lexer] lex_backup()\n");
+  lex->input.curr = lex->current.start;
+  lex->current.col -= lex->current.size;
+}

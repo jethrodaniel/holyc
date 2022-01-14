@@ -7,7 +7,6 @@
 
 typedef enum {
   TK_UNINITIALIZED,
-  // TK_ERROR,
   TK_EOF,
   TK_INT,
   TK_MIN,
@@ -44,9 +43,10 @@ typedef struct Lexer {
 
 Token lex_next_token(Lexer *lex);
 
-Lexer *lex_new(char *input, int size);
+Lexer *lex_new(Lexer *lex, char *input, int size);
 
 bool lex_is_eof(Lexer *lex);
 void lex_print_token(Lexer *lex, Token tok);
+void lex_backup(Lexer *lex);
 
 #endif // HOLYC_LEX

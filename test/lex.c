@@ -7,7 +7,8 @@
 void lex(char *input) {
   printf("'%s'\n", input);
 
-  Lexer *lex = lex_new(input, strlen(input));
+  Lexer *lex = malloc(sizeof(Lexer));
+  lex_new(lex, input, strlen(input));
 
   Token tok;
 
