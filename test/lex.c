@@ -22,12 +22,18 @@ void lex(char *input) {
 int main(int argc, char **argv) {
   printf("== lexer tests ===\n\n");
 
+  lex("");
   lex(";");
+  lex("+");
+  lex("-");
+  lex("*");
+  lex("/");
+  lex("(");
+  lex(")");
   lex("   ");
+  lex(" \n ");
   lex("1");
-  lex("123;");
-
-  printf("OK\n");
+  lex("123\n45;");
 
   return 0;
 }

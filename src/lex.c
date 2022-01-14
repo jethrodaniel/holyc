@@ -11,11 +11,11 @@ void lex_error(char *fmt, ...) {
 Lexer *lex_new(char *input, int size) {
   Lexer *lex = malloc(sizeof(Lexer));
 
-  lex->line = 1;
-  lex->col = 1;
+  lex->line        = 1;
+  lex->col         = 1;
   lex->input.start = input;
-  lex->input.curr = input;
-  lex->input.size = size;
+  lex->input.curr  = input;
+  lex->input.size  = size;
 
   TokenTable token_table = {
       {"UNINITIALIZED", "???"},
@@ -44,7 +44,7 @@ void lex_print_token(Lexer *lex, Token tok) {
   if (!tokname)
     lex_error("%s: not sure how to print token %d\n", __func__, tok.type);
 
-  warnf("[%d:%d][%s, ", tok.line + 1, tok.col + 1, tokname);
+  warnf("[%d:%d-%d][%s, ", tok.line, tok.col, tok.col + tok.size, tokname);
 
   if (tok.type == TK_INT)
     warnf("'%d'", tok.value);
@@ -58,73 +58,53 @@ bool lex_is_eof(Lexer *lex) {
   return lex->current.type == TK_EOF;
 }
 
-// char *lex_next_char(Lexer *lex) {
-//   char *c = lex.input.curr++;
+Token lex_make_token(Lexer *lex, TokenType type, char *start, int size,
+                     TokenValue value) {
+  lex->current.type  = type;
+  lex->current.start = start;
+  lex->current.line  = lex->line;
+  lex->current.col   = lex->col;
+  lex->current.value = value;
+  lex->current.size  = size;
 
-//   if (c == '\n') {
-//     lex->line++;
-//     lex->col = 1;
-//   } else
-//     lex->col++;
+  lex->col += size;
+  lex->input.curr = start + size;
 
-//   return c;
-// }
+  return lex->current;
+}
 
 Token lex_next_token(Lexer *lex) {
-  // if (lex_is_eof(lex))
-  // return lex->current;
-
-  char *c = lex->input.curr;
+  char *c     = lex->input.curr;
+  char *start = c;
   int   n;
 
   while (true) {
-    // printf("c: '%s'\n", c);
     switch (*c) {
     case '\n':
-      // lex->
+      c++;
+      lex->line++;
+      lex->col = 1;
+      break;
     case ' ':
       c++;
+      lex->col++;
       break;
     case '\0':
-      lex->current.start = c;
-      lex->current.type = TK_EOF;
-      lex->input.curr = ++c;
-      goto ret;
+      return lex_make_token(lex, TK_EOF, c, 1, 0);
     case ';':
-      lex->current.start = c;
-      lex->current.type = TK_SEMI;
-      lex->input.curr = ++c;
-      goto ret;
-    // case '+':
-    //   cc->parser.current.start = c;
-    //   cc->input.curr = ++c;
-    //   cc->parser.current.type = TK_PLUS;
-    //   goto ret;
-    // case '-':
-    //   cc->parser.current.start = c;
-    //   cc->input.curr = ++c;
-    //   cc->parser.current.type = TK_MIN;
-    //   goto ret;
-    // case '*':
-    //   cc->parser.current.start = c;
-    //   cc->input.curr = ++c;
-    //   cc->parser.current.type = TK_MUL;
-    //   goto ret;
-    // case '/':
-    //   cc->parser.current.start = c;
-    //   cc->input.curr = ++c;
-    //   cc->parser.current.type = TK_DIV;
-    //   goto ret;
-    // case '(':
-    //   cc->parser.current.start = c;
-    //   cc->input.curr = ++c;
-    //   cc->parser.current.type = TK_LPAREN;
-    //   goto ret;
-    // case ')':
-    //   cc->parser.current.start = c;
-    //   cc->input.curr = ++c;
-    //   cc->parser.current.type = TK_RPAREN;
-    //   goto ret;
+      return lex_make_token(lex, TK_SEMI, c, 1, 0);
+    case '+':
+      return lex_make_token(lex, TK_PLUS, c, 1, 0);
+    case '-':
+      return lex_make_token(lex, TK_MIN, c, 1, 0);
+    case '*':
+      return lex_make_token(lex, TK_MUL, c, 1, 0);
+    case '/':
+      return lex_make_token(lex, TK_DIV, c, 1, 0);
+    case '(':
+      return lex_make_token(lex, TK_LPAREN, c, 1, 0);
+    case ')':
+      return lex_make_token(lex, TK_RPAREN, c, 1, 0);
     case '0':
     case '1':
     case '2':
@@ -135,8 +115,6 @@ Token lex_next_token(Lexer *lex) {
     case '7':
     case '8':
     case '9':
-      lex->current.start = c;
-
       n = 0;
 
       do {
@@ -144,16 +122,12 @@ Token lex_next_token(Lexer *lex) {
         c++;
       } while (*c >= '0' && *c <= '9');
 
-      lex->current.value = n;
-      lex->current.type = TK_INT;
-      lex->input.curr = c;
-      goto ret;
+      return lex_make_token(lex, TK_INT, start, c - start, n);
     default:
       lex_error("-- error: unexpected character '%c' (%d) at column %d\n", *c,
                 *c, lex->col); // todo: col, lin
     }
   }
-ret:
   // if (cc->opts->debug & DEBUG_LEX)
   //   print_token(cc);
   lex->current.size = c - lex->current.start;

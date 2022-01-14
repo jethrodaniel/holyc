@@ -1,8 +1,9 @@
 ---
 Language:     Cpp
 
-PointerAlignment: Right
-AllowShortFunctionsOnASingleLine: false
+AlignArrayOfStructures: Left
+AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
 AlignConsecutiveMacros: true
-AlignArrayOfStructures: Left
+AllowShortFunctionsOnASingleLine: false
+PointerAlignment: Right
