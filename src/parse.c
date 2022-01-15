@@ -3,6 +3,11 @@
 #include <holyc/codegen.h>
 #include <holyc/parse.h>
 
+Parser *parse_new(Parser *parser, char *input, int size) {
+  lex_new(&parser->lexer, input, size);
+
+  return parser;
+}
 // bool consume(CC *cc, TokenType tokens[]) {
 //   Token tok = lex_next_token(cc->parser.lexer);
 

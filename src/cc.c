@@ -56,7 +56,7 @@ CC *cc_init(int argc, char **argv, char **envp, int input_size) {
   parse_options(cc);
 
   char *input = malloc(sizeof(char) * input_size);
-  lex_new(&cc->parser.lexer, input, input_size);
+  parse_new(&cc->parser, input, input_size);
 
   return cc;
 }

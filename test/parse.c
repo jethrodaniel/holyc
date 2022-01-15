@@ -7,7 +7,9 @@
 void parse(char *input) {
   printf("'%s'\n", input);
 
-  Parser *parser = parse_new(input, strlen(input));
+  Parser *parser = malloc(sizeof(Parser));
+  parse_new(parser, input, strlen(input));
+  // AstNode node = parser_parse();
 
   // Token tok;
 
