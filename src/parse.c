@@ -43,7 +43,7 @@ static void parse_expect(Parser *parser, TokenType type) {
 //         | '(' expr ')'
 //         #| var
 //
-static AstNode parse_parse_factor(Parser *parser, AstNode *node, Prec prec) {
+static AstNode *parse_parse_factor(Parser *parser, AstNode *node, Prec prec) {
   // Token tok = lex_next_token(&parser->lexer);
 
   parse_expect(parser, TK_INT);
@@ -52,7 +52,7 @@ static AstNode parse_parse_factor(Parser *parser, AstNode *node, Prec prec) {
   //               parser->lexer.token_table[TK_INT][0],
   //               parser->lexer.token_table[tok.type][0], tok.line, tok.col);
 
-  return *ast_new(node, parser->lexer.current.value);
+  return ast_new(node, parser->lexer.current.value);
   // if (tok.type == TK_INT)
   //   return emit_push(cc, tok.value);
 
@@ -64,7 +64,7 @@ static AstNode parse_parse_factor(Parser *parser, AstNode *node, Prec prec) {
 //       | factor '/' factor
 //       | factor
 //
-static AstNode parse_parse_term(Parser *parser, AstNode *node, Prec prec) {
+static AstNode *parse_parse_term(Parser *parser, AstNode *node, Prec prec) {
   // AstNode factor = parse_parse_factor(parser, node,j
   // Token tok = lex_next_token(&parser->lexer);
 
@@ -81,26 +81,38 @@ static AstNode parse_parse_term(Parser *parser, AstNode *node, Prec prec) {
 //       | term '-' expr
 //       | term
 //
-static AstNode parse_parse_expr(Parser *parser, AstNode *node, Prec prec) {
+static AstNode *parse_parse_expr(Parser *parser, AstNode *node, Prec prec) {
+  // Token tok = parser->lexer.current;
+
+  // if (tok.type != TK_PLUS &&)
+  //   return node;
+
+  // AstNode *expr = parse_parse_expr(parser, node, PREC_TOP);
+
+  // parse_expect(parser, TK_SEMI);
+  // parse_expect(parser, TK_EOF);
+
   return parse_parse_term(parser, node, prec);
 }
 
 // root -> expr ';'
 //       | 'if' '(' expr ')'
 //
-static AstNode parse_parse_root(Parser *parser, AstNode *node) {
+static AstNode *parse_parse_root(Parser *parser, AstNode *node) {
   Token tok = parser->lexer.current;
 
   if (tok.type == TK_SEMI)
-    return *node;
+    return node;
 
-  AstNode expr = parse_parse_expr(parser, node, PREC_TOP);
-  // expect(parser, TK_SEMI);
-  // expect(cc, TK_EOF);
+  AstNode *expr = parse_parse_expr(parser, node, PREC_TOP);
+
+  parse_expect(parser, TK_SEMI);
+  parse_expect(parser, TK_EOF);
+
   return expr;
 }
 
-AstNode parse_parse(Parser *parser, AstNode *node) {
+AstNode *parse_parse(Parser *parser, AstNode *node) {
   return parse_parse_root(parser, node);
 }
 
