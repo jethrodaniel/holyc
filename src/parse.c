@@ -4,6 +4,13 @@
 #include <holyc/codegen.h>
 #include <holyc/parse.h>
 
+#include <stdio.h>
+
+void parse_error(char *fmt, ...) {
+  __asm__("call _warnf");
+  exit(1);
+}
+
 Parser *parse_new(Parser *parser, char *input, int size) {
   lex_new(&parser->lexer, input, size);
 
@@ -23,9 +30,86 @@ void parse_print_node(Parser *parser, AstNode *node) {
   printf("(%s, %d)", node_name, node->value);
 }
 
-void parse_parse(Parser *parser, AstNode *node) {
-  ast_new(node, 4);
+static void parse_expect(Parser *parser, TokenType type) {
+  Token tok = lex_next_token(&parser->lexer);
+
+  if (tok.type != type)
+    parse_error("error - expected a %s, got %s at line %d, column %d\n",
+                parser->lexer.token_table[type][0],
+                parser->lexer.token_table[tok.type][0], tok.line, tok.col);
 }
+
+// factor -> num
+//         | '(' expr ')'
+//         #| var
+//
+static AstNode parse_parse_factor(Parser *parser, AstNode *node, Prec prec) {
+  // Token tok = lex_next_token(&parser->lexer);
+
+  parse_expect(parser, TK_INT);
+  // if (tok.type != TK_INT)
+  //   parse_error("error - expected a %s, got %s at line %d, column %d\n",
+  //               parser->lexer.token_table[TK_INT][0],
+  //               parser->lexer.token_table[tok.type][0], tok.line, tok.col);
+
+  return *ast_new(node, parser->lexer.current.value);
+  // if (tok.type == TK_INT)
+  //   return emit_push(cc, tok.value);
+
+  // _expr(cc, PREC_PAREN);
+  // expect(cc, TK_RPAREN);
+}
+
+// term -> factor '*' factor
+//       | factor '/' factor
+//       | factor
+//
+static AstNode parse_parse_term(Parser *parser, AstNode *node, Prec prec) {
+  // AstNode factor = parse_parse_factor(parser, node,j
+  // Token tok = lex_next_token(&parser->lexer);
+
+  // parse_expect(parser, TK_INT);
+  // if (tok.type != TK_INT)
+  //   parse_error("error - expected a %s, got %s at line %d, column %d\n",
+  //               parser->lexer.token_table[TK_INT][0],
+  //               parser->lexer.token_table[tok.type][0], tok.line, tok.col);
+
+  return parse_parse_factor(parser, node, prec);
+}
+
+// expr -> term '+' expr
+//       | term '-' expr
+//       | term
+//
+static AstNode parse_parse_expr(Parser *parser, AstNode *node, Prec prec) {
+  return parse_parse_term(parser, node, prec);
+}
+
+// root -> expr ';'
+//       | 'if' '(' expr ')'
+//
+static AstNode parse_parse_root(Parser *parser, AstNode *node) {
+  Token tok = parser->lexer.current;
+
+  if (tok.type == TK_SEMI)
+    return *node;
+
+  AstNode expr = parse_parse_expr(parser, node, PREC_TOP);
+  // expect(parser, TK_SEMI);
+  // expect(cc, TK_EOF);
+  return expr;
+}
+
+AstNode parse_parse(Parser *parser, AstNode *node) {
+  return parse_parse_root(parser, node);
+}
+
+// AstBinOp#accept(AstBinOp *self, Visitor *visitor)
+//   self->lhs->accept(self->lhs, visitor);
+//   self->rhs->accept(self->rhs, visitor);
+//   return visitor->visit(visitor, AST_BIN_OP, self);
+//
+// Visitor#visit(Visitor *visitor, AstType, *node)
 
 // bool consume(CC *cc, TokenType tokens[]) {
 //   Token tok = lex_next_token(cc->parser.lexer);

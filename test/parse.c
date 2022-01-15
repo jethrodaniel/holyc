@@ -15,13 +15,15 @@ void parse(char *input) {
   parse_parse(parser, node);
   parse_print_node(parser, node);
 
-  printf("\n");
+  printf("\n\n");
 }
 
 int main(int argc, char **argv) {
   printf("== parser tests ===\n\n");
 
   parse("42;");
+  parse("1 + 2;");
+  parse(";");
 
   return 0;
 }
