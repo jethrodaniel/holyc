@@ -98,7 +98,7 @@ test/bin:
 test/bin/lex: test/lex.o src/lex.o $(LIBC) | test/bin
 	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $^ -o $@
 	./$@
-test/bin/parse: test/parse.o src/parse.o $(LIBC) | test/bin
+test/bin/parse: test/parse.o $(filter-out src/main.o, $(OBJS)) $(LIBC) | test/bin
 	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $^ -o $@
 	./$@
 

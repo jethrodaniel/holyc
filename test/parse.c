@@ -1,3 +1,4 @@
+#include <holyc/ast.h>
 #include <holyc/parse.h>
 
 #include <stdio.h>
@@ -9,14 +10,10 @@ void parse(char *input) {
 
   Parser *parser = malloc(sizeof(Parser));
   parse_new(parser, input, strlen(input));
-  // AstNode node = parser_parse();
 
-  // Token tok;
-
-  // while (!lex_is_eof(lex)) {
-  //   tok = lex_next_token(lex);
-  //   lex_print_token(lex, tok);
-  // }
+  AstNode *node = malloc(sizeof(AstNode));
+  parse_parse(node);
+  parse_print_node(node);
 
   printf("\n");
 }

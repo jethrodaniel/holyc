@@ -1,5 +1,6 @@
 // #include <holyc/cc.h>
 #include <holyc/_parse.h>
+#include <holyc/ast.h>
 #include <holyc/codegen.h>
 #include <holyc/parse.h>
 
@@ -8,6 +9,15 @@ Parser *parse_new(Parser *parser, char *input, int size) {
 
   return parser;
 }
+
+void parse_parse(AstNode *node) {
+  ast_new(node, 4);
+}
+
+void parse_print_node(AstNode *node) {
+  printf("(, %d)", node->value);
+}
+
 // bool consume(CC *cc, TokenType tokens[]) {
 //   Token tok = lex_next_token(cc->parser.lexer);
 
