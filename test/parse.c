@@ -12,8 +12,8 @@ void parse(char *input) {
   parse_new(parser, input, strlen(input));
 
   AstNode *node = malloc(sizeof(AstNode));
-  parse_parse(node);
-  parse_print_node(node);
+  parse_parse(parser, node);
+  parse_print_node(parser, node);
 
   printf("\n");
 }

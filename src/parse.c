@@ -7,15 +7,24 @@
 Parser *parse_new(Parser *parser, char *input, int size) {
   lex_new(&parser->lexer, input, size);
 
+  NodeNameTable node_name_table = {
+      "UNINITIALIZED",
+      "INT",
+  };
+
+  for (int i = 0; i < (sizeof(node_name_table) / sizeof(char *)); i++)
+    parser->node_name_table[i] = node_name_table[i];
+
   return parser;
 }
 
-void parse_parse(AstNode *node) {
-  ast_new(node, 4);
+void parse_print_node(Parser *parser, AstNode *node) {
+  char *node_name = parser->node_name_table[node->type];
+  printf("(%s, %d)", node_name, node->value);
 }
 
-void parse_print_node(AstNode *node) {
-  printf("(, %d)", node->value);
+void parse_parse(Parser *parser, AstNode *node) {
+  ast_new(node, 4);
 }
 
 // bool consume(CC *cc, TokenType tokens[]) {
