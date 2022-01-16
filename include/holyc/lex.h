@@ -37,6 +37,7 @@ typedef struct Lexer {
   int        line;
   int        col;
   Buffer     input;
+  Token      previous;
   Token      current;
   TokenTable token_table;
 } Lexer;

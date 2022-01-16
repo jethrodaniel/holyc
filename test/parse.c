@@ -11,11 +11,11 @@ void parse(char *input) {
   Parser *parser = malloc(sizeof(Parser));
   parse_new(parser, input, strlen(input));
 
-  AstNode *node = malloc(sizeof(AstNode));
-  parse_parse(parser, node);
+  AstNode *node = parse_parse(parser);
+
   parse_print_node(parser, node);
 
-  printf("\n\n");
+  printf("\n");
 }
 
 int main(int argc, char **argv) {
@@ -23,6 +23,8 @@ int main(int argc, char **argv) {
 
   parse("42;");
   parse("1 + 2;");
+  parse("1 - 2;");
+  parse("1 + 2 - 3;");
   parse(";");
 
   return 0;

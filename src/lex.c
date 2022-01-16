@@ -58,6 +58,13 @@ bool lex_is_eof(Lexer *lex) {
 
 Token lex_make_token(Lexer *lex, TokenType type, char *start, int size,
                      TokenValue value) {
+  lex->previous.type  = lex->current.type;
+  lex->previous.start = lex->current.start;
+  lex->previous.line  = lex->current.line;
+  lex->previous.col   = lex->current.col;
+  lex->previous.value = lex->current.value;
+  lex->previous.size  = lex->current.size;
+
   lex->current.type  = type;
   lex->current.start = start;
   lex->current.line  = lex->line;
@@ -128,7 +135,6 @@ Token lex_next_token(Lexer *lex) {
   }
   // if (cc->opts->debug & DEBUG_LEX)
   //   print_token(cc);
-  lex->current.size = c - lex->current.start;
 
   return lex->current;
 }

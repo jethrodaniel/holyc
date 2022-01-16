@@ -17,6 +17,8 @@ Parser *parse_new(Parser *parser, char *input, int size) {
   NodeNameTable node_name_table = {
       "UNINITIALIZED",
       "INT",
+      "+",
+      "-",
   };
 
   for (int i = 0; i < (sizeof(node_name_table) / sizeof(char *)); i++)
@@ -25,95 +27,138 @@ Parser *parse_new(Parser *parser, char *input, int size) {
   return parser;
 }
 
-void parse_print_node(Parser *parser, AstNode *node) {
+void _parse_print_node(Parser *parser, AstNode *node, int indent) {
   char *node_name = parser->node_name_table[node->type];
-  printf("(%s, %d)", node_name, node->value);
+
+  for (int i = 0; i < indent; i++)
+    putc(' ');
+
+  switch (node->type) {
+  case NODE_UNINITIALIZED:
+    break;
+  case NODE_INT:
+    printf("(%s, %d)\n", node_name, node->value);
+    break;
+  case NODE_BINOP_PLUS:
+  case NODE_BINOP_MIN:
+    printf("(%s,\n", node_name);
+    _parse_print_node(parser, node->left, indent + 2);
+    _parse_print_node(parser, node->right, indent + 2);
+    break;
+  default: {
+  }
+  }
 }
 
-static void parse_expect(Parser *parser, TokenType type) {
-  Token tok = lex_next_token(&parser->lexer);
+void parse_print_node(Parser *parser, AstNode *node) {
+  return _parse_print_node(parser, node, 0);
+}
 
-  if (tok.type != type)
-    parse_error("error - expected a %s, got %s at line %d, column %d\n",
-                parser->lexer.token_table[type][0],
-                parser->lexer.token_table[tok.type][0], tok.line, tok.col);
+static bool parse_match(Parser *parser, TokenType type) {
+  return parser->lexer.current.type == type;
+}
+
+// static bool parse_accept(Parser *parser, TokenType types[]) {
+//   for (int i = 0; i < sizeof(types) / sizeof(TokenType); i++)
+//     if (parser->lexer.current.type == types[i]) {
+//       lex_next_token(&parser->lexer);
+//       return parser->lexer.previous;
+//     }
+//   return false;
+// }
+
+static bool parse_accept(Parser *parser, TokenType type) {
+  if (parse_match(parser, type)) {
+    lex_next_token(&parser->lexer);
+    return true;
+  }
+
+  return false;
+}
+
+static void parse_consume(Parser *parser, TokenType type) {
+  if (parse_accept(parser, type))
+    return;
+
+  Token tok = parser->lexer.current;
+  parse_error("error - expected a %s, got %s at line %d, column %d\n",
+              parser->lexer.token_table[type][0],
+              parser->lexer.token_table[tok.type][0], tok.line, tok.col);
 }
 
 // factor -> num
 //         | '(' expr ')'
 //         #| var
 //
-static AstNode *parse_parse_factor(Parser *parser, AstNode *node, Prec prec) {
-  // Token tok = lex_next_token(&parser->lexer);
+static AstNode *parse_parse_factor(Parser *parser, Prec prec) {
+  parse_consume(parser, TK_INT);
 
-  parse_expect(parser, TK_INT);
-  // if (tok.type != TK_INT)
-  //   parse_error("error - expected a %s, got %s at line %d, column %d\n",
-  //               parser->lexer.token_table[TK_INT][0],
-  //               parser->lexer.token_table[tok.type][0], tok.line, tok.col);
+  AstNode *node = malloc(sizeof(AstNode));
 
-  return ast_new(node, parser->lexer.current.value);
-  // if (tok.type == TK_INT)
-  //   return emit_push(cc, tok.value);
-
-  // _expr(cc, PREC_PAREN);
-  // expect(cc, TK_RPAREN);
+  return ast_new(node, NODE_INT, parser->lexer.previous.value);
 }
 
 // term -> factor '*' factor
 //       | factor '/' factor
 //       | factor
 //
-static AstNode *parse_parse_term(Parser *parser, AstNode *node, Prec prec) {
+static AstNode *parse_parse_term(Parser *parser, Prec prec) {
+  AstNode *factor = parse_parse_factor(parser, prec);
+  // BinOpNode
+  // if (parse_accept(parser, TK_MUL) || parse_accept(parser, TK_DIV)) {
+  //   AstFactor = parse_parse_factor(parser,
+  //   Token tok = parser->lexer.current
+  // }
+
   // AstNode factor = parse_parse_factor(parser, node,j
   // Token tok = lex_next_token(&parser->lexer);
 
-  // parse_expect(parser, TK_INT);
+  // parse_consume(parser, TK_INT);
   // if (tok.type != TK_INT)
   //   parse_error("error - expected a %s, got %s at line %d, column %d\n",
   //               parser->lexer.token_table[TK_INT][0],
   //               parser->lexer.token_table[tok.type][0], tok.line, tok.col);
 
-  return parse_parse_factor(parser, node, prec);
+  return factor;
 }
 
 // expr -> term '+' expr
 //       | term '-' expr
 //       | term
 //
-static AstNode *parse_parse_expr(Parser *parser, AstNode *node, Prec prec) {
-  // Token tok = parser->lexer.current;
+static AstNode *parse_parse_expr(Parser *parser, Prec prec) {
+  AstNode *term = parse_parse_term(parser, prec);
 
-  // if (tok.type != TK_PLUS &&)
-  //   return node;
+  if (parse_accept(parser, TK_PLUS) || parse_accept(parser, TK_MIN)) {
+    Token op = parser->lexer.previous;
 
-  // AstNode *expr = parse_parse_expr(parser, node, PREC_TOP);
+    AstNode *right = parse_parse_term(parser, prec);
 
-  // parse_expect(parser, TK_SEMI);
-  // parse_expect(parser, TK_EOF);
+    AstNode *bin = malloc(sizeof(AstNode));
+    bin->type    = op.type == TK_PLUS ? NODE_BINOP_PLUS : NODE_BINOP_MIN;
+    bin->left    = term;
+    bin->right   = right;
+    return bin;
+  }
 
-  return parse_parse_term(parser, node, prec);
+  return term;
 }
 
 // root -> expr ';'
 //       | 'if' '(' expr ')'
 //
-static AstNode *parse_parse_root(Parser *parser, AstNode *node) {
-  Token tok = parser->lexer.current;
+static AstNode *parse_parse_root(Parser *parser) {
+  AstNode *expr = parse_parse_expr(parser, PREC_TOP);
 
-  if (tok.type == TK_SEMI)
-    return node;
-
-  AstNode *expr = parse_parse_expr(parser, node, PREC_TOP);
-
-  parse_expect(parser, TK_SEMI);
-  parse_expect(parser, TK_EOF);
+  parse_consume(parser, TK_SEMI);
+  parse_consume(parser, TK_EOF);
 
   return expr;
 }
 
-AstNode *parse_parse(Parser *parser, AstNode *node) {
-  return parse_parse_root(parser, node);
+AstNode *parse_parse(Parser *parser) {
+  lex_next_token(&parser->lexer);
+  return parse_parse_root(parser);
 }
 
 // AstBinOp#accept(AstBinOp *self, Visitor *visitor)
