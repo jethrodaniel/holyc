@@ -15,7 +15,13 @@ Parser *parse_new(Parser *parser, char *input, int size) {
   lex_new(&parser->lexer, input, size);
 
   NodeNameTable node_name_table = {
-      "UNINITIALIZED", "INT", "+", "-", "*", "/",
+      "UNINITIALIZED", //
+      "INT",           //
+      "+",             //
+      "-",             //
+      "*",             //
+      "/",             //
+      "EXPR",          // (comments here needed to force formatting)
   };
 
   for (int i = 0; i < (sizeof(node_name_table) / sizeof(char *)); i++)
@@ -27,22 +33,31 @@ Parser *parse_new(Parser *parser, char *input, int size) {
 void _parse_print_node(Parser *parser, AstNode *node, int indent) {
   char *node_name = parser->node_name_table[node->type];
 
+  char *indention = malloc(sizeof(char) * (indent + 1));
   for (int i = 0; i < indent; i++)
-    putc(' ');
+    indention[i] = ' ';
+  indention[indent] = '\0';
 
   switch (node->type) {
   case NODE_UNINITIALIZED:
     break;
   case NODE_INT:
-    printf("(%s, %d)\n", node_name, node->value);
+    printf("%s(%s, %d)", indention, node_name, node->value);
     break;
   case NODE_BINOP_PLUS:
   case NODE_BINOP_MIN:
   case NODE_BINOP_MUL:
   case NODE_BINOP_DIV:
-    printf("(%s,\n", node_name);
+    printf("%s(%s,\n", indention, node_name);
     _parse_print_node(parser, node->left, indent + 2);
+    printf("\n");
     _parse_print_node(parser, node->right, indent + 2);
+    printf(")");
+    break;
+  case NODE_EXPR:
+    printf("%s(%s,\n", indention, node_name);
+    _parse_print_node(parser, node->expr_value, indent + 2);
+    printf(")\n");
     break;
   default: {
   }
@@ -160,7 +175,11 @@ static AstNode *parse_parse_root(Parser *parser) {
   while (parse_accept(parser, TK_SEMI))
     ;
 
-  AstNode *expr = parse_parse_expr(parser, PREC_TOP);
+  AstNode *_expr = parse_parse_expr(parser, PREC_TOP);
+
+  AstNode *expr    = malloc(sizeof(AstNode));
+  expr->type       = NODE_EXPR;
+  expr->expr_value = _expr;
 
   parse_consume(parser, TK_SEMI);
   parse_consume(parser, TK_EOF);
