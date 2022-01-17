@@ -25,7 +25,13 @@ int main(int argc, char **argv) {
   parse("1 + 2;");
   parse("1 - 2;");
   parse("1 + 2 - 3;");
-  parse(";");
+  parse("3 * 4;");
+  parse("3 / 4;");
+  parse("3 / 4 * 5;");
+  parse("1 + 2 * 3;");
+  parse("(1 + 2) * 3;");
+  parse("(1+3-1)*(2*3/2)-7;");
+  // parse(";");
 
   return 0;
 }

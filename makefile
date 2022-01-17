@@ -109,7 +109,7 @@ $(TEST_EXE): test/main.c $(LIBC) $(LIBTESTING) $(filter-out src/main.o, $(OBJS))
 ctest: $(TEST_EXE)
 	./$<
 
-test: test/bin/lex FORCE
+test: test/bin/lex test/bin/parse FORCE
 	sh test/main.sh
 FORCE:
 

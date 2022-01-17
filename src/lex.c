@@ -79,6 +79,9 @@ Token lex_make_token(Lexer *lex, TokenType type, char *start, int size,
 }
 
 Token lex_next_token(Lexer *lex) {
+  if (lex->current.type == TK_EOF)
+    return lex->current;
+
   char *c     = lex->input.curr;
   char *start = c;
   int   n;
