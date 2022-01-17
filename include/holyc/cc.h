@@ -31,12 +31,9 @@ typedef struct CompilerOpts {
 typedef struct CC {
   CompilerOpts *opts;
   MainArgs      main_args;
-  Buffer        input;
   Buffer        code;
   Parser        parser;
 } CC;
-
-void debug(CC *cc);
 
 void error(char *fmt, ...);
 

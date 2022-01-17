@@ -153,8 +153,8 @@ static AstNode *parse_parse_expr(Parser *parser, Prec prec) {
   return term;
 }
 
-// root -> expr ';'
-//       | 'if' '(' expr ')'
+// root -> { ';' } expr ';'
+//       #| 'if' '(' expr ')'
 //
 static AstNode *parse_parse_root(Parser *parser) {
   while (parse_accept(parser, TK_SEMI))

@@ -31,16 +31,11 @@
 
 #define INPUT_SIZE 4096
 
-// Read code from stdin, options from argv, output asm or binary to
-// stdout.
-//
 int main(int argc, char **argv, char **envp) {
   CC *cc = cc_init(argc, argv, envp, INPUT_SIZE);
 
   if (cc_read(cc, STDIN_FILENO, INPUT_SIZE) < 0)
     die("cc_read");
-
-  // warnf("read %d bytes\n", cc->input.size);
 
   _root(cc);
   emit_start(cc);

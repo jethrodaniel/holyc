@@ -4,15 +4,6 @@
 #include <holyc/cc.h>
 #include <holyc/lex.h>
 
-void debug(CC *cc) {
-  warnf("\n=== cc ===\n");
-  warnf("\tinput_buf: %s (%d)\n", cc->input.start, cc->input.start);
-  warnf("\tinput_size: %d\n", cc->input.size);
-  warnf("\tcode: %d\n", cc->code.curr);
-  warnf("\ttoken: %d | ", cc->parser.lexer.current.type);
-  warnf("==========\n");
-}
-
 // Print to stderr and exit.
 //
 void error(char *fmt, ...) {
