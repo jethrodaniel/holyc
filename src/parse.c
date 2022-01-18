@@ -72,15 +72,6 @@ static bool parse_match(Parser *parser, TokenType type) {
   return parser->lexer.current.type == type;
 }
 
-// static bool parse_accept(Parser *parser, TokenType types[]) {
-//   for (int i = 0; i < sizeof(types) / sizeof(TokenType); i++)
-//     if (parser->lexer.current.type == types[i]) {
-//       lex_next_token(&parser->lexer);
-//       return parser->lexer.previous;
-//     }
-//   return false;
-// }
-
 static bool parse_accept(Parser *parser, TokenType type) {
   if (parse_match(parser, type)) {
     lex_next_token(&parser->lexer);
@@ -225,8 +216,8 @@ void expect(CC *cc, TokenType t) {
 //       | 'if' '(' expr ')'
 //
 void _root(CC *cc) {
-  if (cc->opts->debug & DEBUG_PARSE)
-    warnf("[parser] %s()\n", __func__);
+  // if (cc->opts->debug & DEBUG_PARSE)
+  //   warnf("[parser] %s()\n", __func__);
 
   emit_main_label(cc);
 
@@ -242,8 +233,8 @@ void _root(CC *cc) {
 //       | term
 //
 void _expr(CC *cc, Prec prec) {
-  if (cc->opts->debug & DEBUG_PARSE)
-    warnf("[parser] %s(%d)\n", __func__, prec);
+  // if (cc->opts->debug & DEBUG_PARSE)
+  //   warnf("[parser] %s(%d)\n", __func__, prec);
 
   Token tok;
 
@@ -277,8 +268,8 @@ void _expr(CC *cc, Prec prec) {
 //       | factor
 //
 void _term(CC *cc, Prec prec) {
-  if (cc->opts->debug & DEBUG_PARSE)
-    warnf("[parser] %s(%d)\n", __func__, prec);
+  // if (cc->opts->debug & DEBUG_PARSE)
+  //   warnf("[parser] %s(%d)\n", __func__, prec);
 
   _factor(cc, prec);
 
@@ -323,8 +314,8 @@ void _term(CC *cc, Prec prec) {
 //         #| var
 //
 void _factor(CC *cc, Prec prec) {
-  if (cc->opts->debug & DEBUG_PARSE)
-    warnf("[parser] %s(%d)\n", __func__, prec);
+  // if (cc->opts->debug & DEBUG_PARSE)
+  //   warnf("[parser] %s(%d)\n", __func__, prec);
 
   Token tok = lex_next_token(&cc->parser.lexer);
 

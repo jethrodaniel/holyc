@@ -8,8 +8,8 @@
 // r9:  varg4
 //
 void log(CC *cc, char *fmt, ...) {
-  if (!(cc->opts->debug & DEBUG_OBJ))
-    return;
+  // if (!(cc->opts->debug & DEBUG_OBJ))
+  //   return;
 
   __asm__("mov %rsi, %rdi"); // mv fmt to arg1
   __asm__("mov %rdx, %rsi"); // mv varg1 to arg2

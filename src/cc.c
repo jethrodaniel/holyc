@@ -11,28 +11,6 @@ void error(char *fmt, ...) {
   exit(1);
 }
 
-static void parse_options(CC *cc) {
-  for (int i = 0; i < cc->main_args.argc; i++) {
-    char *arg = cc->main_args.argv[i];
-
-    if (*arg != '-')
-      continue;
-
-    if (strcmp(arg, "-S") == 0)
-      cc->opts->output_asm = true;
-    else if (strcmp(arg, "--debug-obj") == 0)
-      cc->opts->debug |= DEBUG_OBJ;
-    else if (strcmp(arg, "--debug-parser") == 0)
-      cc->opts->debug |= DEBUG_PARSE;
-    else if (strcmp(arg, "--debug-lexer") == 0)
-      cc->opts->debug |= DEBUG_LEX;
-    else {
-      warnf("unknown option '%s'\n", arg);
-      exit(1);
-    }
-  }
-}
-
 CC *cc_init(int argc, char **argv, char **envp, int input_size) {
   CC *cc             = malloc(sizeof(CC));
   cc->main_args.argc = argc;
@@ -40,11 +18,6 @@ CC *cc_init(int argc, char **argv, char **envp, int input_size) {
   cc->main_args.envp = envp;
   cc->code.start     = malloc(sizeof(char) * input_size);
   cc->code.curr      = cc->code.start;
-
-  CompilerOpts *opts = malloc(sizeof(CompilerOpts));
-  cc->opts           = opts;
-
-  parse_options(cc);
 
   char *input = malloc(sizeof(char) * input_size);
   parse_new(&cc->parser, input, input_size);

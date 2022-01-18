@@ -101,7 +101,9 @@ test/bin/lex: test/lex.o src/lex.o $(LIBC) | test/bin
 test/bin/parse: test/parse.o $(filter-out src/main.o, $(OBJS)) $(LIBC) | test/bin
 	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $^ -o $@
 	./$@
-
+test/bin/asm: test/asm.o $(filter-out src/main.o, $(OBJS)) $(LIBC) | test/bin
+	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $^ -o $@
+	./$@
 
 $(TEST_EXE): test/main.c $(LIBC) $(LIBTESTING) $(filter-out src/main.o, $(OBJS))
 	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $(LIBTESTING_FLAGS) $^ -o $@

@@ -5,7 +5,7 @@ it_lexes() {
   input="$1"
   expected="$2"
   printf "[lex] \"$input\""
-  printf "$input" | ./holyc --debug-lexer >/dev/null 2>actual.out
+  printf "$input" | ./holyc lex >/dev/null 2>actual.out
   echo "$expected" > expected.out
 
   diff --text expected.out actual.out
@@ -19,12 +19,13 @@ it_lexes() {
     rm actual.out expected.out
   fi
 }
+
 assert() {
   expected="$1"
   input="$2"
 
   echo "$input => $expected"
-  printf "$input" | ./holyc --debug-parser --debug-lexer 2>err.out > a.out && chmod u+x a.out
+  printf "$input" | ./holyc compile 2>err.out > a.out && chmod u+x a.out
   if [ $? -ne 0 ]; then
     echo '-- error --'
     cat err.out
@@ -45,7 +46,7 @@ assert_error() {
   expected="$1"
   input="$2"
 
-  printf "$input" | ./holyc 2>err.out >a.out
+  printf "$input" | ./holyc compile 2>err.out >a.out
 
   echo "$expected" > expected.out
 
