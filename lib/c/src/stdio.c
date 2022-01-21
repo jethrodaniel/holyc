@@ -67,7 +67,7 @@ void dprintf(int fd, char *fmt, ...) {
 
   int64_t vargs[] = {varg1, varg2, varg3, varg4};
 
-  char *c = fmt;
+  char *c    = fmt;
   int   vars = 0, current = 0;
 
   while (*c)
@@ -92,32 +92,28 @@ void dprintf(int fd, char *fmt, ...) {
     }
 
     switch (*++c) { // eat '%'
-    case 'c':
-    case 'd':
-    case 'i':
-    case 'f':
     case 's':
-      if (*c == 's') {
-        if (fd == 1)
-          print((char *)vargs[current++]);
-        if (fd == 2)
-          warn((char *)vargs[current++]);
-      }
-
-      if (*c == 'd' || *c == 'i') {
-        if (fd == 1)
-          _printf_print_itoa((int)vargs[current++]);
-        if (fd == 2)
-          _warnf_print_itoa((int)vargs[current++]);
-      }
-      if (*c == 'c') {
-        if (fd == 1)
-          putc((char)vargs[current++]);
-        if (fd == 2)
-          warnc((char)vargs[current++]);
-      }
+      if (fd == 1)
+        print((char *)vargs[current++]);
+      if (fd == 2)
+        warn((char *)vargs[current++]);
+      break;
+    case 'f':
       if (*c == 'f')
         die("unsupported printf format '%f'");
+      break;
+    case 'd':
+    case 'i':
+      if (fd == 1)
+        _printf_print_itoa((int)vargs[current++]);
+      if (fd == 2)
+        _warnf_print_itoa((int)vargs[current++]);
+      break;
+    case 'c':
+      if (fd == 1)
+        putc((char)vargs[current++]);
+      if (fd == 2)
+        warnc((char)vargs[current++]);
 
       break;
     default:
