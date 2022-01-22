@@ -22,6 +22,29 @@ static void emit_pop_rax() {
   // *cc->code.curr++ = 0x58; // POP RAX
 }
 
+// POP RDI
+//
+static void emit_pop_rdi() {
+  printf("POP RDI\n");
+  // *cc->code.curr++ = 0x5F; // POP RDI
+}
+
+static void emit_add_rax_rdi() {
+  printf("ADD RAX, RDI\n");
+
+  // *cc->code.curr++ = 0x48; // REX
+  // *cc->code.curr++ = 0x01; // ADD RAX,reg
+  // *cc->code.curr++ = 0xF8; //  RDI
+}
+
+static void emit_sub_rax_rdi() {
+  printf("SUB RAX, RDI\n");
+
+  // *cc->code.curr++ = 0x48; // REX
+  // *cc->code.curr++ = 0x29; // SUB RAX,reg
+  // *cc->code.curr++ = 0xF8; //  RDI
+}
+
 // main:
 //
 static void emit_main_label() {
@@ -34,17 +57,35 @@ static void emit_main_label() {
 //   return cc;
 // }
 
+static void compiler_visit(AstNode *node);
+
 static void compiler_visit_int(AstNode *node) {
-  printf("int: %d\n", node->value);
+  // printf("int: %d\n", node->value);
   return emit_push(node->value);
 }
 
 static void compiler_visit_binop(AstNode *node) {
-  printf("binop\n");
+  // printf("binop\n");
 
+  compiler_visit(node->left);
+  compiler_visit(node->right);
+  emit_pop_rdi();
+  emit_pop_rax();
+
+  // return compiler_visit(node->expr_value);
   switch (node->type) {
+    // // push left
+    // // push right
+    // compiler_visit(node->left);
+    // compiler_visit(node->right);
+    // // pop rdi
+    // // pop rdx
+    // // add rax, rdi
+    //
   case NODE_BINOP_PLUS:
+    return emit_add_rax_rdi();
   case NODE_BINOP_MIN:
+    return emit_sub_rax_rdi();
   case NODE_BINOP_MUL:
   case NODE_BINOP_DIV:
   default:
@@ -54,20 +95,8 @@ static void compiler_visit_binop(AstNode *node) {
 }
 
 static void compiler_visit_expr(AstNode *node) {
-  printf("expr\n");
-
-  switch (node->expr_value->type) {
-  case NODE_INT:
-    return compiler_visit_int(node->expr_value);
-  case NODE_BINOP_PLUS:
-  case NODE_BINOP_MIN:
-  case NODE_BINOP_MUL:
-  case NODE_BINOP_DIV:
-    return compiler_visit_binop(node->expr_value);
-  default:
-    warnf("%s: unknown node type %d\n", __func__, node->type);
-    exit(1);
-  }
+  // printf("expr\n");
+  return compiler_visit(node->expr_value);
 }
 
 static void compiler_visit(AstNode *node) {
@@ -78,6 +107,11 @@ static void compiler_visit(AstNode *node) {
     return emit_pop_rax();
   case NODE_INT:
     return compiler_visit_int(node);
+  case NODE_BINOP_PLUS:
+  case NODE_BINOP_MIN:
+  case NODE_BINOP_MUL:
+  case NODE_BINOP_DIV:
+    return compiler_visit_binop(node);
   default:
     warnf("unknown node type %d\n", node->type);
     exit(1);
@@ -85,10 +119,9 @@ static void compiler_visit(AstNode *node) {
 }
 
 Compilation *compiler_compile(AstNode *node) {
-  Compilation *cc = malloc(sizeof(Compilation));
+  Compilation *code = malloc(sizeof(Compilation));
 
   compiler_visit(node);
 
-  printf("COMPILE\n");
-  return cc;
+  return code;
 }

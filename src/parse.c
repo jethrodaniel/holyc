@@ -102,6 +102,8 @@ static AstNode *parse_parse_expr(Parser *parser, Prec prec);
 //         #| var
 //
 static AstNode *parse_parse_factor(Parser *parser, Prec prec) {
+  printf("%s\n", __func__);
+
   if (parse_accept(parser, TK_LPAREN)) {
     AstNode *expr = parse_parse_expr(parser, PREC_PAREN);
     parse_consume(parser, TK_RPAREN);
@@ -120,12 +122,20 @@ static AstNode *parse_parse_factor(Parser *parser, Prec prec) {
 //       | factor
 //
 static AstNode *parse_parse_term(Parser *parser, Prec prec) {
+  printf("%s\n", __func__);
+
   AstNode *factor = parse_parse_factor(parser, prec);
 
-  if (parse_accept(parser, TK_MUL) || parse_accept(parser, TK_DIV)) {
+  bool is_mul_or_div =
+      parse_accept(parser, TK_MUL) || parse_accept(parser, TK_DIV);
+
+  printf("is_mul_or_div: %d\n", is_mul_or_div);
+  printf("prec > PREC_MUL: %d\n", prec > PREC_MUL);
+
+  if (is_mul_or_div && prec > PREC_MUL) {
     Token op = parser->lexer.previous;
 
-    AstNode *right = parse_parse_expr(parser, prec);
+    AstNode *right = parse_parse_expr(parser, PREC_MUL);
 
     AstNode *bin = malloc(sizeof(AstNode));
     bin->type    = op.type == TK_MUL ? NODE_BINOP_MUL : NODE_BINOP_DIV;
@@ -142,12 +152,21 @@ static AstNode *parse_parse_term(Parser *parser, Prec prec) {
 //       | term
 //
 static AstNode *parse_parse_expr(Parser *parser, Prec prec) {
+  printf("%s\n", __func__);
+
   AstNode *term = parse_parse_term(parser, prec);
 
-  if (parse_accept(parser, TK_PLUS) || parse_accept(parser, TK_MIN)) {
+  bool is_plus_or_min =
+      parse_accept(parser, TK_PLUS) || parse_accept(parser, TK_MIN);
+
+  printf("is_plus_or_min: %d\n", is_plus_or_min);
+  printf("prec > PREC_ADD: %d\n", prec > PREC_ADD);
+
+  if (is_plus_or_min && prec > PREC_ADD) {
+    printf("sfdasf\n");
     Token op = parser->lexer.previous;
 
-    AstNode *right = parse_parse_expr(parser, prec);
+    AstNode *right = parse_parse_expr(parser, PREC_ADD);
 
     AstNode *bin = malloc(sizeof(AstNode));
     bin->type    = op.type == TK_PLUS ? NODE_BINOP_PLUS : NODE_BINOP_MIN;
@@ -163,6 +182,8 @@ static AstNode *parse_parse_expr(Parser *parser, Prec prec) {
 //       #| 'if' '(' expr ')'
 //
 static AstNode *parse_parse_root(Parser *parser) {
+  printf("%s\n", __func__);
+
   while (parse_accept(parser, TK_SEMI))
     ;
 
@@ -172,6 +193,7 @@ static AstNode *parse_parse_root(Parser *parser) {
   expr->type       = NODE_EXPR;
   expr->expr_value = _expr;
 
+  printf("shit\n");
   parse_consume(parser, TK_SEMI);
   parse_consume(parser, TK_EOF);
 
@@ -179,6 +201,8 @@ static AstNode *parse_parse_root(Parser *parser) {
 }
 
 AstNode *parse_parse(Parser *parser) {
+  printf("%s\n", __func__);
+
   lex_next_token(&parser->lexer);
   return parse_parse_root(parser);
 }

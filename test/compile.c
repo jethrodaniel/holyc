@@ -25,8 +25,8 @@ int main(int argc, char **argv) {
 
   compile("42;");
   compile("1 + 2;");
-  // compile("1 - 2;");
-  // compile("1 + 2 - 3;");
+  compile("1 - 2;");
+  compile("1 + 2 - 3;");
   // compile("3 * 4;");
   // compile("3 / 4;");
   // compile("3 / 4 * 5;");
