@@ -68,21 +68,15 @@ CFLAGS += -I . -I lib/c/include -I include
 
 #--
 
-default: clean $(PROG) test ctest
+default: test
 
 SRCS       := $(wildcard src/*.c)
 OBJS       := $(SRCS:.c=.o)
 LIBC       := lib/c/libc.a
 LIBC_FLAGS := -Llib/c -lc
 
-LIBTESTING       := lib/testing/libtesting.a
-LIBTESTING_FLAGS := -I lib/testing/include -Llib/testing -ltesting
-TEST_EXE         := ctest.out
-
 $(LIBC):
 	$(MAKE) -C lib/c
-$(LIBTESTING):
-	$(MAKE) -C lib/testing
 
 $(PROG): $(OBJS) | $(LIBC)
 	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $^ $(LIBC) -o $(PROG)
@@ -90,7 +84,6 @@ $(PROG): $(OBJS) | $(LIBC)
 clean:
 	rm -f $(OBJS) $(PROG) *.out test/*.o $(TEST_MAIN)
 	$(MAKE) -C lib/c clean
-	$(MAKE) -C lib/testing clean
 
 #--
 test/bin:
@@ -105,13 +98,7 @@ test/bin/asm: test/asm.o $(filter-out src/main.o, $(OBJS)) $(LIBC) | test/bin
 	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $^ -o $@
 	./$@
 
-$(TEST_EXE): test/main.c $(LIBC) $(LIBTESTING) $(filter-out src/main.o, $(OBJS))
-	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $(LIBTESTING_FLAGS) $^ -o $@
-
-ctest: $(TEST_EXE)
-	./$<
-
-test: test/bin/lex test/bin/parse FORCE
+test: test/bin/lex test/bin/parse $(PROG) FORCE
 	sh test/main.sh
 FORCE:
 

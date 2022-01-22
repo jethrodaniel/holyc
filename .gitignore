@@ -1,4 +1,3 @@
-holyc
-**/*.o
+*.o
 *.a
 test/bin/
