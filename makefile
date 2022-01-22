@@ -68,7 +68,7 @@ CFLAGS += -I . -I lib/c/include -I include
 
 #--
 
-default: test
+default: clean test
 
 SRCS       := $(wildcard src/*.c)
 OBJS       := $(SRCS:.c=.o)
@@ -94,11 +94,11 @@ test/bin/lex: test/lex.o src/lex.o $(LIBC) | test/bin
 test/bin/parse: test/parse.o $(filter-out src/main.o, $(OBJS)) $(LIBC) | test/bin
 	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $^ -o $@
 	./$@
-test/bin/asm: test/asm.o $(filter-out src/main.o, $(OBJS)) $(LIBC) | test/bin
+test/bin/compile: test/compile.o $(filter-out src/main.o, $(OBJS)) $(LIBC) | test/bin
 	$(CC) -e _start $(CFLAGS) $(LIBC_FLAGS) $^ -o $@
 	./$@
 
-test: test/bin/lex test/bin/parse $(PROG) FORCE
+test: test/bin/lex test/bin/parse test/bin/compile $(PROG) FORCE
 	sh test/main.sh
 FORCE:
 

@@ -9,7 +9,7 @@ typedef struct Parser {
   Lexer         lexer;
 } Parser;
 
-Parser  *parse_new(Parser *parser, char *input, int size);
+ Parser  *parse_new(Parser *parser, char *input, int size);
 AstNode *parse_parse(Parser *parser);
 void     parse_print_node(Parser *parser, AstNode *node);
 
