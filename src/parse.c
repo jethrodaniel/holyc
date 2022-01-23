@@ -132,7 +132,7 @@ static AstNode *parse_parse_term(Parser *parser, Prec prec) {
   printf("is_mul_or_div: %d\n", is_mul_or_div);
   printf("prec > PREC_MUL: %d\n", prec > PREC_MUL);
 
-  if (is_mul_or_div && prec > PREC_MUL) {
+  if (is_mul_or_div && prec >= PREC_MUL) {
     Token op = parser->lexer.previous;
 
     AstNode *right = parse_parse_expr(parser, PREC_MUL);
@@ -164,14 +164,43 @@ static AstNode *parse_parse_expr(Parser *parser, Prec prec) {
 
   if (is_plus_or_min && prec > PREC_ADD) {
     printf("sfdasf\n");
-    Token op = parser->lexer.previous;
 
-    AstNode *right = parse_parse_expr(parser, PREC_ADD);
+    Token op = parser->lexer.previous;
 
     AstNode *bin = malloc(sizeof(AstNode));
     bin->type    = op.type == TK_PLUS ? NODE_BINOP_PLUS : NODE_BINOP_MIN;
     bin->left    = term;
-    bin->right   = right;
+    bin->right   = parse_parse_expr(parser, PREC_ADD);
+
+    // while (op.type == TK_PLUS || op.type == TK_MIN) {
+    //   op         = parser->lexer.previous;
+    // }
+    // 1+2*3-4
+    //
+    // (+
+    //   1
+    //   (*
+    //     2
+    //     3))
+    // (+
+    //   1
+    //   (-
+    //     (*
+    //       2
+    //       3)
+    //      4))
+    //
+    // op = parser->lexer.previous;
+
+    // while (op.type == TK_PLUS || op.type == TK_MIN) {
+    //   AstNode *_bin = malloc(sizeof(AstNode));
+    //   _bin->type    = op.type == TK_PLUS ? NODE_BINOP_PLUS : NODE_BINOP_MIN;
+    //   _bin->left    = bin;
+    //   _bin->right   = parse_parse_expr(parser, PREC_ADD);
+
+    //   return _bin;
+    // }
+
     return bin;
   }
 

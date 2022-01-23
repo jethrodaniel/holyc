@@ -25,6 +25,7 @@
 
 #include <holyc/cc.h>
 #include <holyc/codegen.h>
+#include <holyc/compile.h>
 #include <holyc/lex.h>
 #include <holyc/obj.h>
 #include <holyc/parse.h>
@@ -37,6 +38,7 @@ int main(int argc, char **argv, char **envp) {
       "Command:\n"
       "  lex                     print tokens\n"
       "  parse                   print AST\n"
+      "  asm                     print assembly\n"
       "  cc, compile             print executable\n"
       "  help, --help, -h        show this help\n"
       "  version, --version, -v  show version\n"
@@ -45,7 +47,7 @@ int main(int argc, char **argv, char **envp) {
       "  while true; do holyc parse; done\n"
       "  printf '1+2*(5-1)' | holyc cc > a.out && chmod u+x a.out\n\n";
 
-  bool lex, parse, compile, help;
+  bool lex, parse, compile, help, _asm;
 
   if (argc == 1)
     help = true;
@@ -59,6 +61,8 @@ int main(int argc, char **argv, char **envp) {
       parse = true;
     else if (strcmp(arg, "compile") == 0 || strcmp(arg, "cc") == 0)
       compile = true;
+    else if (strcmp(arg, "asm") == 0)
+      _asm = true;
     else if (strcmp(arg, "help") == 0 || strcmp(arg, "--help") == 0 ||
              strcmp(arg, "-h") == 0)
       help = true;
@@ -94,6 +98,9 @@ int main(int argc, char **argv, char **envp) {
   } else if (parse) {
     AstNode *node = parse_parse(&cc->parser);
     parse_print_node(&cc->parser, node);
+  } else if (_asm) {
+    AstNode *node = parse_parse(&cc->parser);
+    compiler_compile(node);
   } else if (compile) {
     _root(cc);
     emit_start(cc);

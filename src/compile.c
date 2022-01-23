@@ -15,6 +15,13 @@ static void emit_push(int imm) {
   // cc->code.curr += 4;
 }
 
+// PUSH RAX
+//
+static void emit_push_rax() {
+  printf("PUSH RAX\n");
+  // *cc->code.curr++ = 0x50; // PUSH RAX
+}
+
 // POP RAX
 //
 static void emit_pop_rax() {
@@ -74,24 +81,20 @@ static void compiler_visit_binop(AstNode *node) {
 
   // return compiler_visit(node->expr_value);
   switch (node->type) {
-    // // push left
-    // // push right
-    // compiler_visit(node->left);
-    // compiler_visit(node->right);
-    // // pop rdi
-    // // pop rdx
-    // // add rax, rdi
-    //
   case NODE_BINOP_PLUS:
-    return emit_add_rax_rdi();
+    emit_add_rax_rdi();
+    break;
   case NODE_BINOP_MIN:
-    return emit_sub_rax_rdi();
+    emit_sub_rax_rdi();
+    break;
   case NODE_BINOP_MUL:
   case NODE_BINOP_DIV:
   default:
     warnf("%s: unknown node type %d\n", __func__, node->type);
     exit(1);
   }
+
+  emit_push_rax();
 }
 
 static void compiler_visit_expr(AstNode *node) {
