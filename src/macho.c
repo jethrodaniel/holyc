@@ -119,6 +119,8 @@ void write_macho(CC *cc) {
   int64_t offset = 0;
   size           = 0;
 
+  (void)offset; // TODO: why is this needed?
+
   // log(cc, "--> Outputing Mach-O executable\n", offset);
 
   // log(cc, "\tmach_header_64: %i\n", offset);
